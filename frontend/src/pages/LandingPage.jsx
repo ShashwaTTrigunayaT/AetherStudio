@@ -16,18 +16,18 @@ import LandingFooter from '../components/Landing/LandingFooter';
 // ═══════════════════════════════════════════════════════════════
 
 const CODE_SNIPPETS = [
-  { text: 'npm create devnexus', color: '#30d158' },
+  { text: 'npm create aetherstudio', color: '#30d158' },
   { text: 'git push origin main', color: '#b89450' },
   { text: 'const App = () => {}', color: '#ff9f0a' },
   { text: '<CollaborativeEditor />', color: '#a07840' },
   { text: 'console.log("hello")', color: '#d4bc80' },
   { text: '$ docker compose up', color: '#30d158' },
   { text: 'import { sync } from', color: '#b89450' },
-  { text: 'export default nexus', color: '#ff9f0a' },
+  { text: 'export default aether', color: '#ff9f0a' },
   { text: 'async function deploy', color: '#a07840' },
-  { text: 'npx devnexus init', color: '#d4bc80' },
+  { text: 'npx aetherstudio init', color: '#d4bc80' },
   { text: 'try { await code }', color: '#ff453a' },
-  { text: 'class NexusEngine', color: '#30d158' },
+  { text: 'class AetherEngine', color: '#30d158' },
   { text: 'socket.emit("code")', color: '#b89450' },
   { text: 'yjs.connect(room)', color: '#a07840' },
   { text: 'useSync() => effect', color: '#ff9f0a' },
@@ -93,8 +93,8 @@ const STATS = [
 
 const CODE_PREVIEW_LINES = [
   { content: 'import React, { useState } from "react";', color: '#6c7086' },
-  { content: 'import { CollaborativeEditor } from "@devnexus/core";', color: '#6c7086' },
-  { content: 'import { useSync } from "@devnexus/realtime";', color: '#6c7086' },
+  { content: 'import { CollaborativeEditor } from "@aetherstudio/core";', color: '#6c7086' },
+  { content: 'import { useSync } from "@aetherstudio/realtime";', color: '#6c7086' },
   { content: '', color: '#6c7086' },
   { content: 'function App() {', color: '#f5f5f7' },
   { content: '  const [code, setCode] = useState(`Hello World`);', color: '#f5f5f7' },
@@ -593,7 +593,7 @@ export default function LandingPage() {
                   >
                     <Terminal size={13} style={{ color: 'rgba(184,148,80,0.5)' }} />
                     <span className="opacity-40">$</span>
-                    <TypewriterText texts={['npm create devnexus@latest', 'git clone collab-ide', 'docker compose up --build', 'code . --sync', 'npx devnexus init']} />
+                    <TypewriterText texts={['npm create aetherstudio@latest', 'git clone collab-ide', 'docker compose up --build', 'code . --sync', 'npx aetherstudio init']} />
                   </div>
                 </motion.div>
 

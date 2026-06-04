@@ -132,7 +132,7 @@ function CodeOrb() {
 
 export default function NotFoundPage() {
   const [cmdText, setCmdText] = useState('');
-  const fullCmd = '➜  ~ curl -s https://devnexus.app/this-page\n';
+  const fullCmd = '➜  ~ curl -s https://aetherstudio.dev/this-page\n';
 
   useEffect(() => {
     let i = 0;

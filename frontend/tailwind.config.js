@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        nexus: {
+        aether: {
           bg: {
             primary: '#030303',
             secondary: '#070709',

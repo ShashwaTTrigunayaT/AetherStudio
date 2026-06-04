@@ -73,16 +73,16 @@ function GridOverlay({ className = '' }) {
 //  Floating Code Particles
 // ─────────────────────────────────────────────────────────
 const CODE_LINES = [
-  'npm create devnexus',
+  'npm create aetherstudio',
   'git push origin main',
   'const App = () => {}',
   '<CollaborativeUI />',
   'console.log("hello")',
   '$ docker compose up',
   'import { sync } from',
-  'export default nexus',
+  'export default aether',
   'async function deploy',
-  'npx devnexus init',
+  'npx aetherstudio init',
   'socket.emit("code")',
   'yjs.connect(room)',
 ];
@@ -357,7 +357,7 @@ export default function AuthBrandPanel({
           className="absolute bottom-10 text-[10px] font-mono"
           style={{ color: 'rgba(255,255,255,0.08)' }}
         >
-          <span style={{ color: 'rgba(184,148,80,0.2)' }}>▲</span> devnexus.com
+          <span style={{ color: 'rgba(184,148,80,0.2)' }}>▲</span> aetherstudio.dev
         </motion.p>
       </div>
     </div>
