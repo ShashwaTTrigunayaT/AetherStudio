@@ -1,25 +1,35 @@
 <div align="center">
   <br/>
   <pre>
-  ██████╗ ███████╗██╗   ██╗███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
-  ██╔══██╗██╔════╝██║   ██║████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
-  ██║  ██║█████╗  ██║   ██║██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
-  ██║  ██║██╔══╝  ╚██╗ ██╔╝██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
-  ██████╔╝███████╗ ╚████╔╝ ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
-  ╚═════╝ ╚══════╝  ╚═══╝  ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+  █████╗ ███████╗████████╗██╗  ██╗███████╗██████╗  ██████╗ ██████╗ ██████╗ ███████╗
+ ██╔══██╗██╔════╝╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝
+ ███████║█████╗     ██║   ███████║█████╗  ██████╔╝██║     ██║   ██║██║  ██║█████╗
+ ██╔══██║██╔══╝     ██║   ██╔══██║██╔══╝  ██╔══██╗██║     ██║   ██║██║  ██║██╔══╝
+ ██║  ██║███████╗   ██║   ██║  ██║███████╗██║  ██║╚██████╗╚██████╔╝██████╔╝███████╗
+ ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
   </pre>
   <h3 align="center">Production-ready Collaborative IDE</h3>
   <p align="center">
-    Real-time code synchronization · Interactive terminal · AI-powered assistance · Audio/Video collaboration
+    Real-time code synchronization · AI-powered assistance · Interactive terminal · Audio/Video collaboration
   </p>
   <br/>
+
+  <p align="center">
+    <img src="https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react" alt="React 18" />
+    <img src="https://img.shields.io/badge/Node.js-18.x-339933?style=flat-square&logo=node.js" alt="Node.js 18" />
+    <img src="https://img.shields.io/badge/MongoDB-6.0-47A248?style=flat-square&logo=mongodb" alt="MongoDB 6.0" />
+    <img src="https://img.shields.io/badge/Redis-7.0-DC382D?style=flat-square&logo=redis" alt="Redis 7.0" />
+    <img src="https://img.shields.io/badge/Docker-✓-2496ED?style=flat-square&logo=docker" alt="Docker" />
+    <img src="https://img.shields.io/badge/WebRTC-✓-333333?style=flat-square&logo=webrtc" alt="WebRTC" />
+    <img src="https://img.shields.io/badge/Yjs_CRDT-✓-000000?style=flat-square" alt="Yjs CRDT" />
+  </p>
 </div>
 
 ---
 
 ## ✨ Overview
 
-**AetherStudio** is a full-stack collaborative coding environment — think Replit × VS Code — built for real-time teamwork. It combines a **Monaco Editor**-powered IDE with **Yjs CRDT** conflict-free collaboration, **sandboxed code execution** via Docker, **AI assistance** through Google Gemini Pro, and **audio/video calls** via WebRTC — all wrapped in a premium cyberpunk neon interface.
+**AetherCode** is a full-stack collaborative coding environment — think Replit × VS Code — built for real-time teamwork. It combines a **Monaco Editor**-powered IDE with **Yjs CRDT** conflict-free collaboration, **sandboxed code execution** via Docker, **AI assistance** through Google Gemini Pro, and **audio/video calls** via WebRTC — all wrapped in a premium cyberpunk neon interface.
 
 ### 🎯 Key Capabilities
 
@@ -40,7 +50,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         AETHERSTUDIO ARCHITECTURE                      │
+│                         AETHERCODE ARCHITECTURE                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌──────────────┐     ┌──────────────────┐     ┌──────────────────┐ │
@@ -228,8 +238,8 @@ Disk → MongoDB (fileWatcherService.js):
 ### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/your-org/aetherstudio.git
-cd aetherstudio
+git clone https://github.com/ShashwaTTrigunayaT/AetherStudio.git
+cd AetherStudio
 
 # Copy environment file
 cp .env.example .env
@@ -305,7 +315,7 @@ bash scripts/startup.sh --no-docker
 | `SMTP_PORT` | `587` | SMTP port |
 | `SMTP_USER` | — | SMTP username |
 | `SMTP_PASS` | — | SMTP password |
-| `SMTP_FROM` | `"AetherStudio" <noreply@aetherstudio.app>` | Sender email address |
+| `SMTP_FROM` | `"AetherCode" <noreply@aethercode.app>` | Sender email address |
 | `FRONTEND_URL` | `http://localhost:5173` | Frontend URL (for emails & CORS) |
 | `PORT` | `5000` | Backend server port |
 | `HOST` | `0.0.0.0` | Backend server host |
@@ -340,7 +350,7 @@ bash scripts/startup.sh --no-docker
 
 ### Registration Validation Pipeline
 
-AetherStudio performs **3-layer email validation** during registration:
+AetherCode performs **3-layer email validation** during registration:
 
 1. **Format check** — Regex validation of email structure
 2. **Disposable domain check** — Blocks 1,000+ known temporary email domains
@@ -460,7 +470,7 @@ The `/verify-email` endpoint goes even further with an **SMTP handshake** — it
 
 ## 🎨 Design System
 
-AetherStudio features a premium cyberpunk neon design system built with CSS custom properties:
+AetherCode features a premium cyberpunk neon design system built with CSS custom properties:
 
 **Color Palette**
 - **Backgrounds:** Pure black (`#000000`) layered to dark indigo (`#1e1e2a`)
@@ -603,7 +613,6 @@ The slug is auto-generated: `"Hello World"` → `"hello-world"`, `"My API v2"` �
 | express-rate-limit | 6.x | Rate limiting |
 | express-mongo-sanitize | 2.x | NoSQL injection prevention |
 | compression | 1.x | Gzip compression |
-| y-websocket | 1.x | Yjs WebSocket provider |
 
 ---
 
@@ -614,7 +623,5 @@ MIT
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by the AetherStudio team</sub>
-  <br/>
-  <sub>Production-ready collaborative IDE for modern development teams</sub>
+  <sub>Built with ❤️ · Production-ready collaborative IDE for modern development teams</sub>
 </div>
