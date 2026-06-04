@@ -1,0 +1,23 @@
+{
+  "name": "aetherstudio",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "description": "Production-ready collaborative IDE with real-time code synchronization, interactive terminal execution, and AI-powered assistance",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w frontend",
+    "start": "npm run start -w backend",
+    "setup": "cd backend && npm install && cd ../frontend && npm install",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "format": "npm run format -w backend && npm run format -w frontend",
+    "docker": "docker-compose up",
+    "docker:build": "docker-compose build",
+    "docker:down": "docker-compose down",
+    "startup": "bash scripts/startup.sh",
+    "startup:quick": "bash scripts/startup.sh --no-docker"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

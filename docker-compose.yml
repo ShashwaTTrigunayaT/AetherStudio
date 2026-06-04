@@ -1,0 +1,57 @@
+
+
+services:
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: aetherstudio
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongodb:27017/aetherstudio
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./backend:/app
+      - .:/workspace
+      - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+      VITE_WS_URL: ws://localhost:5000
+
+volumes:
+  mongo_data:
+  redis_data:
