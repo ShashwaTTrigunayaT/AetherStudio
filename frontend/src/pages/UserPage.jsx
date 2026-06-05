@@ -19,7 +19,7 @@ function ParticleField({ count = 25 }) {
       delay: (i * 0.08) % 5,
       duration: 3 + (i % 6) * 0.8,
       drift: (i % 2 === 0 ? 20 : -20),
-      color: i % 3 === 0 ? '#b89450' : i % 3 === 1 ? '#a07840' : '#d4bc80',
+      color: i % 3 === 0 ? '#c8c8d0' : i % 3 === 1 ? '#b0b0bc' : '#dedee4',
     })), [count]);
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -39,11 +39,11 @@ function AmbientOrbs() {
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
       <motion.div animate={{ x: [0, 80, -40, 60, 0], y: [0, -60, 40, -50, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute top-[5%] left-[3%] w-[600px] h-[600px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(184,148,80,0.06), rgba(212,188,128,0.02), transparent)', filter: 'blur(120px)' }}
+        style={{ background: 'radial-gradient(circle, rgba(200,200,208,0.06), rgba(222,222,228,0.02), transparent)', filter: 'blur(120px)' }}
       />
       <motion.div animate={{ x: [0, -60, 70, -40, 0], y: [0, 50, -60, 40, 0] }} transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
         className="absolute bottom-[15%] right-[5%] w-[500px] h-[500px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(160,120,64,0.05), rgba(144,137,255,0.02), transparent)', filter: 'blur(100px)' }}
+        style={{ background: 'radial-gradient(circle, rgba(176,176,188,0.05), rgba(144,137,255,0.02), transparent)', filter: 'blur(100px)' }}
       />
       <motion.div animate={{ scale: [1, 1.25, 0.9, 1], opacity: [0.03, 0.07, 0.03, 0.03] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
         className="absolute top-[30%] right-[25%] w-[350px] h-[350px] rounded-full"
@@ -60,7 +60,7 @@ function GlassCard({ children, className = '', hover = true, ...props }) {
       className={'relative group overflow-hidden rounded-[14px] border ' + (hover ? 'transition-all duration-300' : '') + ' ' + className}
       style={{
         background: 'rgba(14,14,18,0.7)',
-        borderColor: 'rgba(184,148,80,0.2)',
+        borderColor: 'rgba(200,200,208,0.2)',
         boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
         backdropFilter: 'blur(16px) saturate(1.4)',
         WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
@@ -69,7 +69,7 @@ function GlassCard({ children, className = '', hover = true, ...props }) {
     >
       {hover && (
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, rgba(184,148,80,0.03) 0%, transparent 50%)' }}
+          style={{ background: 'linear-gradient(135deg, rgba(200,200,208,0.03) 0%, transparent 50%)' }}
         />
       )}
       {children}
@@ -167,7 +167,7 @@ export default function UserPage() {
                     <motion.div className="absolute -inset-1 rounded-full opacity-30"
                       animate={{ scale: [1, 1.08, 1], rotate: [0, 180, 360] }}
                       transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                      style={{ background: 'conic-gradient(from 0deg, #b89450, #d4bc80, #a07840, #b89450)', filter: 'blur(4px)' }}
+                      style={{ background: 'conic-gradient(from 0deg, #c8c8d0, #dedee4, #b0b0bc, #c8c8d0)', filter: 'blur(4px)' }}
                     />
                     <Avatar name={profile?.name} email={profile?.email} src={profile?.avatar} size="xxl" />
                   </motion.div>
@@ -178,7 +178,7 @@ export default function UserPage() {
 
                   <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.2, duration: 0.5 }}
                     className="w-16 h-[2px] mx-auto mt-2 mb-4 rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #b89450, #d4bc80, transparent)' }}
+                    style={{ background: 'linear-gradient(90deg, #c8c8d0, #dedee4, transparent)' }}
                   />
 
                   {profile?.bio && (
@@ -203,8 +203,8 @@ export default function UserPage() {
             >
               <GlassCard hover={false}>
                 <div className="flex items-center gap-4 p-5">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(184,148,80,0.12)' }}>
-                    <Folder size={18} style={{ color: '#b89450' }} />
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(200,200,208,0.12)' }}>
+                    <Folder size={18} style={{ color: '#c8c8d0' }} />
                   </div>
                   <div>
                     <p className="text-[22px] font-bold text-[#f5f5f7] leading-none">{profile?.workspaceCount || 0}</p>
@@ -215,8 +215,8 @@ export default function UserPage() {
 
               <GlassCard hover={false}>
                 <div className="flex items-center gap-4 p-5">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(212,188,128,0.12)' }}>
-                    <Calendar size={18} style={{ color: '#d4bc80' }} />
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(222,222,228,0.12)' }}>
+                    <Calendar size={18} style={{ color: '#dedee4' }} />
                   </div>
                   <div>
                     <p className="text-[16px] font-bold text-[#f5f5f7] leading-none">{memberDate}</p>

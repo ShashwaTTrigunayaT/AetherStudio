@@ -88,7 +88,7 @@ function AmbientGlow() {
       <motion.div
         className="absolute top-[15%] left-[20%] w-[300px] h-[300px] rounded-full"
         style={{
-          background: 'radial-gradient(circle, rgba(184,148,80,0.04) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(200,200,208,0.04) 0%, transparent 60%)',
           filter: 'blur(80px)',
         }}
         animate={{ scale: [1, 1.1, 0.95, 1], x: [0, 20, -10, 0], y: [0, -10, 15, 0] }}

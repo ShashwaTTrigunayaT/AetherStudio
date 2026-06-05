@@ -13,11 +13,11 @@ export default function ProgressBar({ value = 0, max = 100, size = 'md', variant
   };
 
   const colors = {
-    accent: 'bg-gradient-to-r from-[#b89450] to-[#d4bc80]',
+    accent: 'bg-gradient-to-r from-[#c8c8d0] to-[#dedee4]',
     success: 'bg-gradient-to-r from-[#30d158] to-[#63e6a0]',
     warning: 'bg-gradient-to-r from-[#ffd60a] to-[#ffe066]',
     error: 'bg-gradient-to-r from-[#ff453a] to-[#ff6961]',
-    info: 'bg-gradient-to-r from-[#a07840] to-[#c0a078]',
+    info: 'bg-gradient-to-r from-[#b0b0bc] to-[#c0c0cc]',
   };
 
   return (

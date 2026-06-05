@@ -15,7 +15,7 @@ const DOC_CATEGORIES = [
     title: 'Getting Started',
     desc: 'Set up your first workspace and start collaborating in minutes.',
     icon: Terminal,
-    color: '#b89450',
+    color: '#c8c8d0',
     links: [
       { label: 'Quick Start Guide', href: '#' },
       { label: 'Creating a Workspace', href: '#' },
@@ -27,7 +27,7 @@ const DOC_CATEGORIES = [
     title: 'Real-Time Collaboration',
     desc: 'Learn how to code together with real-time sync and communication.',
     icon: Users,
-    color: '#a07840',
+    color: '#b0b0bc',
     links: [
       { label: 'Collaborative Editing', href: '#' },
       { label: 'Cursor & Presence', href: '#' },
@@ -75,7 +75,7 @@ const DOC_CATEGORIES = [
     title: 'API Reference',
     desc: 'Integrate AetherStudio into your own tools and workflows.',
     icon: Code2,
-    color: '#d4bc80',
+    color: '#dedee4',
     links: [
       { label: 'REST API Overview', href: '#' },
       { label: 'WebSocket Events', href: '#' },
@@ -165,13 +165,13 @@ export default function DocsPage() {
 
       <section className="relative pt-32 pb-16">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(184,148,80,0.06) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(160,120,64,0.04) 0%, transparent 50%)' }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(200,200,208,0.06) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(176,176,188,0.04) 0%, transparent 50%)' }} />
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}>
             <h1 className="text-[40px] md:text-[56px] font-bold text-[#f5f5f7] tracking-tight leading-[1.05]">
               Everything you need to{' '}
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840)' }}>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc)' }}>
                 build with AetherStudio
               </span>
             </h1>
@@ -206,9 +206,9 @@ export default function DocsPage() {
           >
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
               Can't find what you're looking for?{' '}
-              <Link to="/contact" className="font-medium transition-colors" style={{ color: 'rgba(184,148,80,0.7)' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#b89450'}
-                onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(184,148,80,0.7)'}
+              <Link to="/contact" className="font-medium transition-colors" style={{ color: 'rgba(200,200,208,0.7)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#c8c8d0'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.7)'}
               >Contact our team</Link>
             </p>
           </motion.div>

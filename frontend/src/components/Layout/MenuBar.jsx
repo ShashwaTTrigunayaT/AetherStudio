@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useWorkspace } from '../../stores/useWorkspace';
@@ -9,12 +10,12 @@ import {
   Scissors, Copy, Clipboard, ClipboardPaste,
   Search, Eye, Sidebar, PanelBottom, PanelRight,
   Terminal as TerminalIcon,
-  Move, ArrowLeft, ArrowRight, Bug, Play, Square, SkipForward,
+  Move, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Bug, Play, Square, SkipForward,
   StepForward, StepBack, Circle, HelpCircle, Book, Keyboard,
   FilePlus, FolderOpen, FileEdit, SplitSquareHorizontal,
   Undo2, Redo2, StickyNote, Type, PanelTop, Spline,
   Maximize2, LayoutDashboard, ArrowLeftRight, Columns, Rows, LayoutGrid,
-  ListChecks, RefreshCw, Settings, Zap, TextSelect,
+  ListChecks, RefreshCw, Settings, Zap, TextSelect, ChevronRight,
 } from 'lucide-react';
 
 const menuItems = {
@@ -74,6 +75,12 @@ const menuItems = {
     // Indent
     { id: 'indent', label: 'Indent Line', shortcut: 'Ctrl+]', icon: FileEdit },
     { id: 'outdent', label: 'Outdent Line', shortcut: 'Ctrl+[', icon: FileEdit },
+    { type: 'divider' },
+    // Line movement
+    { id: 'move-line-up', label: 'Shift Line Up', shortcut: 'Alt+↑', icon: ArrowUp },
+    { id: 'move-line-down', label: 'Shift Line Down', shortcut: 'Alt+↓', icon: ArrowDown },
+    { id: 'copy-line-up', label: 'Copy Line Up', shortcut: 'Shift+Alt+↑', icon: ArrowUp },
+    { id: 'copy-line-down', label: 'Copy Line Down', shortcut: 'Shift+Alt+↓', icon: ArrowDown },
     { type: 'divider' },
     // Word Wrap
     { id: 'toggle-word-wrap', label: 'Toggle Word Wrap', shortcut: 'Alt+Z', icon: FileEdit },
@@ -209,11 +216,23 @@ export default function MenuBar() {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [openSubmenu, setOpenSubmenu] = useState(null);
+  const [submenuPos, setSubmenuPos] = useState(null);
+  const [activeSubmenuItem, setActiveSubmenuItem] = useState(null);
   const menuBarRef = useRef(null);
+  const submenuTimerRef = useRef(null);
   const { pickFile } = useFilePicker();
+  const { recentItems } = useWorkspace();
+
+  // Listen for menu:action custom events (from global keyboard shortcuts)
+  // This MUST be defined after handleAction to avoid temporal dead zone
+  // (it's reassigned below after handleAction is defined)
 
   const handleAction = useCallback((actionId) => {
     setOpenMenu(null);
+    setOpenSubmenu(null);
+    setActiveSubmenuItem(null);
+    setSubmenuPos(null);
     const state = useWorkspace.getState();
     const terminal = useTerminal.getState();
 
@@ -296,53 +315,123 @@ export default function MenuBar() {
         const activeFile = group?.activeFile;
         if (!activeFile?.id) break;
 
-        // If the file is untitled, create a real file first
-        if (activeFile.isUntitled) {
-          const name = prompt('Save file as:', activeFile.name || 'Untitled');
-          if (!name) break;
-          (async () => {
-            try {
-              const created = await state.createFile(name, 'file');
-              if (!created?.id) {
-                console.warn('Save As: could not create file');
-                return;
-              }
-              const code = group?.code || '';
-              // Replace the untitled tab with the real file
-              state.closeTab(activeFile.id, group?.id);
-              state.openFile({
-                id: created.id,
-                name: created.name,
-                path: created.path || created.name,
-                type: 'file',
-              }, group?.id);
-              // Save the content to the real file
-              state.saveFileContent(created.id, code);
-            } catch (err) {
-              console.error('Save As failed:', err);
+        // Always prompt for a new name (VS Code behavior: duplicate with new name)
+        const defaultName = activeFile.isUntitled
+          ? (activeFile.name || 'Untitled')
+          : activeFile.name;
+        const name = prompt('Save As:', defaultName);
+        if (!name) break;
+
+        (async () => {
+          try {
+            const created = await state.createFile(name, 'file');
+            if (!created?.id) {
+              console.warn('Save As: could not create file');
+              return;
             }
-          })();
-        } else {
-          state.saveFileContent(activeFile.id, group.code || '');
-        }
+            const code = group?.code || '';
+            // Save content to the new file
+            await state.saveFileContent(created.id, code);
+            // If the original was untitled, close that placeholder tab
+            if (activeFile.isUntitled) {
+              state.closeTab(activeFile.id, group?.id);
+            }
+            // Open the new file in the current group
+            state.openFile({
+              id: created.id,
+              name: created.name,
+              path: created.path || created.name,
+              type: 'file',
+            }, group?.id);
+          } catch (err) {
+            console.error('Save As failed:', err);
+          }
+        })();
         break;
       }
       case 'save-all': {
-        // Save all open files across all editor groups
-        const groups = state.editorGroups;
-        groups.forEach((g) => {
-          const fId = g.activeFile?.id;
-          if (fId && g.code) {
-            state.saveFileContent(fId, g.code);
+        // Save all dirty files (VS Code behavior)
+        const dirtyIds = state.getDirtyFileIds();
+        if (dirtyIds.length === 0) break;
+
+        (async () => {
+          // First pass: collect all files that need saving
+          const groups = state.editorGroups;
+          const filesToSave = []; // { fileId, code, isUntitled, name }
+
+          // Save all dirty active files across all editor groups
+          // (g.code only tracks the active file's content per group)
+          groups.forEach((g) => {
+            const af = g.activeFile;
+            if (af?.id && dirtyIds.includes(af.id) && g.code != null) {
+              filesToSave.push({
+                fileId: af.id,
+                code: g.code,
+                isUntitled: !!af.isUntitled,
+                name: af.name || 'Untitled',
+                groupId: g.id,
+              });
+            }
+          });
+
+          // Second pass: process each dirty file
+          for (const item of filesToSave) {
+            if (item.isUntitled) {
+              // Prompt for a name for untitled files (VS Code behavior)
+              const name = prompt(`Save "${item.name}" as:`, item.name);
+              if (!name) continue;
+              try {
+                const created = await state.createFile(name, 'file');
+                if (created?.id) {
+                  await state.saveFileContent(created.id, item.code);
+                  // Replace untitled tab with real file
+                  state.closeTab(item.fileId, item.groupId);
+                  state.openFile({
+                    id: created.id,
+                    name: created.name,
+                    path: created.path || created.name,
+                    type: 'file',
+                  }, item.groupId);
+                }
+              } catch (err) {
+                console.error('Save All: untitled save failed:', err);
+              }
+            } else {
+              // Regular dirty file — save directly
+              await state.saveFileContent(item.fileId, item.code);
+            }
           }
-        });
+        })();
         break;
       }
-      case 'auto-save': {
-        state.updateSetting('autoSave', !state.settings.autoSave);
+      case 'revert-file': {
+        const group = state.getActiveGroup();
+        const fileId = group?.activeFile?.id;
+        if (fileId && confirm('Revert to last saved version? This will discard unsaved changes.')) {
+          state.revertFile(fileId);
+        }
         break;
       }
-      case 'preferences': {
+
+      case 'auto-save':
+      case 'auto-save-off':
+        state.setAutoSaveMode('off');
+        break;
+      case 'auto-save-afterDelay':
+        state.setAutoSaveMode('afterDelay');
+        break;
+      case 'auto-save-onFocusChange':
+        state.setAutoSaveMode('onFocusChange');
+        break;
+      case 'auto-save-onWindowChange':
+        state.setAutoSaveMode('onWindowChange');
+        break;
+      case 'themes': {
+        state.setRightPanelTab('settings');
+        break;
+      }
+      case 'preferences':
+      case 'settings': {
         useWorkspace.getState().setRightPanelTab('settings');
         break;
       }
@@ -418,6 +507,18 @@ export default function MenuBar() {
         break;
       case 'outdent':
         window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'outdent' } }));
+        break;
+      case 'move-line-up':
+        window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'moveLineUp' } }));
+        break;
+      case 'move-line-down':
+        window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'moveLineDown' } }));
+        break;
+      case 'copy-line-up':
+        window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'copyLineUp' } }));
+        break;
+      case 'copy-line-down':
+        window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'copyLineDown' } }));
         break;
       case 'toggle-word-wrap':
         window.dispatchEvent(new CustomEvent('editor:action', { detail: { action: 'toggleWordWrap' } }));
@@ -848,15 +949,111 @@ export default function MenuBar() {
         window.open('https://github.com/codebuff-org/codebuff/issues', '_blank');
         break;
       default:
+        // Handle recent-* action IDs (Open Recent submenu)
+        if (typeof actionId === 'string' && actionId.startsWith('recent-')) {
+          const itemId = actionId.replace('recent-', '');
+          const recItem = state.recentItems.find(i => i.id === itemId);
+          if (recItem?.type === 'file' && recItem.workspaceId) {
+            // File item — if already on the right workspace, open in editor
+            if (state.workspace?._id === recItem.workspaceId) {
+              state.openFile({ id: recItem.id, name: recItem.name, type: 'file' });
+              state.fetchFileContent(recItem.id).then(content => {
+                if (content) {
+                  const group = state.getActiveGroup();
+                  if (group) state.updateCode(content, group.id);
+                }
+              });
+            } else {
+              navigate(`/workspace/${recItem.workspaceId}`);
+            }
+          } else {
+            // Workspace item — navigate directly
+            navigate(`/workspace/${itemId}`);
+          }
+        }
         break;
     }
   }, [navigate, pickFile]);
+
+  // ── Register keyboard shortcut listener AFTER handleAction is defined ──
+  useEffect(() => {
+    const handler = (e) => {
+      const { actionId } = e.detail;
+      if (actionId) {
+        handleAction(actionId);
+      }
+    };
+    window.addEventListener('menu:action', handler);
+    return () => window.removeEventListener('menu:action', handler);
+  }, [handleAction]);
+
+  // Dynamic File menu items (uses recentItems from store)
+  const fileMenuItems = useMemo(() => [
+    { id: 'new-file', label: 'New File', shortcut: 'Ctrl+N', icon: FilePlus },
+    { id: 'new-window', label: 'New Window', shortcut: 'Ctrl+Shift+N', icon: FilePlus },
+    { type: 'divider' },
+    { id: 'open-file', label: 'Open File...', shortcut: 'Ctrl+O', icon: FolderOpen },
+    { id: 'open-folder', label: 'Open Folder...', shortcut: 'Ctrl+K Ctrl+O', icon: FolderOpen },
+    {
+      id: 'open-recent', label: 'Open Recent', icon: FolderOpen,
+      children: recentItems.length > 0
+        ? recentItems.map((item) => ({
+            id: `recent-${item.id}`,
+            label: item.name,
+            icon: item.type === 'file' ? FileEdit : item.type === 'workspace' ? LayoutDashboard : FolderOpen,
+          }))
+        : [{ id: 'no-recent', label: '(empty)', disabled: true }],
+    },
+    { type: 'divider' },
+    { id: 'save', label: 'Save', shortcut: 'Ctrl+S', icon: Save },
+    { id: 'save-as', label: 'Save As...', shortcut: 'Ctrl+Shift+S', icon: Save },
+    { id: 'save-all', label: 'Save All', shortcut: 'Ctrl+K S', icon: Save },
+    { id: 'revert-file', label: 'Revert File', shortcut: '', icon: Undo2 },
+    { type: 'divider' },
+    {
+      id: 'auto-save', label: 'Auto Save', icon: Save,
+      children: [
+        { id: 'auto-save-off', label: 'Off', icon: XCircle },
+        { id: 'auto-save-afterDelay', label: 'After Delay', icon: Save },
+        { id: 'auto-save-onFocusChange', label: 'On Focus Change', icon: FileEdit },
+        { id: 'auto-save-onWindowChange', label: 'On Window Change', icon: PanelTop },
+      ],
+    },
+    {
+      id: 'preferences', label: 'Preferences', icon: Settings,
+      children: [
+        { id: 'settings', label: 'Settings', shortcut: 'Ctrl+,', icon: Settings },
+        { id: 'keyboard-shortcuts', label: 'Keyboard Shortcuts', shortcut: 'Ctrl+K Ctrl+S', icon: Keyboard },
+        { id: 'show-extensions', label: 'Extensions', shortcut: 'Ctrl+Shift+X', icon: Spline },
+        { id: 'themes', label: 'Color Theme', icon: Eye },
+      ],
+    },
+    { type: 'divider' },
+    { id: 'close-tab', label: 'Close Tab', shortcut: 'Ctrl+W', icon: X },
+    { id: 'close-other-tabs', label: 'Close Others', shortcut: 'Ctrl+Shift+W', icon: XCircle },
+    { id: 'close-all-tabs', label: 'Close All', shortcut: '', icon: XCircle },
+    { type: 'divider' },
+    { id: 'close-folder', label: 'Close Folder', shortcut: '', icon: ArrowLeft },
+    { id: 'exit', label: 'Exit', shortcut: 'Alt+F4', icon: XCircle },
+  ], [recentItems]);
+
+  // Close submenu when main menu closes
+  useEffect(() => {
+    if (!openMenu) {
+      setOpenSubmenu(null);
+      setActiveSubmenuItem(null);
+      setSubmenuPos(null);
+    }
+  }, [openMenu]);
 
   // Close menu on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (menuBarRef.current && !menuBarRef.current.contains(e.target)) {
         setOpenMenu(null);
+        setOpenSubmenu(null);
+        setActiveSubmenuItem(null);
+        setSubmenuPos(null);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -865,7 +1062,9 @@ export default function MenuBar() {
 
   // Keyboard navigation within open menu
   const handleMenuKeyDown = useCallback((e, menuName) => {
-    const items = menuItems[menuName].filter(i => i.type !== 'divider');
+    // Use merged menu items so File uses the dynamic version
+    const allItems = { ...menuItems, File: fileMenuItems };
+    const items = allItems[menuName].filter(i => i.type !== 'divider');
     const currentIdx = focusedIndex;
 
     switch (e.key) {
@@ -906,12 +1105,12 @@ export default function MenuBar() {
         setOpenMenu(null);
         break;
     }
-  }, [focusedIndex, handleAction]);
+  }, [focusedIndex, handleAction, fileMenuItems]);
 
   return (
     <div ref={menuBarRef} className="flex items-center relative z-50">
       <span className="flex items-center gap-0.5">
-        {Object.entries(menuItems).map(([name, items], i) => (
+        {Object.entries({ ...menuItems, File: fileMenuItems }).map(([name, items], i) => (
           <React.Fragment key={name}>
             {i > 0 && (
               <div className="w-px h-3 mx-0.5" style={{ background: 'rgba(255,255,255,0.06)' }} />
@@ -977,6 +1176,60 @@ export default function MenuBar() {
                         }
                         const isSelected = focusedIndex === idx;
                         const Icon = item.icon;
+                        const hasSubmenu = item.children && item.children.length > 0;
+
+                        // ── Submenu item ──
+                        if (hasSubmenu) {
+                          return (
+                            <div
+                              key={item.id}
+                              className="relative"
+                              onMouseEnter={(e) => {
+                                if (submenuTimerRef.current) { clearTimeout(submenuTimerRef.current); submenuTimerRef.current = null; }
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setSubmenuPos({ top: rect.top, left: rect.right + 4 });
+                                setActiveSubmenuItem(item);
+                                setOpenSubmenu(item.id);
+                              }}
+                              onMouseLeave={() => {
+                                submenuTimerRef.current = setTimeout(() => {
+                                  setOpenSubmenu((current) => current === item.id ? null : current);
+                                  setActiveSubmenuItem(null);
+                                  setSubmenuPos(null);
+                                  submenuTimerRef.current = null;
+                                }, 300);
+                              }}
+                            >
+                              <motion.button
+                                onClick={(e) => {
+                                  if (openSubmenu === item.id) {
+                                    setOpenSubmenu(null);
+                                    setActiveSubmenuItem(null);
+                                    setSubmenuPos(null);
+                                  } else {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setSubmenuPos({ top: rect.top, left: rect.right + 4 });
+                                    setOpenSubmenu(item.id);
+                                    setActiveSubmenuItem(item);
+                                  }
+                                }}
+                                className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[12px] transition-all duration-75 cursor-pointer"
+                                style={{
+                                  color: openSubmenu === item.id ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.4)',
+                                  background: openSubmenu === item.id ? 'rgba(255,255,255,0.04)' : 'transparent',
+                                }}
+                              >
+                                {Icon && (
+                                  <Icon size={13} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                                )}
+                                <span className="flex-1 text-left">{item.label}</span>
+                                <ChevronRight size={11} style={{ color: 'rgba(255,255,255,0.15)' }} />
+                              </motion.button>
+                            </div>
+                          );
+                        }
+
+                        // ── Regular menu item ──
                         return (
                           <motion.button
                             key={item.id}
@@ -1013,6 +1266,71 @@ export default function MenuBar() {
           </React.Fragment>
         ))}
       </span>
+      {/* Submenu portal — rendered at document.body to avoid CSS overflow clipping */}
+      {openSubmenu && activeSubmenuItem && submenuPos && document.body && createPortal(
+        <motion.div
+          initial={{ opacity: 0, x: -4, scale: 0.96 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.1 }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseEnter={() => {
+            if (submenuTimerRef.current) { clearTimeout(submenuTimerRef.current); submenuTimerRef.current = null; }
+          }}
+          onMouseLeave={() => {
+            setOpenSubmenu(null);
+            setActiveSubmenuItem(null);
+            setSubmenuPos(null);
+          }}
+          style={{
+            position: 'fixed',
+            top: submenuPos.top,
+            left: submenuPos.left,
+            zIndex: 9999,
+            minWidth: '200px',
+            background: 'rgba(18,18,22,0.95)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '8px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(40px)',
+            WebkitBackdropFilter: 'blur(40px)',
+            maxHeight: '50vh',
+            overflowY: 'auto',
+          }}
+        >
+          <div className="py-1">
+            {activeSubmenuItem.children.map((child) => {
+              const ChildIcon = child.icon;
+              return (
+                <motion.button
+                  key={child.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAction(child.id);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[12px] transition-all duration-75 cursor-pointer"
+                  style={{
+                    color: 'rgba(255,255,255,0.4)',
+                    opacity: child.disabled ? 0.3 : 1,
+                  }}
+                  whileHover={{
+                    background: child.disabled ? 'transparent' : 'rgba(255,255,255,0.04)',
+                    color: child.disabled ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  {ChildIcon && (
+                    <ChildIcon size={13} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                  )}
+                  <span className="flex-1 text-left">{child.label}</span>
+                  {child.shortcut && (
+                    <kbd style={{ color: 'rgba(255,255,255,0.15)', fontSize: '10px', fontFamily: 'inherit' }}>{child.shortcut}</kbd>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>,
+        document.body
+      )}
     </div>
   );
 }

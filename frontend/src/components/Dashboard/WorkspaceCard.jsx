@@ -7,14 +7,7 @@ import {
 import Badge from '../Common/Badge';
 import Dropdown, { DropdownItem } from '../Common/Dropdown';
 
-const GRADIENT_PRESETS = [
-  { from: '#b89450', to: '#d4bc80', glow: 'rgba(184,148,80,0.15)', borderGlow: 'rgba(184,148,80,0.4)' },
-  { from: '#a07840', to: '#c0a078', glow: 'rgba(160,120,64,0.15)', borderGlow: 'rgba(160,120,64,0.4)' },
-  { from: '#30d158', to: '#dcccb5', glow: 'rgba(48,209,88,0.15)', borderGlow: 'rgba(48,209,88,0.4)' },
-  { from: '#ff9f0a', to: '#ffcc00', glow: 'rgba(255,159,10,0.15)', borderGlow: 'rgba(255,159,10,0.4)' },
-  { from: '#ff453a', to: '#ff6961', glow: 'rgba(255,69,58,0.15)', borderGlow: 'rgba(255,69,58,0.4)' },
-  { from: '#bf5af2', to: '#d48aff', glow: 'rgba(191,90,242,0.15)', borderGlow: 'rgba(191,90,242,0.4)' },
-];
+// No gradient presets needed — using neutral white accents
 
 const LANGUAGE_BADGES = {
   javascript: { label: 'JS', color: '#f0db4f', bg: 'rgba(240,219,79,0.15)' },
@@ -27,32 +20,20 @@ const LANGUAGE_BADGES = {
   json: { label: 'JSON', color: '#292929', bg: 'rgba(41,41,41,0.15)' },
 };
 
-// ─── Animated Gradient Border ─────────────────────────────
-function AnimatedBorder({ gradient, isHovered }) {
+// ─── Subtle Border ─────────────────────────────
+function SubtleBorder({ isHovered }) {
   return (
     <motion.div
       className="absolute inset-0 rounded-[16px] pointer-events-none"
       style={{ zIndex: 2 }}
       animate={{ opacity: isHovered ? 1 : 0 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Rotating conic gradient border */}
-      <motion.div
+      <div
         className="absolute inset-0 rounded-[16px]"
         style={{
-          background: `conic-gradient(from var(--angle, 0deg), ${gradient?.from}00 0%, ${gradient?.from}40 25%, ${gradient?.to}40 50%, ${gradient?.from}40 75%, ${gradient?.from}00 100%)`,
-          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
-          padding: '1.5px',
+          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)',
         }}
-        animate={{ '--angle': ['0deg', '360deg'] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-      />
-      {/* Outer glow */}
-      <div
-        className="absolute inset-0 rounded-[16px] opacity-50"
-        style={{ boxShadow: `0 0 40px ${gradient?.glow}, inset 0 0 20px ${gradient?.glow}` }}
       />
     </motion.div>
   );
@@ -62,7 +43,7 @@ function AnimatedBorder({ gradient, isHovered }) {
 function CollaboratorStrip({ count = 0 }) {
   if (count === 0) return null;
 
-  const colors = ['#b89450', '#30d158', '#ff9f0a', '#ff453a', '#bf5af2', '#a07840'];
+  const colors = ['#c8c8d0', '#30d158', '#ff9f0a', '#ff453a', '#bf5af2', '#b0b0bc'];
   const maxAvatars = Math.min(count, 4);
 
   return (
@@ -116,7 +97,6 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
     setIsHovered(false);
   }, [mouseX, mouseY]);
 
-  const gradient = GRADIENT_PRESETS[index % GRADIENT_PRESETS.length];
   const collaboratorCount = workspace.collaboratorIds?.length || 0;
   const fileCount = workspace.fileCount || 0;
 
@@ -162,8 +142,8 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
         boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03)',
       }}
       whileHover={{
-        borderColor: `${gradient.from}40`,
-        boxShadow: `0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px ${gradient.from}20, 0 0 60px ${gradient.glow}, inset 0 1px 0 rgba(255,255,255,0.06)`,
+        borderColor: 'rgba(255,255,255,0.1)',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06)',
         y: -10,
         scale: 1.015,
         transition: { type: 'spring', stiffness: 300, damping: 25, mass: 0.8 },
@@ -180,56 +160,47 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
         }}
       />
 
-      {/* Animated gradient border */}
-      <AnimatedBorder gradient={gradient} isHovered={isHovered} />
+      {/* Subtle border */}
+      <SubtleBorder isHovered={isHovered} />
 
       {/* Background gradient overlay */}
       <motion.div
         className="absolute inset-0 rounded-[16px] pointer-events-none z-[1]"
         animate={{ opacity: isHovered ? 1 : 0 }}
         transition={{ duration: 0.5 }}
-        style={{ background: `linear-gradient(145deg, ${gradient.from}10, transparent 50%, ${gradient.to}06)` }}
+        style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.06), transparent 50%, rgba(255,255,255,0.03))' }}
       />
 
       {/* Hover sweep shimmer */}
       <motion.div
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{
-          background: `linear-gradient(105deg, transparent 20%, ${gradient.from}06 35%, ${gradient.from}10 45%, ${gradient.from}06 55%, transparent 70%)`,
+          background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.02) 35%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.02) 55%, transparent 70%)',
           transform: 'translateX(-100%)',
         }}
         animate={{ x: isHovered ? '100%' : '-100%' }}
         transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
       />
 
-      {/* Top animated accent bar */}
-      <motion.div
-        className="absolute top-0 left-3 right-3 h-[2.5px] rounded-full z-[3]"
-        style={{ background: `linear-gradient(90deg, ${gradient.from}, ${gradient.to})` }}
-        animate={{
-          opacity: [0.4, 0.9, 0.4],
-          boxShadow: [
-            `0 0 6px ${gradient.glow}`,
-            `0 0 18px ${gradient.borderGlow}`,
-            `0 0 6px ${gradient.glow}`,
-          ],
-        }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      {/* Top accent bar */}
+      <div
+        className="absolute top-0 left-3 right-3 h-[1.5px] rounded-full z-[3]"
+        style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06), transparent)' }}
       />
 
-      {/* Corner glow dots */}
+      {/* Corner accents */}
       <div
-        className="absolute top-0 right-0 w-24 h-24 rounded-tr-[16px] pointer-events-none z-[1] transition-opacity duration-500"
+        className="absolute top-0 right-0 w-20 h-20 rounded-tr-[16px] pointer-events-none z-[1] transition-opacity duration-500"
         style={{
           opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(circle at top right, ${gradient.from}15, transparent 70%)`,
+          background: 'radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 70%)',
         }}
       />
       <div
         className="absolute bottom-0 left-0 w-20 h-20 rounded-bl-[16px] pointer-events-none z-[1] transition-opacity duration-500"
         style={{
           opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(circle at bottom left, ${gradient.to}10, transparent 70%)`,
+          background: 'radial-gradient(circle at bottom left, rgba(255,255,255,0.03), transparent 70%)',
         }}
       />
 
@@ -243,18 +214,18 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
               animate={{
                 scale: isHovered ? 1.12 : 1,
                 boxShadow: isHovered
-                  ? `0 0 32px ${gradient.glow}, 0 8px 24px rgba(0,0,0,0.3)`
-                  : `0 0 20px ${gradient.glow}, 0 4px 12px rgba(0,0,0,0.2)`,
+                  ? '0 0 32px rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.3)'
+                  : '0 0 20px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.2)',
               }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              style={{ background: `linear-gradient(145deg, ${gradient.from}20, ${gradient.to}08)` }}
+              style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))' }}
             >
-              <motion.div
-                animate={{ rotate: isHovered ? [-5, 5, -5, 0] : 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-              >
-                <Folder size={22} style={{ color: gradient.from }} />
-              </motion.div>
+            <motion.div
+              animate={{ rotate: isHovered ? [-5, 5, -5, 0] : 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+            >
+              <Folder size={22} style={{ color: 'rgba(255,255,255,0.5)' }} />
+            </motion.div>
             </motion.div>
 
             {langBadge && (
@@ -301,7 +272,7 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
                 size={18}
                 className="transition-all duration-200"
                 style={{
-                  color: isHovered ? `${gradient.from}60` : 'rgba(255,255,255,0.08)',
+                  color: isHovered ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
                 }}
               />
             </motion.div>
@@ -346,7 +317,7 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
           className="h-px mb-3"
           animate={{
             background: isHovered
-              ? `linear-gradient(90deg, ${gradient.from}20, rgba(255,255,255,0.03) 60%, transparent)`
+              ? 'linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03) 60%, transparent)'
               : 'rgba(255,255,255,0.04)',
           }}
         />
@@ -388,7 +359,7 @@ export default function WorkspaceCard({ workspace, onClick, onDelete, index = 0 
             animate={{
               opacity: isHovered ? 1 : 0,
               x: isHovered ? 0 : -4,
-              color: gradient.from,
+              color: 'rgba(255,255,255,0.4)',
             }}
             transition={{ duration: 0.2, delay: isHovered ? 0.05 : 0 }}
           >

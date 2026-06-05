@@ -105,19 +105,18 @@ function MicroParticles() {
 function GreetingIcon({ Icon, isSpecial }) {
   return (
     <motion.span
-      className="inline-flex items-center justify-center select-none"
-      animate={{ 
-        rotate: isSpecial ? [0, -12, 12, -6, 0] : [0, -8, 8, -4, 0],
-        scale: [1, 1.15, 1],
-      }}
+      className="inline-flex items-center justify-center select-none"        animate={{ 
+          rotate: isSpecial ? [0, -12, 12, -6, 0] : [0, -8, 8, -4, 0],
+          scale: [1, 1.08, 1],
+        }}
       transition={{ duration: 2.5, delay: 0.5, ease: 'easeInOut' }}
     >
       <Icon
         size={22}
         strokeWidth={1.5}
         className={isSpecial
-          ? 'text-[rgba(255,200,50,0.8)] drop-shadow-[0_0_8px_rgba(255,200,50,0.3)]'
-          : 'text-[rgba(255,255,255,0.5)] drop-shadow-[0_0_6px_rgba(255,255,255,0.15)]'
+          ? 'text-[rgba(255,255,255,0.6)]'
+          : 'text-[rgba(255,255,255,0.4)]'
         }
       />
     </motion.span>
@@ -299,7 +298,7 @@ export default function WelcomeBanner({ user, workspaceCount }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); mouseX.set(0); mouseY.set(0); }}
       onMouseMove={handleMouseMove}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 1200, borderColor: 'rgba(184,148,80,0.35)' }}
+      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 1200, borderColor: 'rgba(255,255,255,0.06)' }}
       whileHover={{ y: -4, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] } }}
       className="relative group overflow-hidden rounded-[16px] border border-[rgba(255,255,255,0.05)] min-h-[140px]"
     >
@@ -341,36 +340,21 @@ export default function WelcomeBanner({ user, workspaceCount }) {
         transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
       />
 
-      {/* ── Breathing border glow ── */}
+      {/* ── Border glow ── */}
       <motion.div
         className="absolute inset-0 rounded-[16px] pointer-events-none"
         animate={{
-          opacity: isHovered ? 1 : 0.4,
           boxShadow: isHovered
-            ? 'inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 40px rgba(255,255,255,0.03)'
+            ? 'inset 0 0 0 1px rgba(255,255,255,0.08)'
             : 'inset 0 0 0 1px rgba(255,255,255,0.03)',
         }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div
-          className="absolute inset-0 rounded-[16px]"
-          animate={{
-            boxShadow: [
-              'inset 0 0 0 1px rgba(255,255,255,0.02)',
-              'inset 0 0 0 1px rgba(255,255,255,0.04)',
-              'inset 0 0 0 1px rgba(255,255,255,0.02)',
-            ],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </motion.div>
+        transition={{ duration: 0.3 }}
+      />
 
-      {/* ── Animated top accent bar ── */}
-      <motion.div
-        className="absolute top-0 left-4 right-4 h-[1.5px] rounded-full pointer-events-none"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)' }}
-        animate={{ opacity: [0.3, 0.7, 0.3], scaleX: [1, 1.02, 1] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      {/* ── Top accent bar ── */}
+      <div
+        className="absolute top-0 left-4 right-4 h-[1px] rounded-full pointer-events-none"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)' }}
       />
 
       {/* ── Grain texture ── */}

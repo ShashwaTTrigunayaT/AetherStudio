@@ -2,8 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const colors = [
-  'from-[#b89450] to-[#d4bc80]',
-  'from-[#a07840] to-[#c0a078]',
+  'from-[#c8c8d0] to-[#dedee4]',
+  'from-[#b0b0bc] to-[#c0c0cc]',
   'from-[#ff453a] to-[#ff6961]',
   'from-[#30d158] to-[#63e6a0]',
   'from-[#ffd60a] to-[#ffe066]',

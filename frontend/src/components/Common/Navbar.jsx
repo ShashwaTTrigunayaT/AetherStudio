@@ -127,7 +127,7 @@ export default function Navbar({ rightContent, onGetStarted, transparent = false
       transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled || !transparent
-          ? 'bg-[rgba(0,0,0,0.8)] backdrop-blur-xl border-b border-[rgba(184,148,80,0.12)]'
+          ? 'bg-[rgba(0,0,0,0.8)] backdrop-blur-xl border-b border-[rgba(200,200,208,0.12)]'
           : 'bg-transparent'
       }`}
     >
@@ -168,7 +168,7 @@ export default function Navbar({ rightContent, onGetStarted, transparent = false
             </div>
           )}
 
-          {/* Dashboard tabs + profile in navbar */}
+          {/* Dashboard tabs + nav links */}
           {hideNavLinks && tabs && (
             <div className="hidden md:flex items-center gap-1">
               {tabs.map((tab) => {
@@ -203,24 +203,16 @@ export default function Navbar({ rightContent, onGetStarted, transparent = false
                 );
               })}
 
-              {/* Profile button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onProfileClick}
-                className="px-3 py-1.5 rounded-[7px] text-[12px] font-medium transition-all duration-200"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                  e.currentTarget.style.color = '#f5f5f7';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
-                }}
-              >
-                Profile
-              </motion.button>
+              <div className="w-px h-5 mx-1" style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+              <DropdownMenu label="Resources" items={RESOURCES_SUBLINKS}
+                isOpen={openDropdown === 'resources'} onToggle={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
+                onClose={() => setOpenDropdown(null)}
+              />
+              <DropdownMenu label="Company" items={COMPANY_SUBLINKS}
+                isOpen={openDropdown === 'company'} onToggle={() => setOpenDropdown(openDropdown === 'company' ? null : 'company')}
+                onClose={() => setOpenDropdown(null)}
+              />
             </div>
           )}
 
@@ -235,7 +227,7 @@ export default function Navbar({ rightContent, onGetStarted, transparent = false
                 ><Home size={13} /></motion.button>
                 <motion.button onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}
                   className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 16px rgba(184,148,80,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
                 >
                   <motion.div className="absolute inset-0 pointer-events-none"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -266,7 +258,7 @@ export default function Navbar({ rightContent, onGetStarted, transparent = false
 
                 <motion.button onClick={onGetStarted} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 16px rgba(184,148,80,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
                 >
                   <motion.div className="absolute inset-0 pointer-events-none"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}

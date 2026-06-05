@@ -122,7 +122,7 @@ function CodeParticles() {
               fontSize: `${11 + (i % 3) * 3}px`,
               color: `hsl(${210 + (i * 35) % 120}, 70%, ${55 + (i % 3) * 10}%)`,
               opacity: 0.5,
-              textShadow: '0 0 8px rgba(184,148,80,0.08)',
+              textShadow: '0 0 8px rgba(200,200,208,0.08)',
             }}
           >
             <span style={{ opacity: 0.3 }}>$</span> {line}
@@ -158,8 +158,8 @@ export default function AuthBrandPanel({
   tagline = 'Code together, ship faster.',
   description = 'The collaborative IDE with real-time editing, AI-powered assistance, and sandboxed code execution.',
   featurePills = [
-    { label: 'Real-time Sync', color: '#b89450' },
-    { label: 'AI Assistant', color: '#a07840' },
+    { label: 'Real-time Sync', color: '#c8c8d0' },
+    { label: 'AI Assistant', color: '#b0b0bc' },
     { label: 'Sandboxed', color: '#30d158' },
   ],
   logoSize = 100,
@@ -172,8 +172,8 @@ export default function AuthBrandPanel({
           className="absolute inset-0"
           style={{
             background: `
-              radial-gradient(ellipse 80% 50% at 50% 0%, rgba(184,148,80,0.05) 0%, transparent 60%),
-              radial-gradient(ellipse 60% 40% at 80% 85%, rgba(160,120,64,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200,200,208,0.05) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 85%, rgba(176,176,188,0.04) 0%, transparent 50%),
               radial-gradient(ellipse 50% 50% at 20% 65%, rgba(48,209,88,0.03) 0%, transparent 50%),
               radial-gradient(ellipse 40% 40% at 50% 100%, rgba(255,159,10,0.025) 0%, transparent 40%)
             `,
@@ -182,7 +182,7 @@ export default function AuthBrandPanel({
         <GradientOrb
           size={480}
           pos={{ top: '22%', left: '20%' }}
-          gradient="radial-gradient(circle, #b89450, #d4bc80, transparent)"
+          gradient="radial-gradient(circle, #c8c8d0, #dedee4, transparent)"
           delay={0}
           speed={18}
           mouseX={mouseX}
@@ -191,7 +191,7 @@ export default function AuthBrandPanel({
         <GradientOrb
           size={380}
           pos={{ bottom: '18%', right: '10%' }}
-          gradient="radial-gradient(circle, #a07840, #c0a078, transparent)"
+          gradient="radial-gradient(circle, #b0b0bc, #c0c0cc, transparent)"
           delay={4}
           speed={22}
           mouseX={mouseX}
@@ -293,7 +293,7 @@ export default function AuthBrandPanel({
                   key={i}
                   className="bg-clip-text text-transparent"
                   style={{
-                    backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840)',
+                    backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc)',
                   }}
                 >
                   {word}{' '}
@@ -321,7 +321,7 @@ export default function AuthBrandPanel({
             transition={{ delay: 0.45, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-16 h-[2px] mx-auto mt-8 rounded-full"
             style={{
-              background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.5), rgba(160,120,64,0.5), transparent)',
+              background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.5), rgba(176,176,188,0.5), transparent)',
             }}
           />
 
@@ -357,7 +357,7 @@ export default function AuthBrandPanel({
           className="absolute bottom-10 text-[10px] font-mono"
           style={{ color: 'rgba(255,255,255,0.08)' }}
         >
-          <span style={{ color: 'rgba(184,148,80,0.2)' }}>▲</span> aetherstudio.dev
+          <span style={{ color: 'rgba(200,200,208,0.2)' }}>▲</span> aetherstudio.dev
         </motion.p>
       </div>
     </div>

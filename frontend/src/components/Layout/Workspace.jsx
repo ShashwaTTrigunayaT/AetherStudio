@@ -63,6 +63,7 @@ export default function Workspace() {
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_WIDTH);
   const [draggingSidebar, setDraggingSidebar] = useState(false);
   const sidebarWidthRef = useRef(SIDEBAR_WIDTH);
+  const chordRef = useRef(null); // for Ctrl+K chord shortcuts
 
   useEffect(() => {
     // Subscribe to awareness for peer count badge
@@ -177,29 +178,95 @@ export default function Workspace() {
 
 
 
-  // Global keyboard shortcuts
+  // Global keyboard shortcuts (VS Code-style)
   const handleKeyDown = useCallback((e) => {
     const tag = e.target?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'p') {
+    const ctrl = (e.ctrlKey || e.metaKey);
+
+    // ── Chord leader: Ctrl+K ──
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === 'k') {
+      e.preventDefault();
+      // Clear previous chord timeout to avoid stale timeout clearing new chord
+      if (chordRef.current && chordRef.current.timer) {
+        clearTimeout(chordRef.current.timer);
+      }
+      chordRef.current = {
+        active: true,
+        timer: setTimeout(() => { chordRef.current = null; }, 1500),
+      };
+      return;
+    }
+
+    // ── Chord completion (pressed after Ctrl+K) ──
+    if (chordRef.current && chordRef.current.active) {
+      chordRef.current = null; // consume
+
+      // Ctrl+K Ctrl+O → Open Folder (import modal)
+      if (ctrl && !e.shiftKey && !e.altKey && e.key === 'o') {
+        e.preventDefault();
+        useWorkspace.getState().setImportModalOpen(true);
+        return;
+      }
+      // Ctrl+K S → Save All
+      if (!ctrl && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('menu:action', { detail: { actionId: 'save-all' } }));
+        return;
+      }
+      // Not a chord completion — fall through
+    }
+
+    // ── File menu keyboard shortcuts ──
+    // Ctrl+N → New File (prevent browser new window)
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === 'n') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('menu:action', { detail: { actionId: 'new-file' } }));
+      return;
+    }
+    // Ctrl+O → Open File (prevent browser file dialog)
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === 'o') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('menu:action', { detail: { actionId: 'open-file' } }));
+      return;
+    }
+    // Ctrl+Shift+S → Save As
+    if (ctrl && e.shiftKey && !e.altKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('menu:action', { detail: { actionId: 'save-as' } }));
+      return;
+    }
+    // Ctrl+Shift+W → Close Other Tabs (prevent browser close)
+    if (ctrl && e.shiftKey && !e.altKey && (e.key === 'w' || e.key === 'W')) {
+      e.preventDefault();
+      const state2 = useWorkspace.getState();
+      const activeGroup2 = state2.getActiveGroup();
+      if (activeGroup2?.activeTabId) {
+        state2.closeOtherTabs(activeGroup2.activeTabId, activeGroup2.id);
+      }
+      return;
+    }
+
+    // ── Existing shortcuts ──
+    if (ctrl && e.shiftKey && e.key === 'p') {
       e.preventDefault();
       toggleCommandPalette();
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === 'b') {
       e.preventDefault();
       useWorkspace.getState().toggleSidebar();
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === '`') {
       e.preventDefault();
       useWorkspace.getState().setActiveBottomPanel('terminal');
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+    if (ctrl && !e.shiftKey && !e.altKey && e.key === 'w') {
       e.preventDefault();
-      const state = useWorkspace.getState();
-      const activeGroup = state.getActiveGroup();
-      if (activeGroup?.activeTabId) {
-        state.closeTab(activeGroup.activeTabId, activeGroup.id);
+      const state3 = useWorkspace.getState();
+      const activeGroup3 = state3.getActiveGroup();
+      if (activeGroup3?.activeTabId) {
+        state3.closeTab(activeGroup3.activeTabId, activeGroup3.id);
       }
     }
   }, [toggleCommandPalette]);

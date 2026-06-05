@@ -9,10 +9,10 @@ const templates = [
   { name: 'Node.js API', icon: Server, description: 'Express REST API', color: 'text-[#30d158]', bg: 'bg-[rgba(48,209,88,0.1)]' },
   { name: 'Python Script', icon: Terminal, description: 'Python 3 project', color: 'text-[#ffd60a]', bg: 'bg-[rgba(255,214,10,0.1)]' },
   { name: 'HTML/CSS', icon: Globe, description: 'Static website', color: 'text-[#ff7b72]', bg: 'bg-[rgba(255,123,114,0.1)]' },
-  { name: 'Database', icon: Database, description: 'SQL schema + queries', color: 'text-[#a07840]', bg: 'bg-[rgba(160,120,64,0.1)]' },
+  { name: 'Database', icon: Database, description: 'SQL schema + queries', color: 'text-[#b0b0bc]', bg: 'bg-[rgba(176,176,188,0.1)]' },
   { name: 'Mobile App', icon: Smartphone, description: 'React Native starter', color: 'text-[#bf5af2]', bg: 'bg-[rgba(191,90,242,0.1)]' },
   { name: 'Rust CLI', icon: Cpu, description: 'CLI application', color: 'text-[#dea584]', bg: 'bg-[rgba(222,165,132,0.1)]' },
-  { name: 'Microservices', icon: Layers, description: 'Docker compose setup', color: 'text-[#d4bc80]', bg: 'bg-[rgba(184,148,80,0.1)]' },
+  { name: 'Microservices', icon: Layers, description: 'Docker compose setup', color: 'text-[#dedee4]', bg: 'bg-[rgba(200,200,208,0.1)]' },
 ];
 
 export default function TemplateGrid({ onSelect }) {

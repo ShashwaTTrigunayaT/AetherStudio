@@ -41,7 +41,7 @@ export default function Breadcrumb({ items = [], className = '' }) {
                     : 'text-[rgba(255,255,255,0.4)]'
                 }`}
               >
-                {Icon && <Icon size={14} className={isLast ? 'text-[#d4bc80]' : ''} />}
+                {Icon && <Icon size={14} className={isLast ? 'text-[#dedee4]' : ''} />}
                 {item.label}
               </motion.a>
             ) : (
@@ -50,7 +50,7 @@ export default function Breadcrumb({ items = [], className = '' }) {
                   isLast ? 'text-[#f5f5f7] font-semibold' : 'text-[rgba(255,255,255,0.4)]'
                 }`}
               >
-                {Icon && <Icon size={14} className={isLast ? 'text-[#d4bc80]' : ''} />}
+                {Icon && <Icon size={14} className={isLast ? 'text-[#dedee4]' : ''} />}
                 {item.label}
               </span>
             )}

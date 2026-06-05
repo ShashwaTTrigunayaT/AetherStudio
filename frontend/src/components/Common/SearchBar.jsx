@@ -123,7 +123,7 @@ export default function SearchBar({
             ))}
             {loading && (
               <div className="flex items-center justify-center py-3">
-                <div className="w-4 h-4 rounded-full border-2 border-[rgba(255,255,255,0.1)] border-t-[#b89450] animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-[rgba(255,255,255,0.1)] border-t-[#c8c8d0] animate-spin" />
               </div>
             )}
           </motion.div>

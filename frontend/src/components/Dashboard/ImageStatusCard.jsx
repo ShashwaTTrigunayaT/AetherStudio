@@ -204,7 +204,7 @@ export default function ImageStatusCard({ stat, index }) {
         rotateY,
         transformStyle: 'preserve-3d',
         perspective: 1000,
-        borderColor: 'rgba(184,148,80,0.3)',
+        borderColor: 'rgba(255,255,255,0.06)',
       }}
       whileHover={{
         y: -6,

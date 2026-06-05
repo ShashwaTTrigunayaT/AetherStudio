@@ -115,6 +115,9 @@ export const useWorkspace = create((set, get) => {
   searchIncludePattern: '',
   searchExcludePattern: '',
 
+  // Dirty file tracking (fileId -> boolean)
+  dirtyFiles: {},
+
   // Problems
   problems: [],
 
@@ -137,7 +140,26 @@ export const useWorkspace = create((set, get) => {
   // Import modal
   importModalOpen: false,
 
+  // Recent items (workspaces/files recently opened — persisted to localStorage)
+  recentItems: JSON.parse(typeof window !== 'undefined' ? (localStorage.getItem('workspaceRecentItems') || '[]') : '[]'),
+
+  // Version counter bumped when code is updated externally (e.g. revertFile)
+  // MonacoEditor watches this to sync store.code back to its local state
+  codeVersion: 0,
+
   setImportModalOpen: (open) => set({ importModalOpen: open }),
+
+  clearRecentItems: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('workspaceRecentItems', '[]');
+    }
+    set({ recentItems: [] });
+  },
+
+  // Helper to open a recent workspace (reused by keyboard shortcuts and menu)
+  openRecentWorkspace: (id) => {
+    window.dispatchEvent(new CustomEvent('menu:action', { detail: { actionId: 'open-recent-workspace', payload: { id } } }));
+  },
 
   // Settings
   settings: {
@@ -148,6 +170,7 @@ export const useWorkspace = create((set, get) => {
     breadcrumbs: true,
     lineNumbers: true,
     autoSave: true,
+    autoSaveMode: 'afterDelay',
     formatOnSave: false,
     fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
     theme: 'nexus-dark',
@@ -349,11 +372,20 @@ export const useWorkspace = create((set, get) => {
         if (node.type === 'file') return [node];
         return (node.children || []).flatMap(flattenFiles);
       };
+      // Add to recent items
+      const recent = { id, name: data.name || 'Untitled', type: 'workspace' };
+      const state = get();
+      const filtered = state.recentItems.filter((i) => i.id !== id);
+      const updated = [recent, ...filtered].slice(0, 10);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workspaceRecentItems', JSON.stringify(updated));
+      }
       set({
         workspace: data,
         files: flattenFiles(data.fileTree),
         loading: false,
         error: null,
+        recentItems: updated,
       });
       return data;
     } catch (err) {
@@ -362,9 +394,36 @@ export const useWorkspace = create((set, get) => {
     }
   },
 
+  markDirty: (fileId) => {
+    if (!fileId) return;
+    set((state) => ({ dirtyFiles: { ...state.dirtyFiles, [fileId]: true } }));
+  },
+
+  markClean: (fileId) => {
+    if (!fileId) return;
+    set((state) => {
+      const next = { ...state.dirtyFiles };
+      delete next[fileId];
+      return { dirtyFiles: next };
+    });
+  },
+
+  isDirty: (fileId) => {
+    return !!get().dirtyFiles[fileId];
+  },
+
+  getDirtyFileIds: () => {
+    return Object.keys(get().dirtyFiles);
+  },
+
   updateCode: (code, groupId) => {
     const state = get();
     const gid = groupId || state.activeGroupId;
+    const group = getGroupById(state.editorGroups, gid);
+    // Mark active file as dirty when code changes
+    if (group?.activeFile?.id) {
+      state.markDirty(group.activeFile.id);
+    }
     set({
       code,
       editorGroups: state.editorGroups.map((g) =>
@@ -457,11 +516,38 @@ export const useWorkspace = create((set, get) => {
     }
   },
 
+  revertFile: async (fileId) => {
+    const state = get();
+    const group = getActiveGroup(state);
+    if (!fileId || !state.workspace?._id) return;
+    try {
+      const { data } = await api.get(`/workspace/${state.workspace._id}/files/${fileId}`);
+      const content = data.content || '';
+      // Update group code and clear dirty state
+      if (group) {
+        set({
+          code: content,
+          editorGroups: state.editorGroups.map((g) =>
+            g.id === group.id ? { ...g, code: content } : g
+          ),
+        });
+      }
+      state.markClean(fileId);
+      // Bump codeVersion so MonacoEditor syncs store.code to its local state
+      set({ codeVersion: Date.now() });
+      return content;
+    } catch (err) {
+      console.error('Revert file error:', err);
+    }
+  },
+
   saveFileContent: async (fileId, content) => {
     const state = get();
     if (!state.workspace?._id) return;
     try {
       await api.put(`/workspace/${state.workspace._id}/files/${fileId}`, { content });
+      // Mark as clean after successful save
+      state.markClean(fileId);
     } catch (err) {
       console.error('Save file error:', err);
     }
@@ -491,6 +577,17 @@ export const useWorkspace = create((set, get) => {
     const gid = groupId || state.activeGroupId;
     const group = getGroupById(state.editorGroups, gid);
     if (!group) return;
+
+    // Track recently opened files
+    if (file.id && !file.isUntitled) {
+      const recentItem = { id: file.id, name: file.name, type: 'file', workspaceId: state.workspace?._id };
+      const filtered = state.recentItems.filter((i) => i.id !== file.id);
+      const updated = [recentItem, ...filtered].slice(0, 10);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workspaceRecentItems', JSON.stringify(updated));
+      }
+      set({ recentItems: updated });
+    }
 
     const exists = group.openTabs.find((t) => t.id === file.id);
     const newGroups = state.editorGroups.map((g) => {
@@ -1072,6 +1169,20 @@ export const useWorkspace = create((set, get) => {
       watchExpressions: state.watchExpressions.map((w, i) =>
         i === index ? { ...w, value } : w
       ),
+    }));
+  },
+
+  // ==============================
+  // Command palette
+  // ==============================
+
+  // ==============================
+  // Auto-save helpers
+  // ==============================
+
+  setAutoSaveMode: (mode) => {
+    set((state) => ({
+      settings: { ...state.settings, autoSaveMode: mode, autoSave: mode !== 'off' },
     }));
   },
 

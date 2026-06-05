@@ -8,8 +8,8 @@ const actions = [
     description: 'Start a fresh project',
     icon: Plus,
     shortcut: '⌘N',
-    color: '#d4bc80',
-    gradient: 'from-[#b89450] to-[#d4bc80]',
+    color: 'rgba(255,255,255,0.5)',
+    gradient: 'from-[rgba(255,255,255,0.08)] to-[rgba(255,255,255,0.04)]',
   },
   {
     label: 'Import Project',
@@ -32,8 +32,8 @@ const actions = [
     description: 'Guides & API reference',
     icon: BookOpen,
     shortcut: '⌘H',
-    color: '#a07840',
-    gradient: 'from-[#a07840] to-[#c0a078]',
+    color: '#b0b0bc',
+    gradient: 'from-[#b0b0bc] to-[#c0c0cc]',
   },
 ];
 
@@ -62,7 +62,7 @@ export default function QuickActions({ onCreateWorkspace }) {
           className="group relative flex items-center gap-3.5 p-3.5 rounded-[12px] border transition-all duration-300 overflow-hidden text-left"
           style={{
             background: 'rgba(14,14,18,0.7)',
-            borderColor: 'rgba(184,148,80,0.3)',
+            borderColor: 'rgba(255,255,255,0.06)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
           }}

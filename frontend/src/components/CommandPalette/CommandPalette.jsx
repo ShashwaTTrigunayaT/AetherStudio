@@ -196,8 +196,8 @@ export default function CommandPalette() {
               <div
                 className="absolute inset-0 pointer-events-none rounded-lg transition-opacity duration-300 opacity-0 focus-within:opacity-100"
                 style={{
-                  boxShadow: '0 0 20px rgba(160,120,64,0.15), 0 0 40px rgba(160,120,64,0.06)',
-                  border: '1px solid rgba(160,120,64,0.2)',
+                  boxShadow: '0 0 20px rgba(176,176,188,0.15), 0 0 40px rgba(176,176,188,0.06)',
+                  border: '1px solid rgba(176,176,188,0.2)',
                 }}
               />
               <kbd

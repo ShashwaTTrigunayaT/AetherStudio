@@ -17,19 +17,19 @@ import LandingFooter from '../components/Landing/LandingFooter';
 
 const CODE_SNIPPETS = [
   { text: 'npm create aetherstudio', color: '#30d158' },
-  { text: 'git push origin main', color: '#b89450' },
+  { text: 'git push origin main', color: '#c8c8d0' },
   { text: 'const App = () => {}', color: '#ff9f0a' },
-  { text: '<CollaborativeEditor />', color: '#a07840' },
-  { text: 'console.log("hello")', color: '#d4bc80' },
+  { text: '<CollaborativeEditor />', color: '#b0b0bc' },
+  { text: 'console.log("hello")', color: '#dedee4' },
   { text: '$ docker compose up', color: '#30d158' },
-  { text: 'import { sync } from', color: '#b89450' },
+  { text: 'import { sync } from', color: '#c8c8d0' },
   { text: 'export default aether', color: '#ff9f0a' },
-  { text: 'async function deploy', color: '#a07840' },
-  { text: 'npx aetherstudio init', color: '#d4bc80' },
+  { text: 'async function deploy', color: '#b0b0bc' },
+  { text: 'npx aetherstudio init', color: '#dedee4' },
   { text: 'try { await code }', color: '#ff453a' },
   { text: 'class AetherEngine', color: '#30d158' },
-  { text: 'socket.emit("code")', color: '#b89450' },
-  { text: 'yjs.connect(room)', color: '#a07840' },
+  { text: 'socket.emit("code")', color: '#c8c8d0' },
+  { text: 'yjs.connect(room)', color: '#b0b0bc' },
   { text: 'useSync() => effect', color: '#ff9f0a' },
 ];
 
@@ -38,8 +38,8 @@ const FEATURES = [
     icon: Terminal,
     title: 'Real-Time Collaboration',
     description: 'Edit code together with zero-latency sync. See cursor positions, selections, and changes as they happen — like Google Docs for code.',
-    color: '#b89450',
-    gradient: 'from-[#b89450] to-[#d4bc80]',
+    color: '#c8c8d0',
+    gradient: 'from-[#c8c8d0] to-[#dedee4]',
     stats: 'Sub-50ms latency',
   },
   {
@@ -54,8 +54,8 @@ const FEATURES = [
     icon: Cpu,
     title: 'AI-Powered Assistance',
     description: 'Get intelligent code completion, bug detection, and contextual suggestions powered by Gemini Pro. Your AI pair programmer.',
-    color: '#a07840',
-    gradient: 'from-[#a07840] to-[#c0a078]',
+    color: '#b0b0bc',
+    gradient: 'from-[#b0b0bc] to-[#c0c0cc]',
     stats: 'Gemini Pro powered',
   },
   {
@@ -79,7 +79,7 @@ const FEATURES = [
     title: 'WebRTC Video Chat',
     description: 'Built-in peer-to-peer video and audio calls. Discuss code face-to-face without leaving the editor.',
     color: '#dcccb5',
-    gradient: 'from-[#dcccb5] to-[#b89450]',
+    gradient: 'from-[#dcccb5] to-[#c8c8d0]',
     stats: 'P2P video calls',
   },
 ];
@@ -102,12 +102,12 @@ const CODE_PREVIEW_LINES = [
   { content: '', color: '#f5f5f7' },
   { content: '  return (', color: '#f5f5f7' },
   { content: '    <div className="app">', color: '#f5f5f7' },
-  { content: '      <CollaborativeEditor', color: '#a07840' },
-  { content: '        value={code}', color: '#d4bc80' },
-  { content: '        onChange={setCode}', color: '#d4bc80' },
-  { content: '        users={users}', color: '#d4bc80' },
-  { content: '        language="jsx"', color: '#d4bc80' },
-  { content: '      />', color: '#a07840' },
+  { content: '      <CollaborativeEditor', color: '#b0b0bc' },
+  { content: '        value={code}', color: '#dedee4' },
+  { content: '        onChange={setCode}', color: '#dedee4' },
+  { content: '        users={users}', color: '#dedee4' },
+  { content: '        language="jsx"', color: '#dedee4' },
+  { content: '      />', color: '#b0b0bc' },
   { content: '      <p>{users.length} online</p>', color: '#f5f5f7' },
   { content: '    </div>', color: '#f5f5f7' },
   { content: '  );', color: '#f5f5f7' },
@@ -123,8 +123,8 @@ function FloatingOrb({ index }) {
   const xPos = 10 + (index * 23) % 80;
   const yPos = 10 + (index * 17) % 80;
   const colors = [
-    'radial-gradient(circle, rgba(184,148,80,0.15), rgba(184,148,80,0.03), transparent)',
-    'radial-gradient(circle, rgba(160,120,64,0.12), rgba(160,120,64,0.02), transparent)',
+    'radial-gradient(circle, rgba(200,200,208,0.15), rgba(200,200,208,0.03), transparent)',
+    'radial-gradient(circle, rgba(176,176,188,0.12), rgba(176,176,188,0.02), transparent)',
     'radial-gradient(circle, rgba(48,209,88,0.10), rgba(48,209,88,0.02), transparent)',
     'radial-gradient(circle, rgba(255,159,10,0.08), rgba(255,159,10,0.01), transparent)',
   ];
@@ -160,7 +160,7 @@ function ParticleField() {
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {particles.map((p, i) => (
         <motion.div key={i} className="absolute rounded-full"
-          style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%`, background: i % 3 === 0 ? '#b89450' : i % 3 === 1 ? '#a07840' : '#d4bc80' }}
+          style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%`, background: i % 3 === 0 ? '#c8c8d0' : i % 3 === 1 ? '#b0b0bc' : '#dedee4' }}
           animate={{
             opacity: [0, 0.3 + (i % 5) * 0.1, 0.1, 0.4 + (i % 3) * 0.05, 0],
             scale: [1, 1.6, 0.7, 1.3, 1],
@@ -242,7 +242,7 @@ function TypewriterText({ texts, className = '' }) {
     <span className={className}>
       {texts[index].substring(0, char)}
       <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }}
-        className="inline-block w-[2px] h-[1em] ml-[1px] bg-[#b89450] align-middle"
+        className="inline-block w-[2px] h-[1em] ml-[1px] bg-[#c8c8d0] align-middle"
       />
     </span>
   );
@@ -256,7 +256,7 @@ function CodePreview() {
       className="relative"
     >
       <motion.div className="absolute -inset-4 rounded-[20px] opacity-40"
-        style={{ background: 'linear-gradient(135deg, rgba(184,148,80,0.2), rgba(160,120,64,0.1), transparent)', filter: 'blur(20px)' }}
+        style={{ background: 'linear-gradient(135deg, rgba(200,200,208,0.2), rgba(176,176,188,0.1), transparent)', filter: 'blur(20px)' }}
         animate={{ opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -295,13 +295,13 @@ function CodePreview() {
                 {line.content}
                 {i === 6 && (
                   <motion.span className="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-[8px] font-medium"
-                    style={{ background: 'rgba(184,148,80,0.15)', color: '#d4bc80' }}
+                    style={{ background: 'rgba(200,200,208,0.15)', color: '#dedee4' }}
                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 2, duration: 0.3 }}
                   ><Users size={8} /> 3 online</motion.span>
                 )}
                 {i === 12 && (
                   <motion.span className="inline-block w-5 h-4 ml-1 rounded-sm align-middle"
-                    style={{ background: 'rgba(212,188,128,0.2)', borderLeft: '2px solid #d4bc80' }}
+                    style={{ background: 'rgba(222,222,228,0.2)', borderLeft: '2px solid #dedee4' }}
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 0.2 }}
                   />
                 )}
@@ -321,7 +321,7 @@ function CodePreview() {
             </motion.span>
           </div>
           <div className="flex items-center gap-2">
-            {[{ initial: 'A', color: '#b89450' }, { initial: 'B', color: '#a07840' }, { initial: 'C', color: '#30d158' }].map((user, i) => (
+            {[{ initial: 'A', color: '#c8c8d0' }, { initial: 'B', color: '#b0b0bc' }, { initial: 'C', color: '#30d158' }].map((user, i) => (
               <motion.div key={i} className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold" style={{ background: user.color }}
                 whileHover={{ scale: 1.3, y: -1 }} title={`User ${user.initial}`}>{user.initial}</motion.div>
             ))}
@@ -396,7 +396,7 @@ function StatsSection() {
   return (
     <div ref={ref} className="relative py-12 md:py-16 border-t" style={{ borderColor: 'rgba(255,255,255,0.03)' }}>
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 50% at 50% 0%, rgba(160,120,64,0.04) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 50% 100%, rgba(48,209,88,0.02) 0%, transparent 50%)` }} />
+        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 50% at 50% 0%, rgba(176,176,188,0.04) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 50% 100%, rgba(48,209,88,0.02) 0%, transparent 50%)` }} />
       </div>
       <div className="relative max-w-6xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="text-center mb-12">
@@ -409,8 +409,8 @@ function StatsSection() {
               transition={{ delay: 0.15 + i * 0.08, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               className="text-center p-6 rounded-[16px]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
             >
-              <div className="w-10 h-10 rounded-[10px] flex items-center justify-center mx-auto mb-3" style={{ background: 'rgba(184,148,80,0.08)' }}>
-                <stat.icon size={18} style={{ color: 'rgba(184,148,80,0.5)' }} />
+              <div className="w-10 h-10 rounded-[10px] flex items-center justify-center mx-auto mb-3" style={{ background: 'rgba(200,200,208,0.08)' }}>
+                <stat.icon size={18} style={{ color: 'rgba(200,200,208,0.5)' }} />
               </div>
               <p className="text-[28px] md:text-[32px] font-bold text-[#f5f5f7] tracking-tight">
                 {isInView ? <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={2 + i * 0.3} /> : `0${stat.suffix}`}
@@ -435,7 +435,7 @@ function CtaSection() {
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div animate={{ scale: [1, 1.1, 1], rotate: [0, 2, -2, 0] }} transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px]"
-          style={{ background: 'radial-gradient(circle, rgba(48,209,88,0.05), rgba(184,148,80,0.03), transparent)' }}
+          style={{ background: 'radial-gradient(circle, rgba(48,209,88,0.05), rgba(200,200,208,0.03), transparent)' }}
         />
       </div>
       <div className="relative max-w-3xl mx-auto px-6 text-center">
@@ -443,7 +443,7 @@ function CtaSection() {
           className="text-[32px] md:text-[44px] font-bold text-[#f5f5f7] tracking-tight leading-[1.1]"
         >
           {user ? 'Welcome back to' : 'Ready to build'}{' '}
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840)' }}>
+          <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc)' }}>
             {user ? 'AetherStudio' : 'something amazing'}
           </span>?
         </motion.h2>          <motion.p initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.2, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
@@ -460,9 +460,9 @@ function CtaSection() {
           {user ? (
             <motion.button onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
               className="relative group inline-flex items-center gap-2 px-7 py-3 rounded-[12px] text-[14px] font-semibold text-white overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 24px rgba(184,148,80,0.3)' }}
-              onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(184,148,80,0.4)'}
-              onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(184,148,80,0.3)'}
+              style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 24px rgba(200,200,208,0.3)' }}
+              onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(200,200,208,0.4)'}
+              onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(200,200,208,0.3)'}
             >
               <motion.div className="absolute inset-0 pointer-events-none"
                 style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -473,9 +473,9 @@ function CtaSection() {
           ) : (
             <motion.button onClick={() => navigate('/register')} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
               className="relative group inline-flex items-center gap-2 px-7 py-3 rounded-[12px] text-[14px] font-semibold text-white overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 24px rgba(184,148,80,0.3)' }}
-              onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(184,148,80,0.4)'}
-              onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(184,148,80,0.3)'}
+              style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 24px rgba(200,200,208,0.3)' }}
+              onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(200,200,208,0.4)'}
+              onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(200,200,208,0.3)'}
             >
               <motion.div className="absolute inset-0 pointer-events-none"
                 style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -546,19 +546,19 @@ export default function LandingPage() {
       <section ref={heroRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex flex-col">
         <div className="absolute inset-0">
           <div className="absolute inset-0" style={{
-            background: `radial-gradient(ellipse 80% 50% at 50% 0%, rgba(184,148,80,0.06) 0%, transparent 60%),
-              radial-gradient(ellipse 60% 40% at 80% 80%, rgba(160,120,64,0.04) 0%, transparent 50%),
+            background: `radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200,200,208,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 80%, rgba(176,176,188,0.04) 0%, transparent 50%),
               radial-gradient(ellipse 50% 50% at 20% 70%, rgba(48,209,88,0.03) 0%, transparent 50%),
               radial-gradient(ellipse 40% 40% at 50% 100%, rgba(255,159,10,0.02) 0%, transparent 40%)`
           }} />
           {Array.from({ length: 5 }, (_, i) => <FloatingOrb key={i} index={i} />)}
           <motion.div className="absolute pointer-events-none" style={{ x: orbX, y: orbY, top: '25%', left: '15%', width: 500, height: 500 }}>
-            <div className="w-full h-full rounded-full blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(184,148,80,0.08), rgba(184,148,80,0.02), transparent)' }} />
+            <div className="w-full h-full rounded-full blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(200,200,208,0.08), rgba(200,200,208,0.02), transparent)' }} />
           </motion.div>
           <motion.div className="absolute pointer-events-none"
             style={{ x: useTransform(mouseX, [0, 1], [20, -20]), y: useTransform(mouseY, [0, 1], [20, -20]), bottom: '20%', right: '10%', width: 400, height: 400 }}
           >
-            <div className="w-full h-full rounded-full blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(160,120,64,0.06), rgba(160,120,64,0.01), transparent)' }} />
+            <div className="w-full h-full rounded-full blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(176,176,188,0.06), rgba(176,176,188,0.01), transparent)' }} />
           </motion.div>
           <ParticleField />
           <GridOverlay />
@@ -576,9 +576,9 @@ export default function LandingPage() {
                   className="text-[40px] sm:text-[52px] md:text-[60px] lg:text-[68px] font-bold leading-[1.02] tracking-[-0.03em]"
                 >
                   <span className="text-[#f5f5f7]">Code together,</span><br />
-                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840, #c0a078)', backgroundSize: '200% 200%' }}>
+                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc, #c0c0cc)', backgroundSize: '200% 200%' }}>
                     <motion.span animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-                      className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840, #c0a078)', backgroundSize: '200% 200%' }}
+                      className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc, #c0c0cc)', backgroundSize: '200% 200%' }}
                     >ship faster.</motion.span>
                   </span>
                 </motion.h1>
@@ -591,7 +591,7 @@ export default function LandingPage() {
                   <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] font-mono text-[12px]"
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)' }}
                   >
-                    <Terminal size={13} style={{ color: 'rgba(184,148,80,0.5)' }} />
+                    <Terminal size={13} style={{ color: 'rgba(200,200,208,0.5)' }} />
                     <span className="opacity-40">$</span>
                     <TypewriterText texts={['npm create aetherstudio@latest', 'git clone collab-ide', 'docker compose up --build', 'code . --sync', 'npx aetherstudio init']} />
                   </div>
@@ -602,9 +602,9 @@ export default function LandingPage() {
                 >
                   <motion.button onClick={handleGetStarted} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
                     className="relative group inline-flex items-center gap-2 px-6 py-3 rounded-[12px] text-[14px] font-semibold text-white overflow-hidden"
-                    style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 24px rgba(184,148,80,0.3)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(184,148,80,0.4)'}
-                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(184,148,80,0.3)'}
+                    style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 24px rgba(200,200,208,0.3)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 32px rgba(200,200,208,0.4)'}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(200,200,208,0.3)'}
                   >
                     <motion.div className="absolute inset-0 pointer-events-none"
                       style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -621,7 +621,7 @@ export default function LandingPage() {
 
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.5 }} className="flex items-center gap-4 mt-10">
                   <div className="flex -space-x-2">
-                    {[{ initial: 'A', color: '#b89450' }, { initial: 'B', color: '#a07840' }, { initial: 'C', color: '#30d158' }, { initial: 'D', color: '#ff9f0a' }, { initial: 'E', color: '#ff453a' }]
+                    {[{ initial: 'A', color: '#c8c8d0' }, { initial: 'B', color: '#b0b0bc' }, { initial: 'C', color: '#30d158' }, { initial: 'D', color: '#ff9f0a' }, { initial: 'E', color: '#ff453a' }]
                       .map((user, i) => (
                         <motion.div key={i} className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold border-2 border-[#000]" style={{ background: user.color }}
                           initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.05, duration: 0.3 }}
@@ -657,7 +657,7 @@ export default function LandingPage() {
       {/* ───────── FEATURES ───────── */}
       <section id="features" className="relative pt-6 md:pt-8 pb-8 md:pb-12 border-t scroll-mt-[80px]" style={{ borderColor: 'rgba(255,255,255,0.02)' }}>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, rgba(184,148,80,0.04) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 100%, rgba(160,120,64,0.03) 0%, transparent 50%)` }} />
+          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,200,208,0.04) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 100%, rgba(176,176,188,0.03) 0%, transparent 50%)` }} />
           <GridOverlay />
         </div>
         <div className="relative max-w-6xl mx-auto px-6">            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}
@@ -665,7 +665,7 @@ export default function LandingPage() {
           >
             <h2 className="text-[26px] md:text-[34px] font-bold text-[#f5f5f7] tracking-tight">
               Everything you need to{' '}
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80)' }}>build together</span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4)' }}>build together</span>
             </h2>
             <p className="text-[12px] mt-2 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.35)' }}>
               A complete collaborative development environment with real-time sync, AI assistance, and enterprise-grade security.

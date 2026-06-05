@@ -66,7 +66,7 @@ export default function TabContextMenu({ x, y, onClose, onAction }) {
             className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[12px] transition-colors"
             style={{ color: 'rgba(255,255,255,0.55)' }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(184,148,80,0.06)';
+              e.currentTarget.style.background = 'rgba(200,200,208,0.06)';
               e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
             }}
             onMouseLeave={(e) => {

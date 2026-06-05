@@ -8,11 +8,11 @@ import LandingFooter from '../components/Landing/LandingFooter';
 
 const ROADMAP_ITEMS = [
   { quarter: 'Q2 2025', title: 'AI Code Completions', desc: 'Context-aware inline completions powered by Gemini Pro.', icon: Zap, status: 'In Progress', color: '#30d158' },
-  { quarter: 'Q3 2025', title: 'Mobile Companion App', desc: 'Browse code, review PRs, and chat from your phone.', icon: Globe, status: 'Planned', color: '#b89450' },
-  { quarter: 'Q4 2025', title: 'Self-Hosted Deployment', desc: 'Deploy AetherStudio on your own infrastructure.', icon: Cpu, status: 'Planned', color: '#a07840' },
+  { quarter: 'Q3 2025', title: 'Mobile Companion App', desc: 'Browse code, review PRs, and chat from your phone.', icon: Globe, status: 'Planned', color: '#c8c8d0' },
+  { quarter: 'Q4 2025', title: 'Self-Hosted Deployment', desc: 'Deploy AetherStudio on your own infrastructure.', icon: Cpu, status: 'Planned', color: '#b0b0bc' },
   { quarter: 'Q1 2026', title: 'Team Analytics Dashboard', desc: 'Insights into team productivity and collaboration patterns.', icon: Users, status: 'Research', color: '#ff9f0a' },
   { quarter: 'Q2 2026', title: 'Enterprise SSO & RBAC', desc: 'SAML/OIDC SSO with granular role-based access control.', icon: Shield, status: 'Research', color: '#ff453a' },
-  { quarter: 'Q3 2026', title: 'VS Code Extension', desc: 'Connect local VS Code to AetherStudio workspaces.', icon: GitBranch, status: 'Research', color: '#d4bc80' },
+  { quarter: 'Q3 2026', title: 'VS Code Extension', desc: 'Connect local VS Code to AetherStudio workspaces.', icon: GitBranch, status: 'Research', color: '#dedee4' },
 ];
 
 export default function RoadmapPage() {
@@ -30,11 +30,11 @@ export default function RoadmapPage() {
     <div className="min-h-screen bg-[#000000] overflow-x-hidden">
       <LandingNav onGetStarted={handleGetStarted} user={user} onLogout={logout} />
       <section className="relative pt-32 pb-20">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(160,120,64,0.06) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(176,176,188,0.06) 0%, transparent 60%)' }} />
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}
             className="text-[40px] md:text-[56px] font-bold text-[#f5f5f7] tracking-tight"
-          >Product <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #a07840, #c0a078)' }}>Roadmap</span></motion.h1>
+          >Product <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b0b0bc, #c0c0cc)' }}>Roadmap</span></motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[15px] mt-5 max-w-xl mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}
           >Here&apos;s what we&apos;re building next. Our roadmap is public and driven by community feedback.</motion.p>

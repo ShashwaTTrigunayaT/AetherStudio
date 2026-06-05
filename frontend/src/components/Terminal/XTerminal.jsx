@@ -115,12 +115,12 @@ const TerminalTab = React.forwardRef(({ terminal, isActive, isSelected, onClick,
       `}
       style={{
         background: isActive
-          ? 'rgba(184,148,80,0.04)'
+          ? 'rgba(200,200,208,0.04)'
           : isSelected
             ? 'rgba(0,122,204,0.06)'
             : hovered ? 'rgba(0,0,0,0.02)' : 'transparent',
         boxShadow: isActive
-          ? 'inset 0 -1px 0 rgba(184,148,80,0.2)'
+          ? 'inset 0 -1px 0 rgba(200,200,208,0.2)'
           : isSelected
             ? 'inset 0 -1px 0 rgba(0,122,204,0.3)'
             : 'none',
@@ -139,8 +139,8 @@ const TerminalTab = React.forwardRef(({ terminal, isActive, isSelected, onClick,
           layoutId="activeTerminalIndicator"
           className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full"
           style={{
-            background: '#a07840',
-            boxShadow: '0 0 8px rgba(160,120,64,0.3)',
+            background: '#b0b0bc',
+            boxShadow: '0 0 8px rgba(176,176,188,0.3)',
           }}
           transition={{ type: 'spring', stiffness: 350, damping: 35 }}
         />
@@ -151,7 +151,7 @@ const TerminalTab = React.forwardRef(({ terminal, isActive, isSelected, onClick,
         <TerminalIcon
           size={11}
           strokeWidth={1.5}
-          className={isActive ? 'text-[#b89450]' : 'text-[rgba(100,110,130,0.3)]'}
+          className={isActive ? 'text-[#c8c8d0]' : 'text-[rgba(100,110,130,0.3)]'}
         />
       </div>
 
@@ -166,7 +166,7 @@ const TerminalTab = React.forwardRef(({ terminal, isActive, isSelected, onClick,
           onKeyDown={handleRenameKeyDown}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-[rgba(184,148,80,0.06)] text-[#1e293b] border border-[rgba(184,148,80,0.2)] rounded px-1 py-0 text-[13px] outline-none w-[80px]"
+          className="bg-[rgba(200,200,208,0.06)] text-[#1e293b] border border-[rgba(200,200,208,0.2)] rounded px-1 py-0 text-[13px] outline-none w-[80px]"
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
@@ -264,14 +264,14 @@ function TerminalDropdown({ terminals, activeTerminalId, onSelect, onKill, onClo
               }
             `}
             style={{
-              background: act ? 'rgba(184,148,80,0.06)' : 'transparent',
+              background: act ? 'rgba(200,200,208,0.06)' : 'transparent',
             }}
             onClick={() => { onSelect(terminal.id); onClose(); }}
             transition={{ duration: 0.1 }}
           >
             <TerminalIcon
               size={12}
-              className={`flex-shrink-0 ${act ? 'text-[#b89450]' : 'text-[rgba(100,110,130,0.25)]'}`}
+              className={`flex-shrink-0 ${act ? 'text-[#c8c8d0]' : 'text-[rgba(100,110,130,0.25)]'}`}
               strokeWidth={1.5}
             />
             <div className="flex-1 min-w-0 truncate">{terminal.name}</div>
@@ -320,10 +320,10 @@ function TerminalGroup({
       className="flex-1 flex items-center justify-center"
     >
       <motion.button
-        whileHover={{ scale: 1.03, backgroundColor: 'rgba(184,148,80,0.06)' }}
+        whileHover={{ scale: 1.03, backgroundColor: 'rgba(200,200,208,0.06)' }}
         whileTap={{ scale: 0.97 }}
         onClick={() => onCreateTerminal()}
-        className="flex items-center gap-2 px-5 py-2.5 text-[13px] text-[rgba(100,110,130,0.5)] hover:text-[rgba(184,148,80,0.6)] rounded-lg border border-dashed transition-all duration-200"
+        className="flex items-center gap-2 px-5 py-2.5 text-[13px] text-[rgba(100,110,130,0.5)] hover:text-[rgba(200,200,208,0.6)] rounded-lg border border-dashed transition-all duration-200"
         style={{
           borderColor: 'rgba(0,0,0,0.08)',
         }}
@@ -332,7 +332,7 @@ function TerminalGroup({
           whileHover={{ rotate: 90 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <Plus size={14} strokeWidth={1.5} className="text-[rgba(184,148,80,0.3)]" />
+          <Plus size={14} strokeWidth={1.5} className="text-[rgba(200,200,208,0.3)]" />
         </motion.div>
         <span className="tracking-wide font-medium">Create Terminal</span>
         <kbd className="text-[9px] px-1.5 py-[1px] rounded ml-1"
@@ -361,7 +361,7 @@ function TerminalGroup({
       <div
         className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-10"
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.15), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.15), transparent)',
         }}
       />
 
@@ -377,13 +377,13 @@ function TerminalGroup({
         {/* Dropdown toggle */}
         <div className="relative flex-shrink-0 self-stretch">
           <motion.button
-            whileHover={{ backgroundColor: 'rgba(184,148,80,0.06)' }}
+            whileHover={{ backgroundColor: 'rgba(200,200,208,0.06)' }}
             whileTap={{ scale: 0.95 }}
             onClick={(e) => { e.stopPropagation(); onToggleDropdown(groupId); }}
             className="h-full px-2.5 flex items-center transition-colors group"
             title="Select terminal"
           >
-            <ChevronDown size={11} className="text-[rgba(100,110,130,0.3)] group-hover:text-[#b89450] transition-colors" strokeWidth={1.5} />
+            <ChevronDown size={11} className="text-[rgba(100,110,130,0.3)] group-hover:text-[#c8c8d0] transition-colors" strokeWidth={1.5} />
           </motion.button>
           <AnimatePresence>
             {dropdownOpen && (
@@ -466,13 +466,13 @@ function TerminalGroup({
           )}
 
           <motion.button
-            whileHover={{ scale: 1.08, backgroundColor: 'rgba(184,148,80,0.08)' }}
+            whileHover={{ scale: 1.08, backgroundColor: 'rgba(200,200,208,0.08)' }}
             whileTap={{ scale: 0.92 }}
             onClick={() => onCreateTerminal()}
             className="h-full px-2.5 flex items-center transition-colors group"
             title="New Terminal (Ctrl+Shift+`)"
           >
-            <Plus size={13} className="text-[rgba(100,110,130,0.3)] group-hover:text-[#b89450] transition-colors" strokeWidth={1.5} />
+            <Plus size={13} className="text-[rgba(100,110,130,0.3)] group-hover:text-[#c8c8d0] transition-colors" strokeWidth={1.5} />
           </motion.button>
 
           <div className="w-px h-3.5 bg-[rgba(0,0,0,0.04)] mx-0.5 flex-shrink-0" />
@@ -613,7 +613,7 @@ function SplitDivider({ direction }) {
       `}
       style={{
         background: isHovered
-          ? 'rgba(184,148,80,0.2)'
+          ? 'rgba(200,200,208,0.2)'
           : 'rgba(0,0,0,0.04)',
       }}
     >
@@ -625,8 +625,8 @@ function SplitDivider({ direction }) {
         className={`absolute ${isHorizontal ? 'inset-y-0 -left-3 -right-3' : 'inset-x-0 -top-3 -bottom-3'} pointer-events-none`}
         style={{
           background: isHorizontal
-            ? 'radial-gradient(ellipse at center, rgba(184,148,80,0.1) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse at center, rgba(184,148,80,0.1) 0%, transparent 70%)',
+            ? 'radial-gradient(ellipse at center, rgba(200,200,208,0.1) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse at center, rgba(200,200,208,0.1) 0%, transparent 70%)',
         }}
       />
 
@@ -639,8 +639,8 @@ function SplitDivider({ direction }) {
           }}
           className={`${isHorizontal ? 'w-[6px] h-[6px]' : 'w-[6px] h-[6px]'} rounded-full`}
           style={{
-            background: '#b89450',
-            boxShadow: '0 0 6px rgba(184,148,80,0.3)',
+            background: '#c8c8d0',
+            boxShadow: '0 0 6px rgba(200,200,208,0.3)',
           }}
         />
       </div>

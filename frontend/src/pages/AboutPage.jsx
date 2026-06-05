@@ -21,14 +21,14 @@ export default function AboutPage() {
       <LandingNav onGetStarted={handleGetStarted} user={user} onLogout={logout} />
       <section className="relative pt-32 pb-20">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(184,148,80,0.06) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(160,120,64,0.04) 0%, transparent 50%)' }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(200,200,208,0.06) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(176,176,188,0.04) 0%, transparent 50%)' }} />
         </div>
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}
             className="text-[40px] md:text-[56px] font-bold text-[#f5f5f7] tracking-tight leading-[1.05]"
           >
             Building the future of{' '}
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80, #a07840)' }}>
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4, #b0b0bc)' }}>
               collaborative coding
             </span>
           </motion.h1>

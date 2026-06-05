@@ -32,7 +32,7 @@ function ParticleField({ count = 35 }) {
       delay: (i * 0.08) % 5,
       duration: 3 + (i % 6) * 0.8,
       drift: (i % 2 === 0 ? 20 : -20),
-      color: i % 3 === 0 ? '#b89450' : i % 3 === 1 ? '#a07840' : '#d4bc80',
+      color: i % 3 === 0 ? 'rgba(255,255,255,0.15)' : i % 3 === 1 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.08)',
     })), [count]);
 
   return (
@@ -77,7 +77,7 @@ function AmbientOrbs() {
         transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute top-[5%] left-[3%] w-[600px] h-[600px] rounded-full"
         style={{
-          background: 'radial-gradient(circle, rgba(184,148,80,0.06), rgba(212,188,128,0.02), transparent)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.03), transparent)',
           filter: 'blur(120px)',
         }}
       />
@@ -86,7 +86,7 @@ function AmbientOrbs() {
         transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
         className="absolute bottom-[15%] right-[5%] w-[500px] h-[500px] rounded-full"
         style={{
-          background: 'radial-gradient(circle, rgba(160,120,64,0.05), rgba(144,137,255,0.02), transparent)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.02), transparent)',
           filter: 'blur(100px)',
         }}
       />
@@ -134,9 +134,9 @@ function GlassCard({ children, className = '', hover = true, as = 'div', glow = 
       className={`relative group overflow-hidden rounded-[14px] border ${hover ? 'transition-all duration-300' : ''} ${className}`}
       style={{
         background: 'rgba(14,14,18,0.7)',
-        borderColor: glow ? 'rgba(184,148,80,0.25)' : 'rgba(255,255,255,0.05)',
+        borderColor: glow ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
         boxShadow: glow
-          ? '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(184,148,80,0.12), inset 0 1px 0 rgba(255,255,255,0.04)'
+          ? '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04)'
           : '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
         backdropFilter: 'blur(16px) saturate(1.4)',
         WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
@@ -147,7 +147,7 @@ function GlassCard({ children, className = '', hover = true, as = 'div', glow = 
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           style={{
-            background: 'linear-gradient(135deg, rgba(184,148,80,0.03) 0%, transparent 50%)',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%)',
           }}
         />
       )}
@@ -159,11 +159,11 @@ function GlassCard({ children, className = '', hover = true, as = 'div', glow = 
 // ─── Floating Code Particles ─────────────────────────────────
 function CodeFloaters() {
   const snippets = useMemo(() => [
-    { text: 'import React from "react"', color: '#d4bc80' },
+    { text: 'import React from "react"', color: '#dedee4' },
     { text: 'const App = () => {}', color: '#ff9f0a' },
     { text: 'npm run dev', color: '#30d158' },
-    { text: 'git push origin main', color: '#b89450' },
-    { text: 'docker compose up', color: '#a07840' },
+    { text: 'git push origin main', color: 'rgba(255,255,255,0.2)' },
+    { text: 'docker compose up', color: '#b0b0bc' },
     { text: 'console.log("hello")', color: '#dcccb5' },
     { text: 'export default App', color: '#ff9f0a' },
     { text: 'yarn add react', color: '#30d158' },
@@ -210,7 +210,7 @@ const DASHBOARD_TABS = [
 ];
 
 // ─── Section Header ──────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, gradient = 'from-[#b89450] to-[#a07840]', badge }) {
+function SectionHeader({ icon: Icon, label, gradient = 'from-[rgba(255,255,255,0.08)] to-[rgba(255,255,255,0.04)]', badge }) {
   return (
     <div className="flex items-center gap-2.5 mb-4">
       <div className={`w-[3px] h-6 rounded-full bg-gradient-to-b ${gradient}`} />
@@ -308,9 +308,9 @@ export default function DashboardPage() {
   const glowY = useTransform(mouseY, [0, 1], [-200, 200]);
 
   const quickStats = [
-    { label: 'Workspaces', value: workspaces.length, icon: Folder, color: '#b89450', bg: 'rgba(184,148,80,0.12)', sub: 'Active projects' },
+    { label: 'Workspaces', value: workspaces.length, icon: Folder, color: '#c8c8d0', bg: 'rgba(200,200,208,0.12)', sub: 'Active projects' },
     { label: 'Active Collaborators', value: workspaces.reduce((s, w) => s + (w.collaboratorIds?.length || 0), 0) || '—', icon: Users, color: '#30d158', bg: 'rgba(48,209,88,0.12)', sub: 'Team members' },
-    { label: 'Files Created', value: workspaces.reduce((s, w) => s + (w.fileCount || 0), 0) || '—', icon: FileText, color: '#a07840', bg: 'rgba(160,120,64,0.12)', sub: 'Across all projects' },
+    { label: 'Files Created', value: workspaces.reduce((s, w) => s + (w.fileCount || 0), 0) || '—', icon: FileText, color: '#b0b0bc', bg: 'rgba(176,176,188,0.12)', sub: 'Across all projects' },
     { label: 'System', value: 'Online', icon: Activity, color: '#ffd60a', bg: 'rgba(255,214,10,0.12)', sub: 'All systems nominal' },
   ];
 
@@ -358,7 +358,7 @@ export default function DashboardPage() {
           height: 400,
           x: glowX,
           y: glowY,
-          background: 'radial-gradient(circle, rgba(184,148,80,0.03), transparent)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.02), transparent)',
           filter: 'blur(80px)',
           left: '50%',
           top: '50%',
@@ -447,48 +447,19 @@ export default function DashboardPage() {
                 <StatsGrid stats={quickStats} />
               </div>
 
-              {/* Spacer with breathing gold accent */}
-              <div className="relative" style={{ height: '100px' }}>
-                <motion.div
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 max-w-[200px] h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.15), rgba(212,188,128,0.25), rgba(184,148,80,0.15), transparent)',
-                    boxShadow: '0 0 12px rgba(184,148,80,0.08), 0 0 24px rgba(184,148,80,0.04)',
-                  }}
-                  animate={{
-                    opacity: [0.3, 0.8, 0.3],
-                    scaleX: [0.92, 1, 0.92],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                />
-              </div>
+              {/* Spacer */}
+              <div className="relative" style={{ height: '60px' }} />
 
-              {/* Quick Actions with gold glow */}
+              {/* Quick Actions */}
               <div className="mb-6 relative">
-                <div
-                  className="absolute -top-20 left-1/2 -translate-x-1/2 w-[400px] h-[200px] rounded-full pointer-events-none"
-                  style={{
-                    background: 'radial-gradient(circle, rgba(184,148,80,0.04), transparent)',
-                    filter: 'blur(60px)',
-                  }}
-                />
                 <div className="relative">
-                  <SectionHeader icon={Zap} label="Quick Actions" gradient="from-[#b89450] to-[#d4bc80]" badge="hotkeys" />
+                  <SectionHeader icon={Zap} label="Quick Actions" gradient="from-[rgba(255,255,255,0.08)] to-[rgba(255,255,255,0.04)]" badge="hotkeys" />
                   <QuickActions onCreateWorkspace={() => setShowCreate(true)} />
                 </div>
               </div>
 
-              {/* Recent Activity with gold accent top border */}
+              {/* Recent Activity */}
               <div className="relative pt-8">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.15), rgba(212,188,128,0.25), rgba(184,148,80,0.15), transparent)',
-                  }}
-                />
                 <SectionHeader icon={Clock} label="Recent Activity" gradient="from-[#30d158] to-[#dcccb5]" />
                 <GlassCard hover={false} glow>
                   <div className="p-4 md:p-5">
@@ -511,7 +482,7 @@ export default function DashboardPage() {
               {/* Section Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-[3px] h-7 rounded-full bg-gradient-to-b from-[#b89450] to-[#a07840]" />
+                  <div className="w-[3px] h-7 rounded-full bg-gradient-to-b from-[#c8c8d0] to-[#b0b0bc]" />
                   <h2 className="text-[18px] font-bold text-[#f5f5f7] tracking-tight whitespace-nowrap">
                     All Workspaces
                   </h2>
@@ -632,9 +603,9 @@ export default function DashboardPage() {
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
                           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                          style={{ background: 'rgba(184,148,80,0.08)' }}
+                          style={{ background: 'rgba(200,200,208,0.08)' }}
                         >
-                          <Rocket size={28} style={{ color: '#d4bc80' }} />
+                          <Rocket size={28} style={{ color: '#dedee4' }} />
                         </motion.div>
                         <motion.h3
                           initial={{ opacity: 0, y: 10 }}
@@ -661,11 +632,11 @@ export default function DashboardPage() {
                           onClick={() => setShowCreate(true)}
                           className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-[10px] text-[13px] font-semibold text-white transition-all"
                           style={{
-                            background: 'linear-gradient(135deg, #b89450, #d4bc80)',
-                            boxShadow: '0 4px 24px rgba(184,148,80,0.25)',
+                            background: 'linear-gradient(135deg, #c8c8d0, #dedee4)',
+                            boxShadow: '0 4px 24px rgba(200,200,208,0.25)',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 32px rgba(184,148,80,0.35)'}
-                          onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(184,148,80,0.25)'}
+                          onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 32px rgba(200,200,208,0.35)'}
+                          onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(200,200,208,0.25)'}
                         >
                           <Plus size={15} />
                           Create Workspace
@@ -697,9 +668,9 @@ export default function DashboardPage() {
                       transition={{ delay: filteredWorkspaces.length * 0.04, type: 'spring', stiffness: 300, damping: 25 }}
                       whileHover={{
                         y: -6,
-                        borderColor: 'rgba(184,148,80,0.35)',
-                        background: 'rgba(184,148,80,0.04)',
-                        boxShadow: '0 12px 40px rgba(184,148,80,0.1)',
+                        borderColor: 'rgba(200,200,208,0.35)',
+                        background: 'rgba(200,200,208,0.04)',
+                        boxShadow: '0 12px 40px rgba(200,200,208,0.1)',
                       }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => setShowCreate(true)}
@@ -714,9 +685,9 @@ export default function DashboardPage() {
                         whileHover={{ rotate: 90 }}
                         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                         className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors"
-                        style={{ background: 'rgba(184,148,80,0.08)' }}
+                        style={{ background: 'rgba(200,200,208,0.08)' }}
                       >
-                        <Plus size={22} style={{ color: '#d4bc80' }} />
+                        <Plus size={22} style={{ color: '#dedee4' }} />
                       </motion.div>
                       <p className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>
                         New Workspace

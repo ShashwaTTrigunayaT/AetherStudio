@@ -119,7 +119,7 @@ export default function TabBar({ groupId }) {
   const {
     getGroupById, activeGroupId, setActiveGroup, setActiveTab, closeTab,
     closeAllTabs, closeOtherTabs, closeTabsToTheRight,
-    reorderTabs, splitEditor, moveTabToGroup,
+    reorderTabs, splitEditor, moveTabToGroup, dirtyFiles,
   } = useWorkspace();
 
   const group = getGroupById(groupId);
@@ -306,6 +306,9 @@ export default function TabBar({ groupId }) {
 
               <FileIcon name={tab.name} />
               <span className="text-[12px]">{tab.name}</span>
+              {tab.id && dirtyFiles[tab.id] && (
+                <span className="ml-0.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
+              )}
 
               <button
                 onClick={(e) => {

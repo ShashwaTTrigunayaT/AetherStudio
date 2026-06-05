@@ -2,11 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const snippets = [
-  { text: 'import React from "react"', color: '#d4bc80' },
+  { text: 'import React from "react"', color: '#dedee4' },
   { text: 'const App = () => {}', color: '#ff9f0a' },
   { text: 'npm run dev', color: '#30d158' },
-  { text: 'git push origin main', color: '#b89450' },
-  { text: 'docker compose up', color: '#a07840' },
+  { text: 'git push origin main', color: '#c8c8d0' },
+  { text: 'docker compose up', color: '#b0b0bc' },
   { text: 'console.log("hello")', color: '#dcccb5' },
   { text: 'export default App', color: '#ff9f0a' },
   { text: 'yarn add react', color: '#30d158' },

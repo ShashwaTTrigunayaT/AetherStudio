@@ -67,7 +67,7 @@ export default function FileContextMenu({ x, y, node, onClose, onAction }) {
               <div className="px-3 py-1.5 mb-0.5">
                 <div className="flex items-center gap-2">
                   {node.type === 'folder' ? (
-                    <Folder size={12} className="text-[#b89450]" />
+                    <Folder size={12} className="text-[#c8c8d0]" />
                   ) : (
                     <File size={12} className="text-[rgba(100,110,130,0.4)]" />
                   )}
@@ -97,7 +97,7 @@ export default function FileContextMenu({ x, y, node, onClose, onAction }) {
                     relative w-full flex items-center gap-2.5 px-3 py-[7px] text-[12px] transition-colors duration-75
                     ${item.destructive
                       ? 'text-[#dc2626] hover:text-[#dc2626] hover:bg-[rgba(220,38,38,0.06)]'
-                      : 'text-[rgba(60,70,90,0.6)] hover:text-[#b89450] hover:bg-[rgba(184,148,80,0.04)]'
+                      : 'text-[rgba(60,70,90,0.6)] hover:text-[#c8c8d0] hover:bg-[rgba(200,200,208,0.04)]'
                     }
                     active:scale-[0.98]
                   `}

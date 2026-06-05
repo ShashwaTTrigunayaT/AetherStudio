@@ -25,7 +25,7 @@ function ParticleField({ count = 25 }) {
       delay: (i * 0.08) % 5,
       duration: 3 + (i % 6) * 0.8,
       drift: (i % 2 === 0 ? 20 : -20),
-      color: i % 3 === 0 ? '#b89450' : i % 3 === 1 ? '#a07840' : '#d4bc80',
+      color: i % 3 === 0 ? '#c8c8d0' : i % 3 === 1 ? '#b0b0bc' : '#dedee4',
     })), [count]);
 
   return (
@@ -59,11 +59,11 @@ function AmbientOrbs() {
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
       <motion.div animate={{ x: [0, 80, -40, 60, 0], y: [0, -60, 40, -50, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute top-[5%] left-[3%] w-[600px] h-[600px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(184,148,80,0.06), rgba(212,188,128,0.02), transparent)', filter: 'blur(120px)' }}
+        style={{ background: 'radial-gradient(circle, rgba(200,200,208,0.06), rgba(222,222,228,0.02), transparent)', filter: 'blur(120px)' }}
       />
       <motion.div animate={{ x: [0, -60, 70, -40, 0], y: [0, 50, -60, 40, 0] }} transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
         className="absolute bottom-[15%] right-[5%] w-[500px] h-[500px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(160,120,64,0.05), rgba(144,137,255,0.02), transparent)', filter: 'blur(100px)' }}
+        style={{ background: 'radial-gradient(circle, rgba(176,176,188,0.05), rgba(144,137,255,0.02), transparent)', filter: 'blur(100px)' }}
       />
       <motion.div animate={{ scale: [1, 1.25, 0.9, 1], opacity: [0.03, 0.07, 0.03, 0.03] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
         className="absolute top-[30%] right-[25%] w-[350px] h-[350px] rounded-full"
@@ -81,11 +81,11 @@ function AmbientOrbs() {
 // ─── Code Floaters ────────────────────────────────────────────
 function CodeFloaters() {
   const snippets = useMemo(() => [
-    { text: 'import React from "react"', color: '#d4bc80' },
+    { text: 'import React from "react"', color: '#dedee4' },
     { text: 'const App = () => {}', color: '#ff9f0a' },
     { text: 'npm run dev', color: '#30d158' },
-    { text: 'git push origin main', color: '#b89450' },
-    { text: 'docker compose up', color: '#a07840' },
+    { text: 'git push origin main', color: '#c8c8d0' },
+    { text: 'docker compose up', color: '#b0b0bc' },
     { text: 'console.log("hello")', color: '#dcccb5' },
     { text: 'export default App', color: '#ff9f0a' },
     { text: 'yarn add react', color: '#30d158' },
@@ -117,7 +117,7 @@ function GlassCard({ children, className = '', hover = true, glow = false, ...pr
         background: 'rgba(14,14,18,0.7)',
         borderColor: 'rgba(255,255,255,0.05)',
         boxShadow: glow
-          ? '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(184,148,80,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
+          ? '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(200,200,208,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
           : '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
         backdropFilter: 'blur(16px) saturate(1.4)',
         WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
@@ -126,7 +126,7 @@ function GlassCard({ children, className = '', hover = true, glow = false, ...pr
     >
       {hover && (
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, rgba(184,148,80,0.03) 0%, transparent 50%)' }}
+          style={{ background: 'linear-gradient(135deg, rgba(200,200,208,0.03) 0%, transparent 50%)' }}
         />
       )}
       {children}
@@ -135,7 +135,7 @@ function GlassCard({ children, className = '', hover = true, glow = false, ...pr
 }
 
 // ─── Section Header ───────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, gradient = 'from-[#b89450] to-[#a07840]', badge }) {
+function SectionHeader({ icon: Icon, label, gradient = 'from-[#c8c8d0] to-[#b0b0bc]', badge }) {
   return (
     <div className="flex items-center gap-2.5 mb-4">
       <div className={`w-[3px] h-6 rounded-full bg-gradient-to-b ${gradient}`} />
@@ -157,17 +157,17 @@ const SETTINGS_SECTIONS = [
   {
     id: 'account', label: 'Account',
     items: [
-      { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', gradient: 'from-[#b89450] to-[#d4bc80]', action: 'scroll-top' },
-      { icon: Key, label: 'Password & Security', description: 'Update password and 2FA settings', gradient: 'from-[#d4bc80] to-[#a07840]', action: 'forgot-password' },
-      { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', gradient: 'from-[#a07840] to-[#b89450]', action: 'coming-soon' },
+      { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', gradient: 'from-[#c8c8d0] to-[#dedee4]', action: 'scroll-top' },
+      { icon: Key, label: 'Password & Security', description: 'Update password and 2FA settings', gradient: 'from-[#dedee4] to-[#b0b0bc]', action: 'forgot-password' },
+      { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', gradient: 'from-[#b0b0bc] to-[#c8c8d0]', action: 'coming-soon' },
     ],
   },
   {
     id: 'preferences', label: 'Preferences',
     items: [
-      { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', gradient: 'from-[#d4bc80] to-[#b89450]', action: 'coming-soon' },
-      { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', gradient: 'from-[#b89450] to-[#a07840]', action: 'coming-soon' },
-      { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', gradient: 'from-[#a07840] to-[#d4bc80]', action: 'coming-soon' },
+      { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', gradient: 'from-[#dedee4] to-[#c8c8d0]', action: 'coming-soon' },
+      { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', gradient: 'from-[#c8c8d0] to-[#b0b0bc]', action: 'coming-soon' },
+      { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', gradient: 'from-[#b0b0bc] to-[#dedee4]', action: 'coming-soon' },
     ],
   },
 ];
@@ -226,9 +226,9 @@ export default function ProfilePage() {
   }, []);
 
   const statCards = [
-    { label: 'Workspaces', value: '—', icon: Folder, color: '#b89450', bg: 'rgba(184,148,80,0.12)' },
+    { label: 'Workspaces', value: '—', icon: Folder, color: '#c8c8d0', bg: 'rgba(200,200,208,0.12)' },
     { label: 'Collaborations', value: '—', icon: Users, color: '#30d158', bg: 'rgba(48,209,88,0.12)' },
-    { label: 'Member Since', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'short' }) : '—', icon: Calendar, color: '#d4bc80', bg: 'rgba(212,188,128,0.12)' },
+    { label: 'Member Since', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'short' }) : '—', icon: Calendar, color: '#dedee4', bg: 'rgba(222,222,228,0.12)' },
   ];
 
   return (
@@ -238,7 +238,7 @@ export default function ProfilePage() {
       <CodeFloaters />
 
       <motion.div className="fixed pointer-events-none rounded-full"
-        style={{ width: 400, height: 400, x: glowX, y: glowY, background: 'radial-gradient(circle, rgba(184,148,80,0.03), transparent)', filter: 'blur(80px)', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
+        style={{ width: 400, height: 400, x: glowX, y: glowY, background: 'radial-gradient(circle, rgba(200,200,208,0.03), transparent)', filter: 'blur(80px)', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
       />
 
       {/* ── Navbar ── */}
@@ -254,7 +254,7 @@ export default function ProfilePage() {
             ><Home size={13} /></motion.button>
             <motion.button onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}
               className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 16px rgba(184,148,80,0.25)' }}
+              style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
             >
               <motion.div className="absolute inset-0 pointer-events-none"
                 style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -284,13 +284,13 @@ export default function ProfilePage() {
                   className="absolute -inset-1 rounded-full opacity-30"
                   animate={{ scale: [1, 1.08, 1], rotate: [0, 180, 360] }}
                   transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                  style={{ background: 'conic-gradient(from 0deg, #b89450, #d4bc80, #a07840, #b89450)', filter: 'blur(4px)' }}
+                  style={{ background: 'conic-gradient(from 0deg, #c8c8d0, #dedee4, #b0b0bc, #c8c8d0)', filter: 'blur(4px)' }}
                 />
                 <div
                   className={`relative rounded-full transition-all duration-300 ${dragOver ? 'scale-105' : ''}`}
                   onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
                 >
-                  <div className={`relative group cursor-pointer rounded-full ${dragOver ? 'ring-2 ring-[#b89450] ring-offset-2 ring-offset-[#000000]' : ''}`} onClick={handleSelectClick}>
+                  <div className={`relative group cursor-pointer rounded-full ${dragOver ? 'ring-2 ring-[#c8c8d0] ring-offset-2 ring-offset-[#000000]' : ''}`} onClick={handleSelectClick}>
                     <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="xxl" status="online" />
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden" />
                     <motion.div
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                   {dragOver && (
                     <motion.div key="drop-badge" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                       className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] whitespace-nowrap"
-                      style={{ background: 'rgba(184,148,80,0.12)', border: '1px solid rgba(184,148,80,0.2)', color: '#d4bc80' }}
+                      style={{ background: 'rgba(200,200,208,0.12)', border: '1px solid rgba(200,200,208,0.2)', color: '#dedee4' }}
                     >
                       <Upload size={10} />
                       <span className="text-[10px] font-semibold">Drop to crop</span>
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                 <h1 className="text-[28px] md:text-[32px] font-bold text-[#f5f5f7] tracking-tight leading-tight">
                   {user?.name || 'User'}
                 </h1>
-                <div className="w-10 h-[2px] rounded-full mt-2 mb-3" style={{ background: 'linear-gradient(90deg, #b89450, #d4bc80, transparent)' }} />
+                <div className="w-10 h-[2px] rounded-full mt-2 mb-3" style={{ background: 'linear-gradient(90deg, #c8c8d0, #dedee4, transparent)' }} />
                 <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   {user?.email}
                 </p>
@@ -391,7 +391,7 @@ export default function ProfilePage() {
 
         {/* ── Settings ── */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <SectionHeader icon={User} label="Settings" gradient="from-[#b89450] to-[#d4bc80]" />
+          <SectionHeader icon={User} label="Settings" gradient="from-[#c8c8d0] to-[#dedee4]" />
 
           <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} variant="pills" />
 

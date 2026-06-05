@@ -72,9 +72,9 @@ export default function AppLayout() {
                   } ${sidebarExpanded ? '' : 'justify-center'}`}
                   style={{
                     background: isActive
-                      ? 'rgba(184,148,80,0.06)'
+                      ? 'rgba(200,200,208,0.06)'
                       : 'transparent',
-                    color: isActive ? '#b89450' : 'rgba(100,110,130,0.5)',
+                    color: isActive ? '#c8c8d0' : 'rgba(100,110,130,0.5)',
                   }}
                   onMouseEnter={e => {
                     if (!isActive) {
@@ -189,7 +189,7 @@ export default function AppLayout() {
           </div>
           <div className="flex items-center gap-1">
             <motion.button
-              whileHover={{ scale: 1.05, backgroundColor: 'rgba(184,148,80,0.06)' }}
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(200,200,208,0.06)' }}
               whileTap={{ scale: 0.95 }}
               className="p-1.5 rounded-lg transition-all"
               style={{ color: 'rgba(100,110,130,0.4)' }}
@@ -197,7 +197,7 @@ export default function AppLayout() {
               <Bell size={15} />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05, backgroundColor: 'rgba(184,148,80,0.06)' }}
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(200,200,208,0.06)' }}
               whileTap={{ scale: 0.95 }}
               className="p-1.5 rounded-lg transition-all"
               style={{ color: 'rgba(100,110,130,0.4)' }}

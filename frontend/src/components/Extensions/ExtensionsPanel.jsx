@@ -27,7 +27,7 @@ const FALLBACK_CATALOG = [
   { id: 'javascript-ts', name: 'JavaScript & TypeScript', publisher: 'AetherStudio', icon: '🟦', category: 'languages', version: '3.0.1', description: 'Rich IntelliSense for JS/TS.', downloads: '24.1M', rating: 4.9, tags: ['javascript', 'typescript'], color: '#3178C6', isFeatured: true },
   { id: 'rust', name: 'rust-analyzer', publisher: 'Rust Team', icon: '🦀', category: 'languages', version: '0.4.0', description: 'Rust language server.', downloads: '3.8M', rating: 4.9, tags: ['rust'], color: '#DEA584', isFeatured: true },
   { id: 'cpp', name: 'C/C++ Extension Pack', publisher: 'Microsoft', icon: '⚙️', category: 'languages', version: '1.12.0', description: 'C/C++ IntelliSense pack.', downloads: '18.3M', rating: 4.5, tags: ['c', 'cpp'], color: '#00599C', isPack: true, packCount: 5, hasUpdate: true, latestVersion: '1.13.0' },
-  { id: 'nexus-dark', name: 'Nexus Dark Pro', publisher: 'Aether Themes', icon: '🌙', category: 'themes', version: '2.0.0', description: 'Premium dark theme with gold accents.', downloads: '892K', rating: 4.9, tags: ['theme'], color: '#b89450', isFeatured: true },
+  { id: 'nexus-dark', name: 'Nexus Dark Pro', publisher: 'Aether Themes', icon: '🌙', category: 'themes', version: '2.0.0', description: 'Premium dark theme with gold accents.', downloads: '892K', rating: 4.9, tags: ['theme'], color: '#c8c8d0', isFeatured: true },
   { id: 'gitlens', name: 'GitLens', publisher: 'GitKraken', icon: '🔍', category: 'productivity', version: '14.5.0', description: 'Git blame annotations.', downloads: '22.1M', rating: 4.9, tags: ['git'], color: '#F05133' },
   { id: 'prettier', name: 'Prettier', publisher: 'Prettier', icon: '✨', category: 'productivity', version: '10.2.0', description: 'Opinionated code formatter.', downloads: '31.5M', rating: 4.8, tags: ['formatting'], color: '#F7B93E' },
   { id: 'copilot', name: 'GitHub Copilot', publisher: 'GitHub', icon: '🤖', category: 'productivity', version: '1.80.0', description: 'AI-powered code completions.', downloads: '6.3M', rating: 4.9, tags: ['ai'], color: '#6CC644', isFeatured: true },
@@ -137,9 +137,9 @@ function Dropdown({ trigger, items, onSelect, selectedId, align = 'left' }) {
                       borderLeft: isFocused ? '2px solid rgba(255,255,255,0.3)' : '2px solid transparent',
                     }}
                   >
-                    {Icon && <Icon size={12} style={{ color: isSelected ? 'rgba(184,148,80,0.7)' : 'rgba(255,255,255,0.2)' }} />}
+                    {Icon && <Icon size={12} style={{ color: isSelected ? 'rgba(200,200,208,0.7)' : 'rgba(255,255,255,0.2)' }} />}
                     <span className="flex-1 text-left">{item.label}</span>
-                    {isSelected && <Check size={10} style={{ color: 'rgba(184,148,80,0.6)' }} />}
+                    {isSelected && <Check size={10} style={{ color: 'rgba(200,200,208,0.6)' }} />}
                   </motion.button>
                 );
               })}
@@ -210,7 +210,7 @@ function ExtensionDetails({ extension, installed, enabled, onClose, onToggleInst
           ))}
           {extension.isPack && (
             <span className="text-[9px] px-2 py-0.5 rounded-full"
-              style={{ background: 'rgba(184,148,80,0.1)', border: '1px solid rgba(184,148,80,0.15)', color: 'rgba(184,148,80,0.6)' }}>
+              style={{ background: 'rgba(200,200,208,0.1)', border: '1px solid rgba(200,200,208,0.15)', color: 'rgba(200,200,208,0.6)' }}>
               Extension Pack • {extension.packCount} extensions
             </span>
           )}
@@ -243,9 +243,9 @@ function ExtensionDetails({ extension, installed, enabled, onClose, onToggleInst
                 onClick={() => onToggleInstall(extension.id)}
                 className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
                 style={{
-                  background: installed ? 'rgba(48,209,88,0.1)' : 'rgba(184,148,80,0.15)',
-                  border: `1px solid ${installed ? 'rgba(48,209,88,0.2)' : 'rgba(184,148,80,0.2)'}`,
-                  color: installed ? 'rgba(48,209,88,0.9)' : 'rgba(184,148,80,0.8)',
+                  background: installed ? 'rgba(48,209,88,0.1)' : 'rgba(200,200,208,0.15)',
+                  border: `1px solid ${installed ? 'rgba(48,209,88,0.2)' : 'rgba(200,200,208,0.2)'}`,
+                  color: installed ? 'rgba(48,209,88,0.9)' : 'rgba(200,200,208,0.8)',
                 }}
               >
                 {installed ? 'Uninstall' : 'Install'}
@@ -352,9 +352,9 @@ function ExtensionDetails({ extension, installed, enabled, onClose, onToggleInst
                 }}
                 className="w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all"
                 style={{
-                  background: submittingReview ? 'rgba(255,255,255,0.04)' : 'rgba(184,148,80,0.12)',
-                  border: '1px solid rgba(184,148,80,0.2)',
-                  color: submittingReview ? 'rgba(255,255,255,0.2)' : 'rgba(184,148,80,0.7)',
+                  background: submittingReview ? 'rgba(255,255,255,0.04)' : 'rgba(200,200,208,0.12)',
+                  border: '1px solid rgba(200,200,208,0.2)',
+                  color: submittingReview ? 'rgba(255,255,255,0.2)' : 'rgba(200,200,208,0.7)',
                 }}
               >
                 {submittingReview ? 'Submitting...' : 'Submit Review'}
@@ -428,9 +428,9 @@ function ExtensionCard({
         onContextMenu={(e) => onContextMenu?.(e, extension.id)}
         className="group relative flex items-start gap-3 px-3 py-3 mx-2 rounded-xl transition-all cursor-pointer"
         style={{
-          background: isFocused ? 'rgba(255,255,255,0.04)' : installed && isBuiltin ? 'rgba(160,120,64,0.03)' : installed ? 'rgba(48,209,88,0.03)' : isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent',
+          background: isFocused ? 'rgba(255,255,255,0.04)' : installed && isBuiltin ? 'rgba(176,176,188,0.03)' : installed ? 'rgba(48,209,88,0.03)' : isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent',
           borderBottom: '1px solid rgba(255,255,255,0.03)',
-          borderLeft: isFocused ? '2px solid rgba(184,148,80,0.4)' : isExpanded ? '2px solid rgba(184,148,80,0.3)' : '2px solid transparent',
+          borderLeft: isFocused ? '2px solid rgba(200,200,208,0.4)' : isExpanded ? '2px solid rgba(200,200,208,0.3)' : '2px solid transparent',
         }}
         whileHover={{ background: 'rgba(255,255,255,0.03)' }}
       >
@@ -466,7 +466,7 @@ function ExtensionCard({
                 </p>
                 {isBuiltin && (
                   <span className="text-[8px] px-1 py-[1px] rounded-full flex-shrink-0"
-                    style={{ background: 'rgba(160,120,64,0.12)', border: '1px solid rgba(160,120,64,0.15)', color: 'rgba(160,120,64,0.5)' }}>
+                    style={{ background: 'rgba(176,176,188,0.12)', border: '1px solid rgba(176,176,188,0.15)', color: 'rgba(176,176,188,0.5)' }}>
                     Built-in
                   </span>
                 )}
@@ -557,7 +557,7 @@ function ExtensionCard({
               </span>
             )}
             {extension.isPack && (
-              <span className="text-[9px] flex items-center gap-0.5" style={{ color: 'rgba(184,148,80,0.4)' }}>
+              <span className="text-[9px] flex items-center gap-0.5" style={{ color: 'rgba(200,200,208,0.4)' }}>
                 <Layers size={8} />
                 Pack • {extension.packCount}
               </span>
@@ -735,9 +735,9 @@ function FeaturedSpotlight({ extensions, installedExtensions, onToggleInstall })
                   onClick={() => onToggleInstall(ext.id)}
                   className="ml-auto px-2.5 py-0.5 rounded-lg text-[10px] font-semibold"
                   style={{
-                    background: installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.1)' : 'rgba(184,148,80,0.15)',
-                    border: `1px solid ${installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.2)' : 'rgba(184,148,80,0.2)'}`,
-                    color: installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.7)' : 'rgba(184,148,80,0.8)',
+                    background: installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.1)' : 'rgba(200,200,208,0.15)',
+                    border: `1px solid ${installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.2)' : 'rgba(200,200,208,0.2)'}`,
+                    color: installedExtensions.has(ext.id) ? 'rgba(48,209,88,0.7)' : 'rgba(200,200,208,0.8)',
                   }}
                 >
                   {installedExtensions.has(ext.id) ? 'Installed' : 'Install'}
@@ -756,7 +756,7 @@ function FeaturedSpotlight({ extensions, installedExtensions, onToggleInstall })
                 onClick={() => setCurrent(i)}
                 className="w-[4px] h-[4px] rounded-full transition-all"
                 style={{
-                  background: i === current ? 'rgba(184,148,80,0.5)' : 'rgba(255,255,255,0.08)',
+                  background: i === current ? 'rgba(200,200,208,0.5)' : 'rgba(255,255,255,0.08)',
                   width: i === current ? 12 : 4,
                 }}
               />
@@ -1195,7 +1195,7 @@ export default function ExtensionsPanel() {
     <div className="flex flex-col h-full relative">
       {/* Ambient top glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px] pointer-events-none z-10"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.2), transparent)', boxShadow: '0 0 30px rgba(184,148,80,0.1)' }} />
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.2), transparent)', boxShadow: '0 0 30px rgba(200,200,208,0.1)' }} />
 
       {/* ── HEADER ── */}
       <div className="flex-shrink-0 relative z-10">
@@ -1225,7 +1225,7 @@ export default function ExtensionsPanel() {
           </div>
         </div>
         <div className="mx-3 h-px relative overflow-hidden">
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.15), rgba(255,255,255,0.06), transparent)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.15), rgba(255,255,255,0.06), transparent)' }} />
         </div>
       </div>
 
@@ -1432,9 +1432,9 @@ export default function ExtensionsPanel() {
                 onClick={() => setActiveCategory(cat.id)}
                 className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-medium transition-all"
                 style={{
-                  background: isActive ? 'rgba(184,148,80,0.12)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${isActive ? 'rgba(184,148,80,0.2)' : 'rgba(255,255,255,0.05)'}`,
-                  color: isActive ? 'rgba(184,148,80,0.8)' : 'rgba(255,255,255,0.3)',
+                  background: isActive ? 'rgba(200,200,208,0.12)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${isActive ? 'rgba(200,200,208,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                  color: isActive ? 'rgba(200,200,208,0.8)' : 'rgba(255,255,255,0.3)',
                 }}
               >
                 <Icon size={9} />
@@ -1470,18 +1470,18 @@ export default function ExtensionsPanel() {
             exit={{ opacity: 0 }}
             className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
             style={{
-              background: 'rgba(184,148,80,0.08)',
+              background: 'rgba(200,200,208,0.08)',
               backdropFilter: 'blur(4px)',
             }}
           >
             <div className="flex flex-col items-center gap-2 p-6 rounded-2xl"
               style={{
                 background: 'rgba(18,18,22,0.9)',
-                border: '2px dashed rgba(184,148,80,0.3)',
+                border: '2px dashed rgba(200,200,208,0.3)',
               }}
             >
-              <Upload size={28} style={{ color: 'rgba(184,148,80,0.5)' }} />
-              <p className="text-[12px] font-semibold" style={{ color: 'rgba(184,148,80,0.7)' }}>Drop .vsix to Install</p>
+              <Upload size={28} style={{ color: 'rgba(200,200,208,0.5)' }} />
+              <p className="text-[12px] font-semibold" style={{ color: 'rgba(200,200,208,0.7)' }}>Drop .vsix to Install</p>
               <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Drop VSIX extension packages here</p>
             </div>
           </motion.div>
@@ -1763,7 +1763,7 @@ export default function ExtensionsPanel() {
             {installedCount} installed
           </span>
           <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.1)' }}>•</span>
-          <span className="text-[8px] font-mono" style={{ color: 'rgba(160,120,64,0.3)' }}>
+          <span className="text-[8px] font-mono" style={{ color: 'rgba(176,176,188,0.3)' }}>
             {extensionsCatalog.filter(e => e.builtin).length} built-in
           </span>
         </div>

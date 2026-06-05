@@ -13,8 +13,8 @@ export function LoadingState({ mounted }) {
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           className="w-14 h-14 rounded-2xl mx-auto mb-5 relative"
           style={{
-            background: 'linear-gradient(135deg, #b89450, #d4bc80)',
-            boxShadow: '0 0 30px rgba(184,148,80,0.3), 0 0 60px rgba(184,148,80,0.1)',
+            background: 'linear-gradient(135deg, #c8c8d0, #dedee4)',
+            boxShadow: '0 0 30px rgba(200,200,208,0.3), 0 0 60px rgba(200,200,208,0.1)',
           }}
         >
           <Loader2 size={28} className="animate-spin text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />

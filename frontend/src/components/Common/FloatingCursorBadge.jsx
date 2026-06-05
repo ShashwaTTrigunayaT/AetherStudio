@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
  * FloatingCursorBadge — A premium animated name tag that appears above a user's
  * collaborative cursor in the editor. Uses framer-motion for silky entrance/exit.
  */
-export default function FloatingCursorBadge({ name, color = '#b89450', visible = true }) {
+export default function FloatingCursorBadge({ name, color = '#c8c8d0', visible = true }) {
   if (!visible) return null;
 
   return (

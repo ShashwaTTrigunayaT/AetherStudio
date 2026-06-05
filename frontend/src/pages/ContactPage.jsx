@@ -7,10 +7,10 @@ import LandingNav from '../components/Common/LandingNav';
 import LandingFooter from '../components/Landing/LandingFooter';
 
 const CONTACT_CHANNELS = [
-  { icon: Mail, title: 'Email Us', desc: 'support@aetherstudio.dev', action: 'Send email', href: 'mailto:support@aetherstudio.dev', color: '#b89450' },
-  { icon: MessageSquare, title: 'Discord Community', desc: 'Join 5,000+ developers', action: 'Join Discord', href: '#', color: '#a07840' },
+  { icon: Mail, title: 'Email Us', desc: 'support@aetherstudio.dev', action: 'Send email', href: 'mailto:support@aetherstudio.dev', color: '#c8c8d0' },
+  { icon: MessageSquare, title: 'Discord Community', desc: 'Join 5,000+ developers', action: 'Join Discord', href: '#', color: '#b0b0bc' },
   { icon: Github, title: 'GitHub', desc: 'Open source issues & PRs', action: 'View on GitHub', href: '#', color: '#f5f5f7' },
-  { icon: Twitter, title: 'X / Twitter', desc: 'Follow for updates', action: 'Follow @aetherstudio', href: '#', color: '#d4bc80' },
+  { icon: Twitter, title: 'X / Twitter', desc: 'Follow for updates', action: 'Follow @aetherstudio', href: '#', color: '#dedee4' },
 ];
 
 export default function ContactPage() {
@@ -28,11 +28,11 @@ export default function ContactPage() {
     <div className="min-h-screen bg-[#000000] overflow-x-hidden">
       <LandingNav onGetStarted={handleGetStarted} user={user} onLogout={logout} />
       <section className="relative pt-32 pb-20">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(184,148,80,0.06) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 100%, rgba(160,120,64,0.04) 0%, transparent 50%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(200,200,208,0.06) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 100%, rgba(176,176,188,0.04) 0%, transparent 50%)' }} />
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}
             className="text-[40px] md:text-[56px] font-bold text-[#f5f5f7] tracking-tight"
-          >We&apos;d love to <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #b89450, #d4bc80)' }}>hear from you</span></motion.h1>
+          >We&apos;d love to <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #c8c8d0, #dedee4)' }}>hear from you</span></motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[15px] mt-5 max-w-lg mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}
           >Have a question, feedback, or want to partner with us?</motion.p>

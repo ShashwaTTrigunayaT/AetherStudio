@@ -7,7 +7,7 @@ export default function Toast({ message, type = 'info', onClose }) {
     success: 'border-[rgba(48,209,88,0.3)] bg-[rgba(48,209,88,0.08)]',
     error: 'border-[rgba(255,69,58,0.3)] bg-[rgba(255,69,58,0.08)]',
     warning: 'border-[rgba(255,214,10,0.3)] bg-[rgba(255,214,10,0.08)]',
-    info: 'border-[rgba(184,148,80,0.3)] bg-[rgba(184,148,80,0.08)]',
+    info: 'border-[rgba(200,200,208,0.3)] bg-[rgba(200,200,208,0.08)]',
   };
 
   const icons = {
@@ -27,7 +27,7 @@ export default function Toast({ message, type = 'info', onClose }) {
       </svg>
     ),
     info: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b89450" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8c8d0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
       </svg>
     ),

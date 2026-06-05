@@ -4,8 +4,8 @@ import { Clock, FileEdit, Plus, UserPlus, GitCommit, Trash2 } from 'lucide-react
 
 const activityIcons = {
   create: { icon: Plus, color: 'text-[#30d158]', bg: 'bg-[rgba(48,209,88,0.1)]' },
-  edit: { icon: FileEdit, color: 'text-[#d4bc80]', bg: 'bg-[rgba(184,148,80,0.1)]' },
-  join: { icon: UserPlus, color: 'text-[#a07840]', bg: 'bg-[rgba(160,120,64,0.1)]' },
+  edit: { icon: FileEdit, color: 'text-[#dedee4]', bg: 'bg-[rgba(200,200,208,0.1)]' },
+  join: { icon: UserPlus, color: 'text-[#b0b0bc]', bg: 'bg-[rgba(176,176,188,0.1)]' },
   commit: { icon: GitCommit, color: 'text-[#ffd60a]', bg: 'bg-[rgba(255,214,10,0.1)]' },
   delete: { icon: Trash2, color: 'text-[#ff453a]', bg: 'bg-[rgba(255,69,58,0.1)]' },
 };

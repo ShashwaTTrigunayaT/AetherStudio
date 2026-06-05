@@ -11,7 +11,7 @@ export default function Chip({ children, onRemove, size = 'md', variant = 'neutr
 
   const variants = {
     neutral: 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.09)]',
-    accent: 'bg-[rgba(184,148,80,0.12)] text-[#d4bc80] hover:bg-[rgba(184,148,80,0.18)]',
+    accent: 'bg-[rgba(200,200,208,0.12)] text-[#dedee4] hover:bg-[rgba(200,200,208,0.18)]',
     success: 'bg-[rgba(48,209,88,0.1)] text-[#30d158] hover:bg-[rgba(48,209,88,0.15)]',
     warning: 'bg-[rgba(255,214,10,0.1)] text-[#ffd60a] hover:bg-[rgba(255,214,10,0.15)]',
     error: 'bg-[rgba(255,69,58,0.1)] text-[#ff453a] hover:bg-[rgba(255,69,58,0.15)]',

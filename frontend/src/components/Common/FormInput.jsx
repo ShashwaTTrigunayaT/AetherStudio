@@ -38,7 +38,7 @@ export default function FormInput({
           onClick={() => inputRef.current?.focus()}
           className={`block text-[11px] font-medium mb-1.5 tracking-[0.02em] transition-colors duration-150 ${
             focused
-              ? 'text-[rgba(184,148,80,0.7)]'
+              ? 'text-[rgba(200,200,208,0.7)]'
               : showError
                 ? 'text-[rgba(255,69,58,0.6)]'
                 : 'text-[rgba(255,255,255,0.35)]'
@@ -53,7 +53,7 @@ export default function FormInput({
       <div
         className={`group relative flex items-center rounded-[8px] border transition-all duration-150 ${
           focused
-            ? 'border-[rgba(184,148,80,0.45)] bg-[rgba(184,148,80,0.02)] shadow-[0_0_0_1px_rgba(184,148,80,0.08)]'
+            ? 'border-[rgba(200,200,208,0.45)] bg-[rgba(200,200,208,0.02)] shadow-[0_0_0_1px_rgba(200,200,208,0.08)]'
             : showError
               ? 'border-[rgba(255,69,58,0.35)] bg-[rgba(255,69,58,0.02)]'
               : hasValue

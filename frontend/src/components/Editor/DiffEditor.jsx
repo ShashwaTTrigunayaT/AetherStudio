@@ -102,7 +102,7 @@ function MonacoDiff(props) {
     <React.Suspense
       fallback={
         <div className="h-full w-full flex items-center justify-center">
-          <div className="w-5 h-5 rounded-full border-2 border-[rgba(255,255,255,0.1)] border-t-[#b89450] animate-spin" />
+          <div className="w-5 h-5 rounded-full border-2 border-[rgba(255,255,255,0.1)] border-t-[#c8c8d0] animate-spin" />
         </div>
       }
     >

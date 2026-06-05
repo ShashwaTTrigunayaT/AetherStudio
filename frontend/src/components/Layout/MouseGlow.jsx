@@ -28,7 +28,7 @@ export default function MouseGlow({ glowX, glowY }) {
         height: 600,
         x: glowX,
         y: glowY,
-        background: 'radial-gradient(circle, rgba(184,148,80,0.02), transparent)',
+        background: 'radial-gradient(circle, rgba(200,200,208,0.02), transparent)',
         filter: 'blur(100px)',
         left: '50%',
         top: '50%',

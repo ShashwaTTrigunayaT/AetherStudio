@@ -40,8 +40,8 @@ export default function Footer({ minimal = false, className = '' }) {
       className="relative border-t border-[rgba(255,255,255,0.06)] bg-[rgba(22,22,24,0.4)] backdrop-blur-xl overflow-hidden"
     >
       {/* Gold accent glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.25), rgba(212,188,128,0.4), rgba(184,148,80,0.25), transparent)' }} />
-      <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 w-[400px] h-[100px]" style={{ background: 'radial-gradient(ellipse, rgba(184,148,80,0.03), transparent)', filter: 'blur(30px)' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.25), rgba(222,222,228,0.4), rgba(200,200,208,0.25), transparent)' }} />
+      <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 w-[400px] h-[100px]" style={{ background: 'radial-gradient(ellipse, rgba(200,200,208,0.03), transparent)', filter: 'blur(30px)' }} />
       <div className="max-w-7xl mx-auto px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -90,7 +90,7 @@ export default function Footer({ minimal = false, className = '' }) {
             transition={{ delay: 0.2, duration: 0.4 }}
           >
             <h4 className="text-[11px] font-semibold text-[rgba(255,255,255,0.3)] uppercase tracking-wider mb-4 flex items-center gap-2">
-              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #b89450, #d4bc80)' }} />
+              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #c8c8d0, #dedee4)' }} />
               Product
             </h4>
             <ul className="space-y-2.5">
@@ -129,7 +129,7 @@ export default function Footer({ minimal = false, className = '' }) {
             transition={{ delay: 0.25, duration: 0.4 }}
           >
             <h4 className="text-[11px] font-semibold text-[rgba(255,255,255,0.3)] uppercase tracking-wider mb-4 flex items-center gap-2">
-              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #d4bc80, #b89450)' }} />
+              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #dedee4, #c8c8d0)' }} />
               Resources
             </h4>
             <ul className="space-y-2.5">
@@ -162,7 +162,7 @@ export default function Footer({ minimal = false, className = '' }) {
             transition={{ delay: 0.3, duration: 0.4 }}
           >
             <h4 className="text-[11px] font-semibold text-[rgba(255,255,255,0.3)] uppercase tracking-wider mb-4 flex items-center gap-2">
-              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #b89450, #a07840)' }} />
+              <span className="w-[2px] h-3 rounded-full" style={{ background: 'linear-gradient(to bottom, #c8c8d0, #b0b0bc)' }} />
               Company
             </h4>
             <ul className="space-y-2.5">

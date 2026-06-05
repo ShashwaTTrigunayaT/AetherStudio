@@ -139,14 +139,14 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
                 <ZoomOut size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
                 <input type="range" min={1} max={3} step={0.05} value={zoom} onChange={(e) => setZoom(Number(e.target.value))}
                   className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
-                  style={{ background: 'rgba(255,255,255,0.08)', accentColor: '#b89450' }} />
+                  style={{ background: 'rgba(255,255,255,0.08)', accentColor: '#c8c8d0' }} />
                 <ZoomIn size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
               </div>
               <div className="flex items-center gap-3">
                 <RotateCw size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
                 <input type="range" min={0} max={360} step={1} value={rotation} onChange={(e) => setRotation(Number(e.target.value))}
                   className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
-                  style={{ background: 'rgba(255,255,255,0.08)', accentColor: '#a07840' }} />
+                  style={{ background: 'rgba(255,255,255,0.08)', accentColor: '#b0b0bc' }} />
                 <span className="text-[10px] font-medium w-8 text-right" style={{ color: 'rgba(255,255,255,0.35)' }}>{rotation}°</span>
               </div>
             </div>
@@ -176,8 +176,8 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
                 disabled={processing}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px] text-[12px] font-semibold text-white transition-all"
                 style={{
-                  background: 'linear-gradient(135deg, #b89450, #d4bc80)',
-                  boxShadow: '0 4px 16px rgba(184,148,80,0.25)',
+                  background: 'linear-gradient(135deg, #c8c8d0, #dedee4)',
+                  boxShadow: '0 4px 16px rgba(200,200,208,0.25)',
                   opacity: processing ? 0.6 : 1,
                   cursor: processing ? 'not-allowed' : 'pointer',
                 }}

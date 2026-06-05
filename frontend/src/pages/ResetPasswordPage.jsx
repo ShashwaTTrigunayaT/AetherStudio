@@ -51,11 +51,11 @@ function CodeInput({ value, onChange, error }) {
             onPaste={i === 0 ? handlePaste : undefined}
             className="w-[42px] h-[48px] text-center text-lg font-semibold rounded-[8px] transition-all outline-none"
             style={{
-              background: digits[i] ? 'rgba(184,148,80,0.06)' : 'rgba(255,255,255,0.02)',
+              background: digits[i] ? 'rgba(200,200,208,0.06)' : 'rgba(255,255,255,0.02)',
               border: error
                 ? '1px solid rgba(255,69,58,0.3)'
                 : digits[i]
-                  ? '1px solid rgba(184,148,80,0.2)'
+                  ? '1px solid rgba(200,200,208,0.2)'
                   : '1px solid rgba(255,255,255,0.06)',
               color: '#f5f5f7',
             }}
@@ -114,7 +114,7 @@ function PasswordStrength({ password }) {
           <div key={i} className="h-[2px] flex-1 rounded-full transition-all duration-300"
             style={{
               background: i <= strength - 1
-                ? ['#ff453a', '#ff9f0a', '#b89450', '#30d158'][Math.max(strength - 1, 0)]
+                ? ['#ff453a', '#ff9f0a', '#c8c8d0', '#30d158'][Math.max(strength - 1, 0)]
                 : 'rgba(255,255,255,0.04)',
             }}
           />
@@ -198,8 +198,8 @@ export default function ResetPasswordPage() {
         description="Reset your password in a few simple steps. We'll send a verification code to your email."
         featurePills={[
           { label: 'Secure', color: '#30d158' },
-          { label: 'Fast', color: '#b89450' },
-          { label: 'Reliable', color: '#a07840' },
+          { label: 'Fast', color: '#c8c8d0' },
+          { label: 'Reliable', color: '#b0b0bc' },
         ]}
       />
 
@@ -209,8 +209,8 @@ export default function ResetPasswordPage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `
-              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(184,148,80,0.03) 0%, transparent 60%),
-              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(160,120,64,0.02) 0%, transparent 60%)
+              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(200,200,208,0.03) 0%, transparent 60%),
+              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(176,176,188,0.02) 0%, transparent 60%)
             `,
           }}
         />
@@ -293,11 +293,11 @@ export default function ResetPasswordPage() {
                         disabled={!isEmailValid || loading}
                         className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold transition-all duration-200 select-none"
                         style={{
-                          background: isEmailValid && !loading ? 'rgba(184,148,80,1)' : 'rgba(255,255,255,0.04)',
+                          background: isEmailValid && !loading ? 'rgba(200,200,208,1)' : 'rgba(255,255,255,0.04)',
                           color: isEmailValid && !loading ? '#fff' : 'rgba(255,255,255,0.15)',
                           cursor: isEmailValid && !loading ? 'pointer' : 'not-allowed',
                         }}
-                        whileHover={isEmailValid && !loading ? { background: 'rgba(184,148,80,0.9)' } : {}}
+                        whileHover={isEmailValid && !loading ? { background: 'rgba(200,200,208,0.9)' } : {}}
                         whileTap={isEmailValid && !loading ? { scale: 0.98 } : {}}
                       >
                         {loading ? (
@@ -344,7 +344,7 @@ export default function ResetPasswordPage() {
                     <div className="flex items-center gap-2 mb-4">
                       <div
                         className="flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px]"
-                        style={{ background: 'rgba(184,148,80,0.06)', color: 'rgba(184,148,80,0.6)' }}
+                        style={{ background: 'rgba(200,200,208,0.06)', color: 'rgba(200,200,208,0.6)' }}
                       >
                         <Mail size={10} />
                         <span className="truncate max-w-[200px]">{email}</span>
@@ -352,9 +352,9 @@ export default function ResetPasswordPage() {
                           type="button"
                           onClick={() => setStep('email')}
                           className="ml-0.5 font-medium transition-colors"
-                          style={{ color: 'rgba(184,148,80,0.4)' }}
-                          onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-                          onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.4)'}
+                          style={{ color: 'rgba(200,200,208,0.4)' }}
+                          onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+                          onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.4)'}
                         >
                           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                             <path d="M2 2L8 8M8 2L2 8" />
@@ -430,13 +430,13 @@ export default function ResetPasswordPage() {
                         className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold transition-all duration-200 select-none"
                         style={{
                           background: /^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading
-                            ? 'rgba(184,148,80,1)' : 'rgba(255,255,255,0.04)',
+                            ? 'rgba(200,200,208,1)' : 'rgba(255,255,255,0.04)',
                           color: /^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading
                             ? '#fff' : 'rgba(255,255,255,0.15)',
                           cursor: /^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading
                             ? 'pointer' : 'not-allowed',
                         }}
-                        whileHover={/^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading ? { background: 'rgba(184,148,80,0.9)' } : {}}
+                        whileHover={/^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading ? { background: 'rgba(200,200,208,0.9)' } : {}}
                         whileTap={/^\d{6}$/.test(code) && isPasswordValid && passwordsMatch && !loading ? { scale: 0.98 } : {}}
                       >
                         {loading ? (
@@ -461,9 +461,9 @@ export default function ResetPasswordPage() {
                         onClick={handleSendCode}
                         disabled={loading}
                         className="text-[11px] font-medium transition-colors"
-                        style={{ color: 'rgba(184,148,80,0.5)' }}
-                        onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.5)'}
+                        style={{ color: 'rgba(200,200,208,0.5)' }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.5)'}
                       >
                         Resend code
                       </button>
@@ -496,8 +496,8 @@ export default function ResetPasswordPage() {
                       type="button"
                       onClick={() => navigate('/login')}
                       className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold text-white transition-all"
-                      style={{ background: 'rgba(184,148,80,1)' }}
-                      whileHover={{ background: 'rgba(184,148,80,0.9)' }}
+                      style={{ background: 'rgba(200,200,208,1)' }}
+                      whileHover={{ background: 'rgba(200,200,208,0.9)' }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <span className="flex items-center justify-center gap-1.5">
@@ -522,9 +522,9 @@ export default function ResetPasswordPage() {
             <Link
               to="/login"
               className="font-medium transition-colors"
-              style={{ color: 'rgba(184,148,80,0.5)' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.5)'}
+              style={{ color: 'rgba(200,200,208,0.5)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.5)'}
             >
               Sign in
             </Link>

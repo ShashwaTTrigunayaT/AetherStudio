@@ -172,7 +172,7 @@ export default function LandingNav({ onGetStarted, user, showSectionLinks = fals
               <>
                 <motion.button onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}
                   className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 16px rgba(184,148,80,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
                 >
                   <motion.div className="absolute inset-0 pointer-events-none"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
@@ -196,7 +196,7 @@ export default function LandingNav({ onGetStarted, user, showSectionLinks = fals
                 >Sign In</Link>
                 <motion.button onClick={onGetStarted} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #b89450, #d4bc80)', boxShadow: '0 4px 16px rgba(184,148,80,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
                 >
                   <motion.div className="absolute inset-0 pointer-events-none"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}

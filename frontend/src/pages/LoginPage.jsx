@@ -162,8 +162,8 @@ export default function LoginPage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `
-              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(184,148,80,0.03) 0%, transparent 60%),
-              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(160,120,64,0.02) 0%, transparent 60%)
+              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(200,200,208,0.03) 0%, transparent 60%),
+              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(176,176,188,0.02) 0%, transparent 60%)
             `,
           }}
         />
@@ -299,11 +299,11 @@ export default function LoginPage() {
                         disabled={!email || emailCheckLoading}
                         className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold transition-all duration-200 select-none"
                         style={{
-                          background: email && !emailCheckLoading ? 'rgba(184,148,80,1)' : 'rgba(255,255,255,0.04)',
+                          background: email && !emailCheckLoading ? 'rgba(200,200,208,1)' : 'rgba(255,255,255,0.04)',
                           color: email && !emailCheckLoading ? '#fff' : 'rgba(255,255,255,0.15)',
                           cursor: email && !emailCheckLoading ? 'pointer' : 'not-allowed',
                         }}
-                        whileHover={email && !emailCheckLoading ? { background: 'rgba(184,148,80,0.9)' } : {}}
+                        whileHover={email && !emailCheckLoading ? { background: 'rgba(200,200,208,0.9)' } : {}}
                         whileTap={email && !emailCheckLoading ? { scale: 0.98 } : {}}
                       >
                         {emailCheckLoading ? (
@@ -337,7 +337,7 @@ export default function LoginPage() {
                       <div className="flex items-center gap-2 pb-1">
                         <div
                           className="flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px]"
-                          style={{ background: 'rgba(184,148,80,0.06)', color: 'rgba(184,148,80,0.6)' }}
+                          style={{ background: 'rgba(200,200,208,0.06)', color: 'rgba(200,200,208,0.6)' }}
                         >
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="2" y="4" width="20" height="16" rx="2"/>
@@ -348,9 +348,9 @@ export default function LoginPage() {
                             type="button"
                             onClick={() => setStep(1)}
                             className="ml-0.5 font-medium transition-colors"
-                            style={{ color: 'rgba(184,148,80,0.4)' }}
-                            onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.4)'}
+                            style={{ color: 'rgba(200,200,208,0.4)' }}
+                            onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.4)'}
                           >
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                               <path d="M2 2L8 8M8 2L2 8" />
@@ -390,9 +390,9 @@ export default function LoginPage() {
                           to="/forgot-password"
                           state={{ email }}
                           className="text-[11px] font-medium transition-colors"
-                          style={{ color: 'rgba(184,148,80,0.5)' }}
-                          onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-                          onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.5)'}
+                          style={{ color: 'rgba(200,200,208,0.5)' }}
+                          onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+                          onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.5)'}
                         >
                           Forgot password?
                         </Link>
@@ -403,11 +403,11 @@ export default function LoginPage() {
                         disabled={!password || loading}
                         className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold transition-all duration-200 select-none"
                         style={{
-                          background: password && !loading ? 'rgba(184,148,80,1)' : 'rgba(255,255,255,0.04)',
+                          background: password && !loading ? 'rgba(200,200,208,1)' : 'rgba(255,255,255,0.04)',
                           color: password && !loading ? '#fff' : 'rgba(255,255,255,0.15)',
                           cursor: password && !loading ? 'pointer' : 'not-allowed',
                         }}
-                        whileHover={password && !loading ? { background: 'rgba(184,148,80,0.9)' } : {}}
+                        whileHover={password && !loading ? { background: 'rgba(200,200,208,0.9)' } : {}}
                         whileTap={password && !loading ? { scale: 0.98 } : {}}
                       >
                         {loading ? (
@@ -443,9 +443,9 @@ export default function LoginPage() {
             <Link
               to="/register"
               className="font-medium transition-colors"
-              style={{ color: 'rgba(184,148,80,0.5)' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.5)'}
+              style={{ color: 'rgba(200,200,208,0.5)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.5)'}
             >
               Create one
             </Link>

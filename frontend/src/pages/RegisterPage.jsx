@@ -103,7 +103,7 @@ function PasswordStrength({ password }) {
             className="h-[2px] flex-1 rounded-full transition-all duration-300"
             style={{
               background: i <= strength - 1
-                ? ['#ff453a', '#ff9f0a', '#b89450', '#30d158'][Math.max(strength - 1, 0)]
+                ? ['#ff453a', '#ff9f0a', '#c8c8d0', '#30d158'][Math.max(strength - 1, 0)]
                 : 'rgba(255,255,255,0.04)',
             }}
           />
@@ -219,8 +219,8 @@ export default function RegisterPage() {
         description="Join thousands of developers collaborating in real-time with AI-powered assistance."
         featurePills={[
           { label: 'Free to start', color: '#30d158' },
-          { label: 'AI Powered', color: '#a07840' },
-          { label: 'Real-time', color: '#b89450' },
+          { label: 'AI Powered', color: '#b0b0bc' },
+          { label: 'Real-time', color: '#c8c8d0' },
         ]}
       />
 
@@ -231,8 +231,8 @@ export default function RegisterPage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `
-              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(184,148,80,0.03) 0%, transparent 60%),
-              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(160,120,64,0.02) 0%, transparent 60%)
+              radial-gradient(ellipse 600px 80% at 0% 50%, rgba(200,200,208,0.03) 0%, transparent 60%),
+              radial-gradient(ellipse 300px 300px at 80% 20%, rgba(176,176,188,0.02) 0%, transparent 60%)
             `,
           }}
         />
@@ -366,8 +366,8 @@ export default function RegisterPage() {
                       className="flex items-center gap-1"
                     >
                       <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="rgba(184,148,80,0.3)" strokeWidth="3" />
-                        <path d="M12 2C6.477 2 2 6.477 2 12" stroke="#d4bc80" strokeWidth="3" strokeLinecap="round" />
+                        <circle cx="12" cy="12" r="10" stroke="rgba(200,200,208,0.3)" strokeWidth="3" />
+                        <path d="M12 2C6.477 2 2 6.477 2 12" stroke="#dedee4" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </motion.div>
                   )}
@@ -395,7 +395,7 @@ export default function RegisterPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.15 }}
-                      className="text-[10px] text-[rgba(184,148,80,0.5)] font-medium flex items-center gap-1.5"
+                      className="text-[10px] text-[rgba(200,200,208,0.5)] font-medium flex items-center gap-1.5"
                     >
                       <svg className="animate-spin" width="10" height="10" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3" />
@@ -456,11 +456,11 @@ export default function RegisterPage() {
                     disabled={!isFormValid || loading}
                     className="w-full py-[10px] rounded-[8px] text-[13px] font-semibold transition-all duration-200 select-none"
                     style={{
-                      background: isFormValid && !loading ? 'rgba(184,148,80,1)' : 'rgba(255,255,255,0.04)',
+                      background: isFormValid && !loading ? 'rgba(200,200,208,1)' : 'rgba(255,255,255,0.04)',
                       color: isFormValid && !loading ? '#fff' : 'rgba(255,255,255,0.15)',
                       cursor: isFormValid && !loading ? 'pointer' : 'not-allowed',
                     }}
-                    whileHover={isFormValid && !loading ? { background: 'rgba(184,148,80,0.9)' } : {}}
+                    whileHover={isFormValid && !loading ? { background: 'rgba(200,200,208,0.9)' } : {}}
                     whileTap={isFormValid && !loading ? { scale: 0.98 } : {}}
                   >
                     {loading ? (
@@ -495,9 +495,9 @@ export default function RegisterPage() {
             <Link
               to="/login"
               className="font-medium transition-colors"
-              style={{ color: 'rgba(184,148,80,0.5)' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,148,80,0.8)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(184,148,80,0.5)'}
+              style={{ color: 'rgba(200,200,208,0.5)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,200,208,0.5)'}
             >
               Sign in
             </Link>

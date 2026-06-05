@@ -83,8 +83,8 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreate, creati
           )}
           {tab === 'blank' && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
-              <div className="w-10 h-10 rounded-xl bg-[rgba(184,148,80,0.1)] flex items-center justify-center">
-                <Layout size={18} className="text-[#d4bc80]" />
+              <div className="w-10 h-10 rounded-xl bg-[rgba(200,200,208,0.1)] flex items-center justify-center">
+                <Layout size={18} className="text-[#dedee4]" />
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-[#f5f5f7]">Start from scratch</p>

@@ -130,11 +130,43 @@ export default function MonacoEditor({ groupId }) {
   // Sync code from store when not focused
   const groupCode = group?.code;
 
-  // Auto-save with debounce (per-group)
+  // Sync from store when codeVersion changes (e.g. after revertFile)
+  // Only syncs when content differs — avoids overwriting user edits
+  const { codeVersion } = useWorkspace();
+
   useEffect(() => {
-    if (!group?.activeFile?.id || !settings.autoSave) return;
+    if (codeVersion > 0 && group?.code !== undefined && group?.code !== content) {
+      setContent(group.code);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeVersion]);
+
+  // Auto-save with debounce (per-group) - supports multiple modes
+  useEffect(() => {
+    const mode = settings.autoSaveMode || 'afterDelay';
+    if (!group?.activeFile?.id || mode === 'off') return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
+    if (mode === 'onFocusChange' || mode === 'onWindowChange') {
+      const handleBlur = () => {
+        const state = useWorkspace.getState();
+        const currentGroup = state.getGroupById(groupId);
+        const currentCode = currentGroup?.code;
+        if (currentCode && currentCode !== '' && group.activeFile.id) {
+          setSaveStatus('saving');
+          saveFileContent(group.activeFile.id, currentCode).then(() => {
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus('idle'), 2000);
+          }).catch(() => setSaveStatus('error'));
+        }
+      };
+      const event = mode === 'onWindowChange' ? 'beforeunload' : 'blur';
+      const target = mode === 'onWindowChange' ? window : window;
+      target.addEventListener(event, handleBlur);
+      return () => target.removeEventListener(event, handleBlur);
+    }
+
+    // afterDelay mode (default)
     saveTimerRef.current = setTimeout(async () => {
       const state = useWorkspace.getState();
       const currentGroup = state.getGroupById(groupId);
@@ -154,7 +186,7 @@ export default function MonacoEditor({ groupId }) {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [groupCode, group?.activeFile?.id, settings.autoSave, saveFileContent, groupId]);
+  }, [groupCode, group?.activeFile?.id, settings.autoSaveMode, settings.autoSave, saveFileContent, groupId]);
 
   const handleEditorChange = useCallback((value) => {
     if (value === undefined || value === null) return;
@@ -212,6 +244,76 @@ export default function MonacoEditor({ groupId }) {
       monaco.editor.setTheme('aether-dark');
     } catch (e) {
       console.warn('Failed to set editor theme:', e);
+    }
+
+    // ── Register basic fallback formatter for all languages ──
+    // This ensures Format Document always does something, even for languages
+    // without a built-in Monaco formatter (fixes indentation + cleans whitespace)
+    try {
+      const formatProvider = monaco.languages.registerDocumentFormattingEditProvider('*', {
+        provideDocumentFormattingEdits: (model) => {
+          const edits = [];
+          const fullText = model.getValue();
+          const lines = fullText.split('\n');
+          let indentLevel = 0;
+          const tabSize = model.getOptions().tabSize || 2;
+          const insertSpaces = model.getOptions().insertSpaces !== false;
+          const indentChar = insertSpaces ? ' '.repeat(tabSize) : '\t';
+
+          for (let i = 0; i < lines.length; i++) {
+            const raw = lines[i];
+            const trimmed = raw.trim();
+
+            if (trimmed.length === 0) {
+              // Clean trailing whitespace on blank lines
+              if (raw.length > 0) {
+                edits.push({
+                  range: new monaco.Range(i + 1, 1, i + 1, raw.length + 1),
+                  text: '',
+                });
+              }
+              continue;
+            }
+
+            // Decrease indent for closing tokens BEFORE computing expected indent
+            if (/^[}\])]/.test(trimmed)) {
+              indentLevel = Math.max(0, indentLevel - 1);
+            }
+
+            const effectiveLevel = indentLevel;
+            const expectedIndent = effectiveLevel > 0 ? indentChar.repeat(effectiveLevel) : '';
+            const cleanTrimmed = trimmed.replace(/\s+$/, '');
+            const expectedLine = expectedIndent + cleanTrimmed;
+
+            if (raw !== expectedLine) {
+              edits.push({
+                range: new monaco.Range(i + 1, 1, i + 1, raw.length + 1),
+                text: expectedLine,
+              });
+            }
+
+            // Increase indent for opening tokens (simple heuristic)
+            if (/[{\[(]$/.test(trimmed)) {
+              indentLevel++;
+            }
+          }
+
+          // Ensure file ends with a newline
+          if (!fullText.endsWith('\n') && fullText.length > 0) {
+            const lastLineNum = lines.length;
+            const lastLine = lines[lastLineNum - 1];
+            edits.push({
+              range: new monaco.Range(lastLineNum, lastLine.length + 1, lastLineNum, lastLine.length + 1),
+              text: '\n',
+            });
+          }
+
+          return edits;
+        },
+      });
+      if (formatProvider) disp.push(formatProvider);
+    } catch (e) {
+      console.warn('Failed to register fallback formatter:', e);
     }
 
     // ── VS Code-like keybindings & actions ──
@@ -340,7 +442,7 @@ export default function MonacoEditor({ groupId }) {
         label: 'Format Document',
         keybindings: [monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF],
         run: (ed) => {
-          ed.getAction('editor.action.formatDocument')?.execute();
+          ed.trigger('menu', 'editor.action.formatDocument', null);
         },
       });
       if (formatDocAction) disp.push({ dispose: () => formatDocAction.dispose?.() });
@@ -355,7 +457,7 @@ export default function MonacoEditor({ groupId }) {
           monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF),
         ],
         run: (ed) => {
-          ed.getAction('editor.action.formatSelection')?.execute();
+          ed.trigger('menu', 'editor.action.formatSelection', null);
         },
       });
       if (formatSelAction) disp.push({ dispose: () => formatSelAction.dispose?.() });
@@ -577,7 +679,11 @@ export default function MonacoEditor({ groupId }) {
         label: 'Toggle Word Wrap',
         keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
         run: (ed) => {
-          ed.getAction('editor.action.toggleWordWrap')?.run();
+          const state = useWorkspace.getState();
+          const current = state.settings.wordWrap || 'off';
+          const next = current === 'off' ? 'on' : 'off';
+          ed.updateOptions({ wordWrap: next });
+          state.updateSetting('wordWrap', next);
         },
       });
       if (toggleWordWrapAction) disp.push({ dispose: () => toggleWordWrapAction.dispose?.() });
@@ -767,10 +873,10 @@ export default function MonacoEditor({ groupId }) {
           ed.trigger('menu', 'redo', null);
           break;
         case 'cut':
-          document.execCommand('cut');
+          ed.trigger('menu', 'editor.action.clipboardCutAction', null);
           break;
         case 'copy':
-          document.execCommand('copy');
+          ed.trigger('menu', 'editor.action.clipboardCopyAction', null);
           break;
         case 'paste':
           ed.trigger('menu', 'editor.action.clipboardPasteAction', null);
@@ -785,10 +891,10 @@ export default function MonacoEditor({ groupId }) {
           ed.getAction('editor.action.blockComment')?.run();
           break;
         case 'formatDocument':
-          ed.getAction('editor.action.formatDocument')?.execute();
+          ed.trigger('menu', 'editor.action.formatDocument', null);
           break;
         case 'formatSelection':
-          ed.getAction('editor.action.formatSelection')?.execute();
+          ed.trigger('menu', 'editor.action.formatSelection', null);
           break;
         case 'indent':
           ed.getAction('editor.action.indentLines')?.run();
@@ -796,9 +902,14 @@ export default function MonacoEditor({ groupId }) {
         case 'outdent':
           ed.getAction('editor.action.outdentLines')?.run();
           break;
-        case 'toggleWordWrap':
-          ed.getAction('editor.action.toggleWordWrap')?.run();
+        case 'toggleWordWrap': {
+          const state = useWorkspace.getState();
+          const current = state.settings.wordWrap || 'off';
+          const next = current === 'off' ? 'on' : 'off';
+          ed.updateOptions({ wordWrap: next });
+          state.updateSetting('wordWrap', next);
           break;
+        }
         case 'find':
           ed.getAction('actions.find')?.run();
           break;
@@ -894,6 +1005,18 @@ export default function MonacoEditor({ groupId }) {
           break;
         case 'goToLastEditLocation':
           ed.getAction('cursorUndo')?.run();
+          break;
+        case 'moveLineUp':
+          ed.getAction('editor.action.moveLinesUpAction')?.run();
+          break;
+        case 'moveLineDown':
+          ed.getAction('editor.action.moveLinesDownAction')?.run();
+          break;
+        case 'copyLineUp':
+          ed.getAction('editor.action.copyLinesUpAction')?.run();
+          break;
+        case 'copyLineDown':
+          ed.getAction('editor.action.copyLinesDownAction')?.run();
           break;
         case 'runSelectedText': {
           const selection = ed.getModel()?.getValueInRange(ed.getSelection());

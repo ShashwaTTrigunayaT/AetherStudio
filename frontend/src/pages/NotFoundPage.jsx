@@ -92,7 +92,7 @@ function FloatingTerminal() {
         {/* Glow */}
         <div className="absolute -inset-4 rounded-xl opacity-20 blur-xl"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(184,148,80,0.2), transparent 70%)',
+            background: 'radial-gradient(ellipse at center, rgba(200,200,208,0.2), transparent 70%)',
           }}
         />
       </div>
@@ -113,7 +113,7 @@ function CodeOrb() {
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           className="w-40 h-40 rounded-full"
           style={{
-            background: 'conic-gradient(from 0deg, #b89450, #a07840, #30d158, #ff9f0a, #b89450)',
+            background: 'conic-gradient(from 0deg, #c8c8d0, #b0b0bc, #30d158, #ff9f0a, #c8c8d0)',
             filter: 'blur(40px)',
           }}
         />
@@ -171,7 +171,7 @@ export default function NotFoundPage() {
             transition={{ delay: 0.15, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             className="text-[150px] md:text-[200px] font-bold leading-none select-none tracking-tighter"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(184,148,80,0.06) 50%, rgba(160,120,64,0.04) 100%)',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(200,200,208,0.06) 50%, rgba(176,176,188,0.04) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -217,7 +217,7 @@ export default function NotFoundPage() {
             </div>
             <p className="text-[13px] leading-relaxed">
               <span className="text-[#30d158]">➜</span>{' '}
-              <span className="text-[#d4bc80]">~</span>{' '}
+              <span className="text-[#dedee4]">~</span>{' '}
               <span className="text-[rgba(255,255,255,0.3)]">{cmdText}</span>
               {cmdText.length < fullCmd.length && (
                 <motion.span
@@ -245,7 +245,7 @@ export default function NotFoundPage() {
                     className="text-[rgba(255,255,255,0.2)]"
                   >
                     <span className="text-[#30d158]">➜</span>{' '}
-                    <span className="text-[#d4bc80]">~</span>{' '}
+                    <span className="text-[#dedee4]">~</span>{' '}
                     <motion.span
                       animate={{ opacity: [1, 0] }}
                       transition={{ duration: 0.5, repeat: Infinity }}
@@ -289,7 +289,7 @@ export default function NotFoundPage() {
               whileTap={{ scale: 0.97 }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all"
               style={{
-                background: 'linear-gradient(135deg, #b89450, #d4bc80)',
+                background: 'linear-gradient(135deg, #c8c8d0, #dedee4)',
                 boxShadow: '0 4px 20px rgba(0, 113, 227, 0.25)',
               }}
             >

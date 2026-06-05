@@ -49,9 +49,9 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
         <div
           className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
           style={{
-            background: 'linear-gradient(90deg, #b89450, #a07840, #b89450)',
+            background: 'linear-gradient(90deg, #c8c8d0, #b0b0bc, #c8c8d0)',
             backgroundSize: '200% 100%',
-            boxShadow: '0 0 12px rgba(184,148,80,0.3)',
+            boxShadow: '0 0 12px rgba(200,200,208,0.3)',
           }}
         />
 
@@ -59,9 +59,9 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
         <div className="relative flex items-center justify-between px-4 py-3 border-b border-[rgba(0,0,0,0.04)]">
           <div className="flex items-center gap-2">
             {type === 'file' ? (
-              <File size={16} className="text-[#b89450]" />
+              <File size={16} className="text-[#c8c8d0]" />
             ) : (
-              <Folder size={16} className="text-[#b89450]" />
+              <Folder size={16} className="text-[#c8c8d0]" />
             )}
             <span className="text-[14px] font-semibold text-[#1e293b]">
               New {type === 'file' ? 'File' : 'Folder'}
@@ -82,13 +82,13 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
           <div className="flex gap-2">
             <motion.button
               type="button"
-              whileHover={type !== 'file' ? { backgroundColor: 'rgba(184,148,80,0.04)' } : undefined}
+              whileHover={type !== 'file' ? { backgroundColor: 'rgba(200,200,208,0.04)' } : undefined}
               whileTap={{ scale: 0.97 }}
               onClick={() => setType('file')}
               className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-all ${
                 type === 'file'
-                  ? 'bg-[rgba(184,148,80,0.06)] text-[#b89450] border border-[rgba(184,148,80,0.2)]'
-                  : 'bg-[rgba(0,0,0,0.02)] text-[rgba(100,110,130,0.4)] border border-[rgba(0,0,0,0.06)] hover:border-[rgba(184,148,80,0.12)]'
+                  ? 'bg-[rgba(200,200,208,0.06)] text-[#c8c8d0] border border-[rgba(200,200,208,0.2)]'
+                  : 'bg-[rgba(0,0,0,0.02)] text-[rgba(100,110,130,0.4)] border border-[rgba(0,0,0,0.06)] hover:border-[rgba(200,200,208,0.12)]'
               }`}
             >
               <File size={14} />
@@ -96,13 +96,13 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
             </motion.button>
             <motion.button
               type="button"
-              whileHover={type !== 'folder' ? { backgroundColor: 'rgba(184,148,80,0.04)' } : undefined}
+              whileHover={type !== 'folder' ? { backgroundColor: 'rgba(200,200,208,0.04)' } : undefined}
               whileTap={{ scale: 0.97 }}
               onClick={() => setType('folder')}
               className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-all ${
                 type === 'folder'
-                  ? 'bg-[rgba(184,148,80,0.06)] text-[#b89450] border border-[rgba(184,148,80,0.2)]'
-                  : 'bg-[rgba(0,0,0,0.02)] text-[rgba(100,110,130,0.4)] border border-[rgba(0,0,0,0.06)] hover:border-[rgba(184,148,80,0.12)]'
+                  ? 'bg-[rgba(200,200,208,0.06)] text-[#c8c8d0] border border-[rgba(200,200,208,0.2)]'
+                  : 'bg-[rgba(0,0,0,0.02)] text-[rgba(100,110,130,0.4)] border border-[rgba(0,0,0,0.06)] hover:border-[rgba(200,200,208,0.12)]'
               }`}
             >
               <Folder size={14} />
@@ -121,7 +121,7 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={type === 'file' ? 'e.g., index.js, App.tsx' : 'e.g., components'}
-              className="w-full bg-[rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.08)] rounded-lg px-3 py-2 text-[13px] text-[#1e293b] placeholder:text-[rgba(100,110,130,0.25)] focus:outline-none focus:border-[#b89450] focus:shadow-[0_0_0_3px_rgba(184,148,80,0.08)] focus:bg-white transition-all"
+              className="w-full bg-[rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.08)] rounded-lg px-3 py-2 text-[13px] text-[#1e293b] placeholder:text-[rgba(100,110,130,0.25)] focus:outline-none focus:border-[#c8c8d0] focus:shadow-[0_0_0_3px_rgba(200,200,208,0.08)] focus:bg-white transition-all"
               autoFocus
               required
             />
@@ -142,14 +142,14 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
               type="submit"
               disabled={creating || !name.trim()}
               whileHover={creating || !name.trim() ? undefined : {
-                backgroundColor: 'rgba(184,148,80,0.1)',
-                boxShadow: '0 0 16px rgba(184,148,80,0.25)',
+                backgroundColor: 'rgba(200,200,208,0.1)',
+                boxShadow: '0 0 16px rgba(200,200,208,0.25)',
               }}
               whileTap={creating || !name.trim() ? undefined : { scale: 0.97 }}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-white text-[12px] font-semibold transition-all disabled:opacity-30"
               style={{
-                background: creating || !name.trim() ? 'rgba(184,148,80,0.08)' : 'linear-gradient(135deg, #b89450, #a07840)',
-                boxShadow: creating || !name.trim() ? 'none' : '0 0 12px rgba(184,148,80,0.2)',
+                background: creating || !name.trim() ? 'rgba(200,200,208,0.08)' : 'linear-gradient(135deg, #c8c8d0, #b0b0bc)',
+                boxShadow: creating || !name.trim() ? 'none' : '0 0 12px rgba(200,200,208,0.2)',
               }}
             >
               {creating ? (
@@ -168,7 +168,7 @@ export default function CreateFileModal({ isOpen, onClose, parentId, onCreate, d
         <div
           className="absolute bottom-0 left-4 right-4 h-[1px] pointer-events-none"
           style={{
-            background: 'linear-gradient(90deg, transparent, rgba(184,148,80,0.08), transparent)',
+            background: 'linear-gradient(90deg, transparent, rgba(200,200,208,0.08), transparent)',
           }}
         />
       </motion.div>

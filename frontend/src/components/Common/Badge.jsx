@@ -2,13 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const variants = {
-  accent: 'bg-[rgba(184,148,80,0.15)] text-[#b89450]',
+  accent: 'bg-[rgba(200,200,208,0.15)] text-[#c8c8d0]',
   success: 'bg-[rgba(48,209,88,0.12)] text-[#30d158]',
   warning: 'bg-[rgba(255,214,10,0.12)] text-[#ffd60a]',
   error: 'bg-[rgba(255,69,58,0.12)] text-[#ff453a]',
-  info: 'bg-[rgba(160,120,64,0.12)] text-[#a07840]',
+  info: 'bg-[rgba(176,176,188,0.12)] text-[#b0b0bc]',
   neutral: 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.55)]',
-  premium: 'bg-gradient-to-r from-[rgba(160,120,64,0.2)] to-[rgba(184,148,80,0.2)] text-[#c0a078]',
+  premium: 'bg-gradient-to-r from-[rgba(176,176,188,0.2)] to-[rgba(200,200,208,0.2)] text-[#c0c0cc]',
 };
 
 const sizes = {
@@ -42,12 +42,12 @@ export default function Badge({
           animate={pulse ? { scale: [1, 1.2, 1], opacity: [1, 0.6, 1] } : {}}
           transition={pulse ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
           className={`w-1.5 h-1.5 rounded-full ${
-            variant === 'accent' ? 'bg-[#b89450]' :
+            variant === 'accent' ? 'bg-[#c8c8d0]' :
             variant === 'success' ? 'bg-[#30d158]' :
             variant === 'warning' ? 'bg-[#ffd60a]' :
             variant === 'error' ? 'bg-[#ff453a]' :
-            variant === 'info' ? 'bg-[#a07840]' :
-            variant === 'premium' ? 'bg-[#c0a078]' :
+            variant === 'info' ? 'bg-[#b0b0bc]' :
+            variant === 'premium' ? 'bg-[#c0c0cc]' :
             'bg-[rgba(255,255,255,0.3)]'
           }`}
         />
