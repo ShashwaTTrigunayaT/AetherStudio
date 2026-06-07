@@ -264,11 +264,19 @@ export async function startFileWatcher(io) {
   // On Windows (especially with OneDrive/Dropbox), native fs.watch can miss events.
   // Polling is more reliable cross-platform but uses more CPU.
   // Set CHOKIDAR_USEPOLLING=true env var to force polling, or 'auto' to detect Windows.
+  //
+  // IMPORTANT: When running in Docker with volume mounts from Windows/Mac hosts,
+  // inotify events don't reliably propagate through the mount. We detect this
+  // by checking if the workspace directory is at the Docker mount path (/workspace/).
+  const isDockerVolumeMount = workspacesDir.startsWith('/workspace/');
+
   const usePolling = process.env.CHOKIDAR_USEPOLLING === 'true' ||
-    (process.env.CHOKIDAR_USEPOLLING !== 'false' && process.platform === 'win32');
+    (process.env.CHOKIDAR_USEPOLLING !== 'false' && 
+      (process.platform === 'win32' || isDockerVolumeMount));
 
   if (usePolling) {
-    logger.info('[FileWatcher] Using polling mode (platform: ' + process.platform + ')');
+    logger.info('[FileWatcher] Using polling mode' +
+      (isDockerVolumeMount ? ' (Docker volume mount detected)' : ' (platform: ' + process.platform + ')'));
   }
 
   // Watch the workspaces root directory for new workspace folders
@@ -345,6 +353,15 @@ export function unwatchWorkspace(workspaceId) {
     clearTimeout(entry.debounceTimer);
   }
   _workspaceDirs.delete(idStr);
+}
+
+/**
+ * Force a sync from disk to MongoDB for a specific workspace.
+ * Can be called manually (e.g., from an API endpoint) when the user
+ * wants to sync local files that the watcher may have missed.
+ */
+export async function forceSyncDiskToMongo(workspaceId) {
+  return syncDiskToMongo(workspaceId);
 }
 
 /**

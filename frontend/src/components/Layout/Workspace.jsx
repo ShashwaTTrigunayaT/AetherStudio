@@ -55,7 +55,7 @@ export default function Workspace() {
     fetchWorkspace, activeFile, activeSidebarView, sidebarOpen,
     rightPanelOpen, setRightPanelTab, rightPanelTab,
     toggleCommandPalette, settings, problems, bottomPanelOpen,
-    importModalOpen, setImportModalOpen,
+    importModalOpen, setImportModalOpen, zenMode,
   } = useWorkspace();
 
   const [mounted, setMounted] = useState(false);
@@ -94,23 +94,48 @@ export default function Workspace() {
     // ── Debug event listeners ──
     const onDebugStarted = (result) => {
       console.log('[Workspace] Debug session started:', result);
-      useWorkspace.getState().setCallStack([]);
-      useWorkspace.getState().setVariables([]);
+      const store = useWorkspace.getState();
+      store.setCallStack([]);
+      store.setVariables([]);
+      store.addDebugHistory('system', 'Debug session started');
+      store.setShowDebugStatus(true);
     };
     socket.on('debug-started', onDebugStarted);
 
     const onDebugPaused = (event) => {
       console.log('[Workspace] Debug paused:', event);
-      useWorkspace.getState().pauseDebugging();
+      const store = useWorkspace.getState();
+      store.pauseDebugging();
       if (event.callFrames) {
-        useWorkspace.getState().setCallStack(event.callFrames);
+        store.setCallStack(event.callFrames);
+        const top = event.callFrames[0];
+        if (top) {
+          const func = top.functionName || '<unknown>';
+          const line = top.lineNumber || '?';
+          const file = (top.url || 'unknown').split('/').pop();
+          store.addDebugHistory('breakpoint', `Paused at ${func}() — ${file}:${line}`);
+        }
+      }
+      // Request variables from the backend
+      const wsId = store.workspace?._id;
+      if (wsId) {
+        socket.emit('debug-get-variables', { workspaceId: wsId });
       }
     };
     socket.on('debug-paused', onDebugPaused);
 
+    const onDebugVariables = (data) => {
+      if (data.variables) {
+        console.log('[Workspace] Debug variables:', data.variables.length, 'variables');
+        useWorkspace.getState().setVariables(data.variables);
+      }
+    };
+    socket.on('debug-variables', onDebugVariables);
+
     const onDebugResumed = () => {
       console.log('[Workspace] Debug resumed');
       useWorkspace.setState({ debugState: 'running' });
+      useWorkspace.getState().addDebugHistory('system', 'Execution resumed');
     };
     socket.on('debug-resumed', onDebugResumed);
 
@@ -119,20 +144,85 @@ export default function Workspace() {
       useWorkspace.setState((prev) => ({
         executionOutput: (prev.executionOutput || '') + output.data,
       }));
+      useWorkspace.getState().addDebugHistory('output', output.data);
     };
     socket.on('debug-output', onDebugOutput);
 
     const onDebugError = (err) => {
       console.error('[Workspace] Debug error:', err);
-      useWorkspace.setState({ executionError: err.error || err });
+      const msg = err.error || err;
+      useWorkspace.setState({ executionError: msg });
+      useWorkspace.getState().addDebugHistory('error', msg);
     };
     socket.on('debug-error', onDebugError);
 
     const onDebugExit = (exitInfo) => {
       console.log('[Workspace] Debug session exited:', exitInfo);
-      useWorkspace.getState().stopDebugging();
+      const store = useWorkspace.getState();
+      const code = exitInfo.code ?? '';
+      store.addDebugHistory('system', `Debug session ended (exit code: ${code})`);
+      store.stopDebugging();
+      store.setShowDebugStatus(false);
     };
     socket.on('debug-exit', onDebugExit);
+
+    // ── New debug event listeners ──
+
+    const onDebugEvaluateResult = (result) => {
+      const store = useWorkspace.getState();
+      const history = [...store.debugReplHistory];
+      // Match by evalId for precise pairing
+      const matchIdx = result.evalId
+        ? history.findIndex(e => e.evalId === result.evalId)
+        : -1;
+      if (matchIdx >= 0) {
+        if (result.error) {
+          history[matchIdx] = { ...history[matchIdx], result: result.error, type: 'error', error: true };
+        } else {
+          history[matchIdx] = {
+            ...history[matchIdx],
+            result: result.result,
+            type: result.type || 'string',
+            variablesReference: result.variablesReference,
+          };
+        }
+        useWorkspace.setState({ debugReplHistory: history });
+      }
+    };
+    socket.on('debug-evaluate-result', onDebugEvaluateResult);
+
+    const onDebugChildren = (data) => {
+      const store = useWorkspace.getState();
+      store.setChildrenVariables(data.variablesReference, data.children || []);
+    };
+    socket.on('debug-children', onDebugChildren);
+
+    const onDebugVariableSet = (data) => {
+      const store = useWorkspace.getState();
+      store.addDebugHistory('system', `Variable ${data.name} = ${data.value} (saved)`);
+      // Refresh variables
+      const wsId = store.workspace?._id;
+      if (wsId) {
+        socket.emit('debug-get-variables', { workspaceId: wsId });
+      }
+    };
+    socket.on('debug-variable-set', onDebugVariableSet);
+
+    const onDebugBreakpointAdded = (data) => {
+      console.log('[Workspace] Conditional breakpoint added:', data);
+      const store = useWorkspace.getState();
+      if (data.condition) {
+        store.addDebugHistory('system', `Conditional breakpoint set: line ${data.line}, condition: ${data.condition}`);
+      }
+    };
+    socket.on('debug-breakpoint-added', onDebugBreakpointAdded);
+
+    const onDebugLogpointAdded = (data) => {
+      console.log('[Workspace] Logpoint added:', data);
+      const store = useWorkspace.getState();
+      store.addDebugHistory('system', `Logpoint set at line ${data.line}: "${data.logMessage}"`);
+    };
+    socket.on('debug-logpoint-added', onDebugLogpointAdded);
 
     const onPeerJoined = (peer) => addCollaborator(peer);
     socket.on('peer-joined', onPeerJoined);
@@ -165,6 +255,12 @@ export default function Workspace() {
       socket.off('debug-output', onDebugOutput);
       socket.off('debug-error', onDebugError);
       socket.off('debug-exit', onDebugExit);
+      socket.off('debug-variables', onDebugVariables);
+      socket.off('debug-evaluate-result', onDebugEvaluateResult);
+      socket.off('debug-children', onDebugChildren);
+      socket.off('debug-variable-set', onDebugVariableSet);
+      socket.off('debug-breakpoint-added', onDebugBreakpointAdded);
+      socket.off('debug-logpoint-added', onDebugLogpointAdded);
       socket.off('peer-joined', onPeerJoined);
       socket.off('peer-left', onPeerLeft);
       socket.off('workspace-filetree-update', onFiletreeUpdate);
@@ -352,12 +448,12 @@ export default function Workspace() {
 
       {/* ── Main Workbench Area — flush, no gaps ── */}
       <div className="flex-1 flex min-h-0" style={{ zIndex: 1 }}>
-        {/* Activity Bar — connected flush */}
-        <ActivityBar />
+        {/* Activity Bar — connected flush (hidden in zen mode) */}
+        {!zenMode && <ActivityBar />}
 
-        {/* Sidebar — flush */}
+        {/* Sidebar — flush (hidden in zen mode) */}
         <AnimatePresence>
-          {sidebarOpen && (
+          {sidebarOpen && !zenMode && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: sidebarWidth, opacity: 1 }}
@@ -432,7 +528,7 @@ export default function Workspace() {
         </AnimatePresence>
 
         {/* Center: Editor + Bottom Panel */}
-        <div className="flex-1 flex flex-col min-w-0 relative">
+        <div className={`flex-1 flex flex-col min-w-0 relative ${settings.centeredLayout ? 'max-w-[960px] mx-auto' : ''}`}>
           {/* ── Drag-to-open strip — visible when sidebar is closed ── */}
           {!sidebarOpen && (
             <div
@@ -488,10 +584,12 @@ export default function Workspace() {
             </ErrorBoundary>
           </GlassPanel>
 
-          {/* Bottom Panel — flush */}
-          <div className="flex-shrink-0">
-            <BottomPanel />
-          </div>
+          {/* Bottom Panel — flush (hidden in zen mode) */}
+          {!zenMode && (
+            <div className="flex-shrink-0">
+              <BottomPanel />
+            </div>
+          )}
         </div>
 
         {/* Right Panel — flush */}
@@ -518,9 +616,11 @@ export default function Workspace() {
       </div>
 
       {/* ── Status Bar — full width at bottom ── */}
-      <div className="flex-shrink-0" style={{ zIndex: 1 }}>
-        <StatusBar left={statusLeft} right={statusRight} />
-      </div>
+      {settings.showStatusBar && (
+        <div className="flex-shrink-0" style={{ zIndex: 1 }}>
+          <StatusBar left={statusLeft} right={statusRight} />
+        </div>
+      )}
     </div>
   );
 }

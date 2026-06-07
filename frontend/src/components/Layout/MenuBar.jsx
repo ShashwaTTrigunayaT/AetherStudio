@@ -115,18 +115,6 @@ const menuItems = {
     { type: 'divider' },
     { id: 'flip-layout', label: 'Flip Layout', shortcut: '', icon: ArrowLeftRight },
     { type: 'divider' },
-    // ── Views ──
-    { id: 'show-explorer', label: 'Explorer', shortcut: 'Ctrl+Shift+E', icon: Sidebar },
-    { id: 'show-search', label: 'Search', shortcut: 'Ctrl+Shift+F', icon: Search },
-    { id: 'show-source-control', label: 'Source Control', shortcut: 'Ctrl+Shift+G', icon: Copy },
-    { id: 'show-debug', label: 'Run and Debug', shortcut: 'Ctrl+Shift+D', icon: Bug },
-    { id: 'show-extensions', label: 'Extensions', shortcut: 'Ctrl+Shift+X', icon: Spline },
-    { type: 'divider' },
-    { id: 'show-problems', label: 'Problems', shortcut: 'Ctrl+Shift+M', icon: XCircle },
-    { id: 'show-output', label: 'Output', shortcut: 'Ctrl+Shift+U', icon: TerminalIcon },
-    { id: 'show-debug-console', label: 'Debug Console', shortcut: 'Ctrl+Shift+Y', icon: Bug },
-    { id: 'show-terminal', label: 'Terminal', shortcut: 'Ctrl+`', icon: TerminalIcon },
-    { type: 'divider' },
     { id: 'toggle-minimap', label: 'Toggle Minimap', shortcut: '', icon: Eye },
     { id: 'toggle-breadcrumbs', label: 'Toggle Breadcrumbs', shortcut: '', icon: Eye },
     { id: 'toggle-sticky-scroll', label: 'Toggle Sticky Scroll', shortcut: '', icon: Eye },
@@ -660,10 +648,10 @@ export default function MenuBar() {
         state.splitEditor(actionId === 'split-down' ? 'vertical' : 'horizontal');
         break;
       case 'split-left':
-        state.splitEditor('horizontal');
+        state.splitEditor('horizontal', true);
         break;
       case 'split-up':
-        state.splitEditor('vertical');
+        state.splitEditor('vertical', true);
         break;
       case 'layout-single':
         state.setEditorLayoutMode('single');

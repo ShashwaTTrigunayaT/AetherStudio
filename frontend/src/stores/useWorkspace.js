@@ -129,6 +129,7 @@ export const useWorkspace = create((set, get) => {
   variables: [],
   watchExpressions: [],
   loadedScripts: [],
+  debugHistory: [], // { type: 'output'|'system'|'error'|'breakpoint', text, timestamp }
 
   // View state
   activityBarOpen: true,
@@ -205,16 +206,17 @@ export const useWorkspace = create((set, get) => {
     return getActiveGroup(get());
   },
 
-  splitEditor: (direction) => {
+  splitEditor: (direction, insertBefore = false) => {
     const state = get();
     const activeGroup = getActiveGroup(state);
     if (!activeGroup) return;
 
     const newGroup = createDefaultGroup();
-    const newLayout = createSplitLayout(direction, [
-      createLeafLayout(activeGroup.id),
-      createLeafLayout(newGroup.id),
-    ], [50, 50]);
+    // insertBefore=true puts new group first (left/top), false puts it last (right/bottom)
+    const children = insertBefore
+      ? [createLeafLayout(newGroup.id), createLeafLayout(activeGroup.id)]
+      : [createLeafLayout(activeGroup.id), createLeafLayout(newGroup.id)];
+    const newLayout = createSplitLayout(direction, children, [50, 50]);
 
     let updatedLayout;
     if (state.editorLayout.type === 'group' && state.editorLayout.id === activeGroup.id) {
@@ -1054,13 +1056,20 @@ export const useWorkspace = create((set, get) => {
 
   stopExecution: () => set({ isRunning: false }),
 
-  clearExecutionOutput: () => set({ executionOutput: '', executionError: null }),
+  clearExecutionOutput: () => set({ executionOutput: '', executionError: null, debugHistory: [] }),
+
+  addDebugHistory: (type, text) => {
+    const entry = { type, text, timestamp: Date.now() };
+    set((state) => ({
+      // Keep last 1000 entries to avoid memory bloat
+      debugHistory: [...state.debugHistory.slice(-999), entry],
+    }));
+  },
 
   // ── Debug ──
   startDebugging: () => {
     const state = get();
     const workspaceId = state.workspace?._id;
-    const code = state.code || '';
     const file = state.activeFile;
     const ext = file?.name?.split('.').pop()?.toLowerCase();
     const langMap = {
@@ -1069,21 +1078,33 @@ export const useWorkspace = create((set, get) => {
       cpp: 'cpp', c: 'c', cs: 'csharp', php: 'php',
     };
     const language = langMap[ext] || 'javascript';
+    const code = state.code || '';
     set({ isDebugging: true, debugState: 'running', executionOutput: '', executionError: null });
+    // Force-open the debug console (bypass toggle behavior)
+    set({ activeBottomPanel: 'debug', bottomPanelOpen: true });
     const socket = getSocket(workspaceId);
     if (socket?.connected) {
       socket.emit('debug-start', {
         workspaceId,
         code,
         language,
-        breakpoints: state.breakpoints.map(function(b) { return { line: b.line }; }),
+        breakpoints: state.breakpoints.map(function(b) {
+          return {
+            line: b.line,
+            condition: b.condition,
+            logMessage: b.logMessage,
+            isLogpoint: b.isLogpoint,
+          };
+        }),
       });
+    } else {
+      set({ executionError: 'Socket not connected. Please wait for connection.' });
     }
   },
   stopDebugging: () => {
     const state = get();
     const workspaceId = state.workspace?._id;
-    set({ isDebugging: false, debugState: 'stopped', callStack: [], variables: [] });
+    set({ isDebugging: false, debugState: 'stopped', callStack: [], variables: [], showDebugStatus: false });
     const socket = getSocket(workspaceId);
     if (socket?.connected) {
       socket.emit('debug-stop', { workspaceId });
@@ -1153,6 +1174,149 @@ export const useWorkspace = create((set, get) => {
   setVariables: (variables) => set({ variables }),
   setLoadedScripts: (scripts) => set({ loadedScripts: scripts }),
 
+  // ── REPL / Expression Evaluation ──
+  debugReplHistory: [], // { expression, result, type, error, timestamp }
+  debugReplInput: '',
+
+  addDebugReplEntry: (entry) => {
+    set((state) => ({
+      debugReplHistory: [...state.debugReplHistory.slice(-99), entry],
+    }));
+  },
+
+  clearDebugReplHistory: () => set({ debugReplHistory: [] }),
+
+  _replEvalIdCounter: 0,
+
+  evaluateDebugExpression: (expression) => {
+    const state = get();
+    const socket = getSocket(state.workspace?._id);
+    if (!socket?.connected) {
+      state.addDebugReplEntry({ expression, result: 'Socket not connected', type: 'error', timestamp: Date.now() });
+      return;
+    }
+    const evalId = ++state._replEvalIdCounter;
+    state.addDebugReplEntry({ expression, result: 'Evaluating…', type: 'pending', evalId, timestamp: Date.now() });
+    socket.emit('debug-evaluate', {
+      workspaceId: state.workspace?._id,
+      expression,
+      evalId,
+    });
+    // Timeout: if no response within 18s, mark as error
+    // (Must be longer than backend's 15s GDB timeout so backend error fires first)
+    setTimeout(() => {
+      const current = get();
+      const history = [...current.debugReplHistory];
+      for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].evalId === evalId && history[i].type === 'pending') {
+          history[i] = {
+            ...history[i],
+            result: 'Timed out',
+            type: 'error',
+            error: 'Evaluation timed out (18s) — the debugger did not respond in time.',
+          };
+          set({ debugReplHistory: history });
+          break;
+        }
+      }
+    }, 18000);
+  },
+
+  // ── Variable Tree Expansion ──
+  expandedVariables: {}, // { [variablesReference]: { children: [], loading: boolean } }
+
+  fetchChildrenVariables: (variablesReference, forceRefresh = false) => {
+    const state = get();
+    if (!forceRefresh && state.expandedVariables[variablesReference]) {
+      return; // Already loaded
+    }
+    const socket = getSocket(state.workspace?._id);
+    if (!socket?.connected) return;
+
+    set((prev) => ({
+      expandedVariables: {
+        ...prev.expandedVariables,
+        [variablesReference]: { children: [], loading: true },
+      },
+    }));
+
+    socket.emit('debug-get-children', {
+      workspaceId: state.workspace?._id,
+      variablesReference,
+    });
+  },
+
+  setChildrenVariables: (variablesReference, children) => {
+    set((state) => ({
+      expandedVariables: {
+        ...state.expandedVariables,
+        [variablesReference]: { children, loading: false },
+      },
+    }));
+  },
+
+  collapseVariable: (variablesReference) => {
+    set((state) => {
+      const next = { ...state.expandedVariables };
+      delete next[variablesReference];
+      return { expandedVariables: next };
+    });
+  },
+
+  // ── Edit Variables at Runtime ──
+  setVariableValue: (name, value, variablesReference) => {
+    const state = get();
+    const socket = getSocket(state.workspace?._id);
+    if (!socket?.connected) return;
+    socket.emit('debug-set-variable', {
+      workspaceId: state.workspace?._id,
+      name, value, variablesReference,
+    });
+  },
+
+  // ── Conditional Breakpoints ──
+  addConditionalBreakpoint: (line, condition) => {
+    const state = get();
+    set((prev) => ({
+      breakpoints: [...prev.breakpoints.filter(b => b.line !== line || b.fileId !== state.activeFile?.id), { line, condition, fileId: state.activeFile?.id }],
+    }));
+    const socket = getSocket(state.workspace?._id);
+    if (socket?.connected) {
+      socket.emit('debug-add-conditional-breakpoint', {
+        workspaceId: state.workspace?._id,
+        line, condition,
+      });
+    }
+  },
+
+  // ── Logpoints ──
+  addLogpoint: (line, logMessage) => {
+    const state = get();
+    set((prev) => ({
+      breakpoints: [...prev.breakpoints.filter(b => b.line !== line || b.fileId !== state.activeFile?.id), { line, logMessage, isLogpoint: true, fileId: state.activeFile?.id }],
+    }));
+    const socket = getSocket(state.workspace?._id);
+    if (socket?.connected) {
+      socket.emit('debug-add-logpoint', {
+        workspaceId: state.workspace?._id,
+        line, logMessage,
+      });
+    }
+  },
+
+  toggleLogpoint: (line) => {
+    const state = get();
+    const existing = state.breakpoints.find(b => b.line === line);
+    if (existing?.isLogpoint) {
+      // Convert back to regular breakpoint
+      state.removeBreakpoint(line);
+    } else if (existing) {
+      // Convert to logpoint
+      state.removeBreakpoint(line);
+      state.addLogpoint(line, '{expression}');
+    }
+  },
+
   // ── Watch Expressions ──
   addWatchExpression: (expression) => {
     set((state) => ({
@@ -1171,6 +1335,11 @@ export const useWorkspace = create((set, get) => {
       ),
     }));
   },
+
+  // ── Debug Status Bar ──
+  showDebugStatus: false,
+
+  setShowDebugStatus: (show) => set({ showDebugStatus: show }),
 
   // ==============================
   // Command palette

@@ -58,8 +58,8 @@ export default function EditorGroup({ groupId }) {
         if (!isActive) setActiveGroup(groupId);
       }}
     >
-      {/* Tab Bar for this group */}
-      {hasTabs && <TabBar groupId={groupId} />}
+      {/* Tab Bar for this group (hidden when showTabBar is off) */}
+      {settings.showTabBar !== false && hasTabs && <TabBar groupId={groupId} />}
 
       {/* Breadcrumbs */}
       {settings.breadcrumbs && groupActiveFile && <Breadcrumbs groupId={groupId} />}

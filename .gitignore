@@ -38,7 +38,22 @@ ehthumbs.db
 coverage/
 .nyc_output/
 
+# ─── Tunneling binaries ───
+cloudflared.exe
+ngrok*
+
+# ─── Temp files ───
+*.log
+cloudflared*.log
+cloudflared*.err
+ngrok*
+
+# ─── Workspace build artifacts ───
+workspaces/**/*.out
+workspaces/**/Untitled-*
+
 # ─── Misc ───
 *.tgz
 *.gz
 .eslintcache
+data.json

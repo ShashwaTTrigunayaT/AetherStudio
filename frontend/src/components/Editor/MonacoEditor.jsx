@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import { useWorkspace } from '../../stores/useWorkspace';
 
 import { getSocket } from '../../lib/api';
-import { getYjs, setLocalCursor, setTyping, onAwarenessChange } from '../../lib/yjs-provider';
+import { getYjs, getFileText, writeFileText, onFileTextChange, setLocalCursor, setTyping, onAwarenessChange } from '../../lib/yjs-provider';
 import { Loader2 } from 'lucide-react';
 
 const AETHER_DARK_THEME = {
@@ -127,6 +127,45 @@ export default function MonacoEditor({ groupId }) {
     return () => { cancelled = true; };
   }, [group?.activeFile?.id, groupId, fetchFileContent, updateCode]);
 
+  // ── Subscribe to remote Yjs changes for the active file ──
+  // When another user edits this file, Yjs applies the update and we
+  // sync it back to the Monaco editor. The 'remote' origin check prevents
+  // echo loops (local edit → Yjs → remote broadcast → our own socket).
+  const yjsUnsubRef = useRef(null);
+
+  useEffect(() => {
+    // Clean up previous subscription
+    if (yjsUnsubRef.current) {
+      yjsUnsubRef.current();
+      yjsUnsubRef.current = null;
+    }
+
+    const fileId = group?.activeFile?.id;
+    if (!fileId) return;
+
+    // Subscribe to Yjs changes on this file
+    yjsUnsubRef.current = onFileTextChange(fileId, (newContent, origin) => {
+      if (origin === 'remote') {
+        // Remote change — update editor content
+        // Only update if the content actually differs
+        setContent((prevContent) => {
+          if (prevContent !== newContent) {
+            updateCode(newContent, groupId);
+            return newContent;
+          }
+          return prevContent;
+        });
+      }
+    });
+
+    return () => {
+      if (yjsUnsubRef.current) {
+        yjsUnsubRef.current();
+        yjsUnsubRef.current = null;
+      }
+    };
+  }, [group?.activeFile?.id, groupId, updateCode]);
+
   // Sync code from store when not focused
   const groupCode = group?.code;
 
@@ -193,20 +232,197 @@ export default function MonacoEditor({ groupId }) {
     updateCode(value, groupId);
     setContent(value);
 
-    try {
-      const { yText } = getYjs() || {};
-      if (yText && typeof value === 'string') {
-        yText.delete(0, yText.length);
-        yText.insert(0, value);
+    // Sync to per-file Yjs text type for collaborative editing
+    // Each file has its own named text type: `file:<fileId>`
+    const fileId = group?.activeFile?.id;
+    if (fileId && typeof value === 'string') {
+      try {
+        writeFileText(fileId, value);
+      } catch (e) {
+        // Yjs sync best-effort
       }
-    } catch (e) {
-      // Yjs sync best-effort
     }
-  }, [updateCode, groupId]);
+  }, [updateCode, groupId, group?.activeFile?.id]);
 
   const disposablesRef = useRef([]);
   const remoteCursorsRef = useRef([]);
   const styleCleanupRef = useRef(null);
+  const debugDecorationsRef = useRef([]);
+  const variableWidgetsRef = useRef([]);
+
+  const { isDebugging, debugState, callStack, variables } = useWorkspace();
+
+  // ── Inject debug line highlight styles + variable value styles once ──
+  useEffect(() => {
+    if (!document.getElementById('debug-line-styles')) {
+      const style = document.createElement('style');
+      style.id = 'debug-line-styles';
+      style.textContent = `
+        .debug-current-line-bg {
+          background-color: rgba(255, 215, 0, 0.12) !important;
+          border-left: 3px solid rgba(255, 215, 0, 0.5);
+        }
+        .debug-line-arrow {
+          background: #ffd700 !important;
+          width: 9px !important;
+          height: 9px !important;
+          clip-path: polygon(0 0, 100% 50%, 0 100%);
+          margin-top: 4px;
+          margin-left: 4px;
+          opacity: 0.8;
+        }
+        .monaco-editor .debug-current-line-bg {
+          background-color: rgba(255, 215, 0, 0.12) !important;
+        }
+        .debug-inline-value {
+          transition: opacity 0.1s;
+        }
+        .debug-inline-value:hover {
+          opacity: 1 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  // ── Debug execution line highlight — scrolls to paused line ──
+  useEffect(() => {
+    const ed = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!ed || !monaco || !ed.getModel()) return;
+
+    if (isDebugging && debugState === 'paused' && callStack.length > 0) {
+      const topFrame = callStack[0];
+      const line = topFrame.lineNumber;
+      if (line && line > 0) {
+        const lineCount = ed.getModel().getLineCount();
+        const validLine = Math.min(line, lineCount);
+
+        // Scroll editor to the paused line and position cursor there
+        ed.revealLineInCenter(validLine);
+        ed.setPosition({ lineNumber: validLine, column: 1 });
+
+        // Add yellow highlight decoration on the paused line
+        debugDecorationsRef.current = ed.deltaDecorations(
+          debugDecorationsRef.current,
+          [{
+            range: new monaco.Range(validLine, 1, validLine, 1),
+            options: {
+              isWholeLine: true,
+              className: 'debug-current-line-bg',
+              glyphMarginClassName: 'debug-line-arrow',
+            },
+          }]
+        );
+      }
+    } else {
+      // Clear decorations when not paused
+      debugDecorationsRef.current = ed.deltaDecorations(
+        debugDecorationsRef.current,
+        []
+      );
+    }
+
+    return () => {
+      if (ed) {
+        debugDecorationsRef.current = ed.deltaDecorations(
+          debugDecorationsRef.current,
+          []
+        );
+      }
+    };
+  }, [isDebugging, debugState, callStack]);
+
+  // ── Inline variable values when paused (content widgets at each variable's line) ──
+  useEffect(() => {
+    const ed = editorRef.current;
+
+    // Remove old variable widgets
+    variableWidgetsRef.current.forEach(w => {
+      try { ed?.removeContentWidget(w); } catch (e) { /* ignore */ }
+    });
+    variableWidgetsRef.current = [];
+
+    if (!ed || !monacoRef.current || !ed.getModel()) return;
+
+    if (isDebugging && debugState === 'paused' && variables.length > 0) {
+      const pausedLine = callStack[0]?.lineNumber || 1;
+      const model = ed.getModel();
+      const lineCount = model.getLineCount();
+
+      const colorMap = {
+        string: '#fbbf24', number: '#60a5fa', boolean: '#c084fc',
+        object: '#34d399', function: '#f472b6',
+        'unsigned int': '#60a5fa', int: '#60a5fa', float: '#60a5fa',
+        double: '#60a5fa', char: '#fbbf24', 'const char *': '#fbbf24',
+        'std::string': '#fbbf24', bool: '#c084fc',
+      };
+      const getValColor = (type) => colorMap[type] || 'rgba(255,255,255,0.55)';
+
+      const widgets = [];
+      const usedLines = new Set();
+
+      for (const v of variables) {
+        const varName = v.name;
+        if (!varName) continue;
+
+        let targetLine = pausedLine;
+
+        // Search for variable name in nearby lines (word boundary)
+        const searchStart = Math.max(1, pausedLine - 15);
+        const searchEnd = Math.min(lineCount, pausedLine + 5);
+        const escaped = varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wordRegex = new RegExp(`\\b${escaped}\\b`);
+
+        for (let line = searchStart; line <= searchEnd; line++) {
+          if (wordRegex.test(model.getLineContent(line))) {
+            targetLine = line;
+            break;
+          }
+        }
+
+        // Avoid cluttering the same line with multiple widgets
+        const displayLine = usedLines.has(targetLine) ? pausedLine : targetLine;
+        usedLines.add(displayLine);
+
+        const uid = `${varName}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        const valColor = getValColor(v.type);
+        const displayTitle = `${varName} (${v.type || 'unknown'})`;
+
+        const widget = {
+          _domNode: null,
+          getId: () => `var-widget-${uid}`,
+          getDomNode: () => {
+            if (!widget._domNode) {
+              const node = document.createElement('span');
+              node.className = 'debug-inline-value';
+              node.textContent = ` = ${v.value}`;
+              node.title = displayTitle;
+              node.style.cssText = `color:${valColor};font-size:11px;font-family:monospace;opacity:0.9;margin-left:6px;background:rgba(12,12,14,0.6);padding:0 4px;border-radius:2px;pointer-events:none;user-select:none;white-space:nowrap;`;
+              widget._domNode = node;
+            }
+            return widget._domNode;
+          },
+          getPosition: () => ({
+            position: { lineNumber: displayLine, column: 1000000 },
+            preference: [0], // EXACT
+          }),
+        };
+
+        ed.addContentWidget(widget);
+        widgets.push(widget);
+      }
+
+      variableWidgetsRef.current = widgets;
+    }
+
+    return () => {
+      variableWidgetsRef.current.forEach(w => {
+        try { editorRef.current?.removeContentWidget(w); } catch (e) { /* ignore */ }
+      });
+      variableWidgetsRef.current = [];
+    };
+  }, [isDebugging, debugState, variables, callStack]);
 
   const handleEditorMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
@@ -919,6 +1135,15 @@ export default function MonacoEditor({ groupId }) {
         case 'go-to-line':
           ed.getAction('editor.action.gotoLine')?.run();
           break;
+        case 'revealLine': {
+          const targetLine = e.detail?.line || 1;
+          const lineCount = ed.getModel()?.getLineCount() || 1;
+          const validLine = Math.min(targetLine, lineCount);
+          ed.revealLineInCenter(validLine);
+          ed.setPosition({ lineNumber: validLine, column: 1 });
+          ed.focus();
+          break;
+        }
         case 'cursorUndo':
           ed.getAction('cursorUndo')?.run();
           break;
@@ -1033,6 +1258,48 @@ export default function MonacoEditor({ groupId }) {
     };
     window.addEventListener('editor:action', handleEditorAction);
     disp.push({ dispose: () => window.removeEventListener('editor:action', handleEditorAction) });
+
+    // ── Debug variable hover provider ──
+    try {
+      const hoverProvider = monaco.languages.registerHoverProvider('*', {
+        provideHover: (model, position) => {
+          const state = useWorkspace.getState();
+          if (!state.isDebugging || state.debugState !== 'paused') return null;
+
+          const word = model.getWordAtPosition(position);
+          if (!word) return null;
+
+          const varInfo = state.variables.find(
+            (v) => v.name === word.word
+          );
+          if (!varInfo) return null;
+
+          const colorMap = {
+            string: '#fbbf24',
+            number: '#60a5fa',
+            boolean: '#c084fc',
+            object: '#34d399',
+            function: '#f472b6',
+          };
+          const valColor = colorMap[varInfo.type] || 'rgba(255,255,255,0.5)';
+
+          return {
+            contents: [
+              {
+                value: `**${varInfo.name}** = **${varInfo.value}**`,
+                isTrusted: true,
+              },
+              ...(varInfo.type
+                ? [{ value: `<span style="color:${valColor}">_${varInfo.type}_</span>` }]
+                : []),
+            ],
+          };
+        },
+      });
+      if (hoverProvider) disp.push(hoverProvider);
+    } catch (e) {
+      console.warn('Failed to register debug hover provider:', e);
+    }
 
     // ── Track cursor position & broadcast via awareness ──
     disp.push(

@@ -230,8 +230,16 @@ function EmptyRow({ icon: Icon, text }) {
   );
 }
 
-// ── Variable row (with scope grouping) ──
-function VariableRow({ name, value, type, indent = 0 }) {
+// ── Variable row with tree expansion + inline editing ──
+function VariableRow({ name, value, type, indent = 0, variablesReference, onSetValue }) {
+  const {
+    expandedVariables, fetchChildrenVariables, setChildrenVariables,
+  } = useWorkspace();
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const [children, setChildren] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const colorMap = {
     string: '#fbbf24',
     number: '#60a5fa',
@@ -240,17 +248,148 @@ function VariableRow({ name, value, type, indent = 0 }) {
     function: '#f472b6',
     undefined: 'rgba(255,255,255,0.3)',
   };
+  const isExpandable = variablesReference && (
+    (typeof variablesReference === 'number' && variablesReference > 0) ||
+    (typeof variablesReference === 'string' && variablesReference.length > 0)
+  );
   const valColor = colorMap[type] || 'rgba(255,255,255,0.5)';
 
+  const handleToggle = async () => {
+    if (children) {
+      // Collapse
+      setChildren(null);
+    } else {
+      // Expand
+      setIsLoading(true);
+      const state = useWorkspace.getState();
+      state.fetchChildrenVariables(variablesReference);
+      // Poll for children to be loaded
+      const check = setInterval(() => {
+        const expanded = useWorkspace.getState().expandedVariables[variablesReference];
+        if (expanded) {
+          if (!expanded.loading) {
+            clearInterval(check);
+            setChildren(expanded.children);
+            setIsLoading(false);
+          }
+        } else {
+          clearInterval(check);
+          setIsLoading(false);
+        }
+      }, 100);
+      // Safety timeout
+      setTimeout(() => {
+        clearInterval(check);
+        setIsLoading(false);
+      }, 5000);
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (onSetValue) {
+      setEditValue(value || '');
+      setEditing(true);
+    }
+  };
+
+  const handleEditSubmit = () => {
+    if (onSetValue && editValue !== value) {
+      onSetValue(name, editValue, variablesReference);
+    }
+    setEditing(false);
+  };
+
+  const handleEditKeyDown = (e) => {
+    if (e.key === 'Enter') handleEditSubmit();
+    if (e.key === 'Escape') setEditing(false);
+  };
+
   return (
-    <div
-      className="flex items-center gap-2 px-3 py-0.5 hover:bg-[rgba(255,255,255,0.02)] transition-colors"
-      style={{ paddingLeft: `${12 + indent * 12}px` }}
-    >
-      <span className="text-[10px] font-mono truncate max-w-[100px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{name}</span>
-      <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.15)' }}>=</span>
-      <span className="text-[10px] font-mono truncate flex-1" style={{ color: valColor }}>{value}</span>
-      {type && <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.15)' }}>{type}</span>}
+    <div>
+      <div
+        className="flex items-center gap-1.5 px-3 py-0.5 hover:bg-[rgba(255,255,255,0.02)] transition-colors group"
+        style={{ paddingLeft: `${12 + indent * 12}px` }}
+      >
+        {/* Expand/collapse arrow for compound types */}
+        {isExpandable ? (
+          <button
+            onClick={handleToggle}
+            className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] transition-colors flex-shrink-0"
+          >
+            {isLoading ? (
+              <span className="inline-block w-[10px] text-center text-[8px] animate-spin">⟳</span>
+            ) : (
+              <svg
+                width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                style={{
+                  color: 'rgba(255,255,255,0.2)',
+                  transform: children ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.12s',
+                }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            )}
+          </button>
+        ) : (
+          <span className="w-[10px] flex-shrink-0" />
+        )}
+
+        <span className="text-[10px] font-mono truncate max-w-[100px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{name}</span>
+        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.15)' }}>=</span>
+
+        {editing ? (
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={handleEditSubmit}
+            onKeyDown={handleEditKeyDown}
+            className="flex-1 px-1 py-0.5 text-[10px] font-mono bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.15)] rounded outline-none text-[rgba(255,255,255,0.7)]"
+            autoFocus
+          />
+        ) : (
+          <span
+            className="text-[10px] font-mono truncate flex-1 cursor-text"
+            style={{ color: valColor }}
+            onDoubleClick={handleDoubleClick}
+            title="Double-click to edit"
+          >
+            {value}
+          </span>
+        )}
+
+        {type && !editing && (
+          <span className="text-[8px]" style={{ color: 'rgba(255,255,255,0.15)' }}>{type}</span>
+        )}
+
+        {/* Inline edit hint */}
+        {onSetValue && !editing && (
+          <button
+            onClick={handleDoubleClick}
+            className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-[rgba(255,255,255,0.06)] transition-all ml-auto"
+            title="Edit value"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {/* Expanded children */}
+      {children && children.map((child, i) => (
+        <VariableRow
+          key={`${child.name}-${i}`}
+          name={child.name}
+          value={child.value}
+          type={child.type}
+          indent={indent + 1}
+          variablesReference={child.variablesReference}
+          onSetValue={onSetValue}
+        />
+      ))}
     </div>
   );
 }
@@ -258,6 +397,14 @@ function VariableRow({ name, value, type, indent = 0 }) {
 // ── Variables section with scope grouping ──
 function VariablesSection() {
   const variables = useWorkspace((s) => s.variables);
+  const { isDebugging, debugState, setVariableValue, addDebugHistory } = useWorkspace();
+
+  const handleSetValue = (name, value, variablesReference) => {
+    setVariableValue(name, value, variablesReference);
+    if (isDebugging && debugState === 'paused') {
+      addDebugHistory('system', `Set ${name} = ${value}`);
+    }
+  };
 
   // Group variables by scope
   const scoped = {};
@@ -282,7 +429,15 @@ function VariablesSection() {
               {scope}
             </div>
             {scoped[scope].map((v, i) => (
-              <VariableRow key={i} name={v.name} value={v.value} type={v.type} indent={1} />
+              <VariableRow
+                key={i}
+                name={v.name}
+                value={v.value}
+                type={v.type}
+                indent={1}
+                variablesReference={v.variablesReference}
+                onSetValue={isDebugging && debugState === 'paused' ? handleSetValue : null}
+              />
             ))}
           </div>
         ))
@@ -410,29 +565,64 @@ function WatchSection() {
   );
 }
 
-// ── Call Stack section ──
+// ── Call Stack section with navigation ──
 function CallStackSection() {
   const callStack = useWorkspace((s) => s.callStack);
+
+  const handleFrameClick = (frame) => {
+    // Try to open the file at the specified line via custom event
+    const filePath = frame.url || frame.file || frame.name || '';
+    const line = frame.lineNumber || frame.line || 1;
+    const state = useWorkspace.getState();
+    
+    // Try to find the file by name in the workspace
+    const fileName = filePath.split('/').pop() || filePath.split('\\').pop();
+    const file = state.files.find(f => f.name === fileName);
+    
+    if (file) {
+      // Open file and navigate to line
+      state.openFile({ ...file, id: file._id || file.id });
+      // Dispatch event to jump to line after editor mounts
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('editor:action', {
+          detail: { action: 'goToLine', line },
+        }));
+      }, 200);
+      // Also add a temporary highlight
+      window.dispatchEvent(new CustomEvent('editor:action', {
+        detail: { action: 'revealLine', line },
+      }));
+    }
+
+    // Add to debug history
+    state.addDebugHistory('system', `Navigated to ${fileName || filePath}:${line}`);
+  };
 
   return (
     <Section title="Call Stack" count={callStack.length}>
       {callStack.length === 0 ? (
         <EmptyRow icon={LayersIcon} text="Not paused" />
       ) : (
-        callStack.map((frame, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 px-3 py-1 hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" style={{ opacity: i === 0 ? 1 : 0.3 }} />
-            <span className="text-[10px] font-mono truncate" style={{ color: i === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)' }}>
-              {frame.functionName || frame.function || '<anonymous>'}
-            </span>
-            <span className="text-[9px] ml-auto truncate" style={{ color: 'rgba(255,255,255,0.2)' }}>
-              {frame.file || frame.url?.split('/').pop() || 'unknown'}:{frame.line}
-            </span>
-          </div>
-        ))
+        callStack.map((frame, i) => {
+          const fileName = frame.file || frame.url?.split('/').pop() || 'unknown';
+          const lineNum = frame.lineNumber || frame.line || 0;
+          return (
+            <div
+              key={i}
+              onClick={() => handleFrameClick(frame)}
+              className="flex items-center gap-2 px-3 py-1 hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer"
+              title={`Click to navigate to ${fileName}:${lineNum}`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" style={{ opacity: i === 0 ? 1 : 0.3 }} />
+              <span className="text-[10px] font-mono truncate" style={{ color: i === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)' }}>
+                {frame.functionName || frame.function || '<anonymous>'}
+              </span>
+              <span className="text-[9px] ml-auto truncate" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                {fileName}:{lineNum}
+              </span>
+            </div>
+          );
+        })
       )}
     </Section>
   );

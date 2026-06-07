@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, X } from 'lucide-react';
+import { Bell, X, Bug, Play, Square } from 'lucide-react';
 import { onAwarenessChange } from '../../lib/yjs-provider';
+import { useWorkspace } from '../../stores/useWorkspace';
 
 export default function StatusBar({
   left = [],
@@ -11,6 +12,7 @@ export default function StatusBar({
   const [peerCount, setPeerCount] = useState(0);
   const [peers, setPeers] = useState([]);
   const [localUser, setLocalUser] = useState(null);
+  const { isDebugging, debugState, stopDebugging, continueExecution, showDebugStatus } = useWorkspace();
 
   useEffect(() => {
     const unsub = onAwarenessChange((state) => {
@@ -144,6 +146,24 @@ export default function StatusBar({
               </span>
             )}
           </div>
+        )}
+
+        {/* ═══ Debug status indicator ═══ */}
+        {showDebugStatus && isDebugging && (
+          <StatusBarItem
+            label={debugState === 'paused' ? 'Paused' : debugState === 'running' ? 'Running' : 'Debug'}
+            dot
+            dotColor={debugState === 'paused' ? '#facc15' : debugState === 'running' ? '#4ade80' : 'rgba(255,255,255,0.2)'}
+            active
+            icon={debugState === 'running' ? Play : Bug}
+            onClick={() => {
+              if (debugState === 'paused') {
+                continueExecution();
+              } else if (debugState === 'running') {
+                stopDebugging();
+              }
+            }}
+          />
         )}
 
         {right.map((item, idx) => (

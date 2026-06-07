@@ -4,7 +4,7 @@ import path from 'path';
 import logger from '../config/logger.js';
 import Workspace from '../models/Workspace.js';
 import { syncWorkspaceToDisk, deleteWorkspaceFromDisk, getWorkspacesDir, slugify, getNodeRelativePath, deleteNodeFromDisk } from '../services/workspaceFileSync.js';
-import { watchWorkspace, unwatchWorkspace } from '../services/fileWatcherService.js';
+import { watchWorkspace, unwatchWorkspace, forceSyncDiskToMongo } from '../services/fileWatcherService.js';
 
 const router = express.Router();
 
@@ -443,6 +443,39 @@ router.put('/:id/files/:fileId/rename', async (req, res, next) => {
     try { await syncWorkspaceToDisk(workspace); } catch (e) { logger.warn('[FileSync] sync error:', e); }
 
     res.json({ message: 'Renamed', node });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
+
+/**
+ * POST /api/workspace/:id/sync
+ * Force sync disk → MongoDB for this workspace.
+ * Useful when files were created/modified on disk and the file watcher
+ * hasn't picked them up (e.g., Docker volume mount polling issues).
+ */
+router.post('/:id/sync', async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    if (!workspace.ownerId.equals(req.user._id)) {
+      return res.status(403).json({ error: 'Only owner can sync' });
+    }
+
+    const synced = await forceSyncDiskToMongo(workspace._id);
+
+    if (synced) {
+      res.json({ message: 'Workspace synced from disk' });
+    } else {
+      // re-fetch to get current state
+      const updated = await Workspace.findById(req.params.id);
+      res.json({ message: 'No changes detected', fileTree: updated?.fileTree });
+    }
   } catch (err) {
     err.status = err.status || 500;
     next(err);

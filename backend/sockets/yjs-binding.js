@@ -1,9 +1,14 @@
 import * as Y from 'yjs';
-import { syncYState, getYState, getYDoc } from '../services/codeSync.js';
+import { syncYState, getYState, getYDoc, loadYStateFromDb, scheduleSaveYState } from '../services/codeSync.js';
 import logger from '../config/logger.js';
 
 export function initializeYjsBinding(socket, io, redisClient) {
   const workspaceId = socket.handshake.query.workspace;
+
+  // ── Load persisted Yjs state from MongoDB on first connection ──
+  // This ensures collaborative state survives server restarts.
+  // Only the first socket to load the workspace triggers the DB read.
+  loadYStateFromDb(workspaceId);
 
   // Send full state to newly connected client
   socket.on('sync-request', () => {
@@ -23,7 +28,11 @@ export function initializeYjsBinding(socket, io, redisClient) {
       // Broadcast to other clients
       socket.to(`workspace:${workspaceId}`).emit('sync-update', update);
 
-      // Cache to Redis
+      // ── Persist to MongoDB (debounced) ──
+      // Saves the encoded Yjs state so it survives server restarts
+      scheduleSaveYState(workspaceId);
+
+      // Cache to Redis (fast access for other nodes in a cluster)
       redisClient.setEx(
         `workspace:${workspaceId}:ystate`,
         3600,

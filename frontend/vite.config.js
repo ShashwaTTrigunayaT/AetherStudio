@@ -9,9 +9,11 @@ export default defineConfig({
   envDir: '../', // Load VITE_* vars from root .env
   server: {
     watch: {
-      ignored: ['**/workspaces/**'],
+      usePolling: false,
+      ignored: ['**/workspaces/**', '**/vite.config.js.timestamp-*', '**/vite.config.js'],
     },
-    port: 5173,
+    host: '0.0.0.0',
+    port: 5174,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

@@ -326,6 +326,103 @@ export function setupSocketHandlers(io, redisClient) {
       }
     });
 
+    /**
+     * Get variables from the current paused debug session.
+     * Works for Python (DAP scopes → variables) and C/C++ (GDB -stack-list-variables).
+     */
+    socket.on("debug-get-variables", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      try {
+        const variables = await debugService.getVariables(workspaceId);
+        socket.emit("debug-variables", { variables });
+      } catch (err) {
+        socket.emit("debug-error", { error: err.message });
+      }
+    });
+
+    /**
+     * Evaluate an expression in the current debug context (REPL).
+     * Payload: { workspaceId, expression, frameId? }
+     */
+    socket.on("debug-evaluate", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      const { expression, frameId, evalId } = data;
+      if (!expression) {
+        socket.emit("debug-evaluate-result", { error: "expression is required", evalId });
+        return;
+      }
+      try {
+        const result = await debugService.evaluateExpression(workspaceId, expression, frameId);
+        socket.emit("debug-evaluate-result", { ...result, evalId });
+      } catch (err) {
+        socket.emit("debug-evaluate-result", { error: err.message, evalId });
+      }
+    });
+
+    /**
+     * Get child variables for tree expansion.
+     * Payload: { workspaceId, variablesReference }
+     */
+    socket.on("debug-get-children", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      const { variablesReference } = data;
+      try {
+        const children = await debugService.getChildrenVariables(workspaceId, variablesReference);
+        socket.emit("debug-children", { variablesReference, children });
+      } catch (err) {
+        socket.emit("debug-error", { error: err.message });
+      }
+    });
+
+    /**
+     * Set a variable's value at runtime.
+     * Payload: { workspaceId, name, value, variablesReference? }
+     */
+    socket.on("debug-set-variable", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      const { name, value, variablesReference } = data;
+      if (!name || value === undefined) {
+        socket.emit("debug-error", { error: "name and value are required" });
+        return;
+      }
+      try {
+        const result = await debugService.setVariable(workspaceId, name, value, variablesReference);
+        socket.emit("debug-variable-set", { name, value, result });
+      } catch (err) {
+        socket.emit("debug-error", { error: err.message });
+      }
+    });
+
+    /**
+     * Add a conditional breakpoint.
+     * Payload: { workspaceId, line, condition }
+     */
+    socket.on("debug-add-conditional-breakpoint", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      const { line, condition } = data;
+      try {
+        await debugService.addConditionalBreakpoint(workspaceId, line, condition);
+        socket.emit("debug-breakpoint-added", { line, condition });
+      } catch (err) {
+        socket.emit("debug-error", { error: err.message });
+      }
+    });
+
+    /**
+     * Add a logpoint.
+     * Payload: { workspaceId, line, logMessage }
+     */
+    socket.on("debug-add-logpoint", async (data) => {
+      const workspaceId = data.workspaceId || socket._workspaceId;
+      const { line, logMessage } = data;
+      try {
+        await debugService.addLogpoint(workspaceId, line, logMessage);
+        socket.emit("debug-logpoint-added", { line, logMessage });
+      } catch (err) {
+        socket.emit("debug-error", { error: err.message });
+      }
+    });
+
     // ── Disconnect: clean up all terminals owned by this socket ──
     socket.on("disconnect", () => {
       const terminalIds = socket._terminalIds || [];

@@ -2,8 +2,12 @@ import * as Y from 'yjs';
 import { getSocket, connectSocket } from './api';
 
 let ydoc = null;
-let yText = null;
 let cleanupFns = [];
+
+// ── Per-file Yjs text type observers ──
+// Each file in the workspace gets its own named text type: `file:<fileId>`
+// Components subscribe to changes on specific files via onFileTextChange()
+const fileTextObservers = new Map(); // fileId -> Set<{ callback, observer }>
 
 // ═══════════════════════════════════════════════════════════════
 // Awareness State (cursor positions, presence, etc.)
@@ -268,7 +272,77 @@ function setupAwarenessSocket(socket) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Original Yjs Document Sync
+// Per-File Yjs Text Type Management
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Get the Yjs text type for a specific file.
+ * Each file gets its own named text type: `file:<fileId>`
+ * This is the key fix for multi-file collaboration — previously all files
+ * shared a single 'shared-code' text type, causing cross-file corruption.
+ */
+export function getFileText(fileId) {
+  if (!ydoc || !fileId) return null;
+  return ydoc.getText(`file:${fileId}`);
+}
+
+/**
+ * Subscribe to changes on a specific file's Yjs text.
+ * The callback is called with (newTextContent, origin) whenever the text changes.
+ * origin is 'remote' for changes from other users, or undefined/other for local changes.
+ *
+ * Returns an unsubscribe function.
+ */
+export function onFileTextChange(fileId, callback) {
+  const text = getFileText(fileId);
+  if (!text) return () => {};
+
+  if (!fileTextObservers.has(fileId)) {
+    fileTextObservers.set(fileId, new Set());
+  }
+  const entry = { callback };
+  fileTextObservers.get(fileId).add(entry);
+
+  // Register Yjs observer on this text type
+  const observer = (event, origin) => {
+    try {
+      callback(text.toString(), origin);
+    } catch (e) {
+      console.warn(`[Yjs] File observer error for ${fileId}:`, e);
+    }
+  };
+  entry.observer = observer;
+  text.observe(observer);
+
+  return () => {
+    const observers = fileTextObservers.get(fileId);
+    if (observers) {
+      observers.delete(entry);
+      text.unobserve(observer);
+      if (observers.size === 0) {
+        fileTextObservers.delete(fileId);
+      }
+    }
+  };
+}
+
+/**
+ * Write content to a file's Yjs text type.
+ * Uses a transaction to ensure proper undo/redo grouping and origin tracking.
+ */
+export function writeFileText(fileId, content) {
+  const text = getFileText(fileId);
+  if (!text) return;
+
+  // Use Yjs transaction so the update is grouped as a single operation
+  ydoc.transact(() => {
+    text.delete(0, text.length);
+    text.insert(0, content);
+  }, 'local');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Yjs Document Sync
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -280,14 +354,16 @@ function setupAwarenessSocket(socket) {
  *   - The server responds with "sync-update" containing the encoded state
  *   - We observe local Yjs changes and emit "sync-update" to broadcast them
  *   - We listen for "sync-update" from the server to apply remote changes
+ *
+ * Each file in the workspace gets its own named text type (`file:<fileId>`)
+ * within the shared Y.Doc. Yjs named types are independent, so all files
+ * sync correctly through the same socket connection.
  */
 export function initYjs(workspaceId, userInfo) {
   // Destroy any previous instance
   destroyYjs();
 
   ydoc = new Y.Doc();
-  yText = ydoc.getText('shared-code');
-
   cleanupFns = [];
 
   // Set user info for awareness
@@ -350,16 +426,16 @@ export function initYjs(workspaceId, userInfo) {
     const cleanupAwareness = setupAwarenessSocket(socket);
     cleanupFns.push(cleanupAwareness);
 
-    console.log('[Yjs] Initialized with Socket.io sync + awareness');
+    console.log('[Yjs] Initialized with Socket.io sync + per-file text types');
   } catch (e) {
     console.warn('[Yjs] Failed to initialize Socket.io sync:', e);
   }
 
-  return { ydoc, yText };
+  return { ydoc };
 }
 
 export function getYjs() {
-  return { ydoc, yText };
+  return { ydoc };
 }
 
 export function destroyYjs() {
@@ -379,11 +455,23 @@ export function destroyYjs() {
     heartbeatTimer = null;
   }
 
+  // Clean up all per-file Yjs text observers
+  for (const [fileId, observers] of fileTextObservers) {
+    const text = ydoc?.getText(`file:${fileId}`);
+    if (text) {
+      for (const entry of observers) {
+        if (entry.observer) {
+          text.unobserve(entry.observer);
+        }
+      }
+    }
+  }
+  fileTextObservers.clear();
+
   if (ydoc) {
     ydoc.destroy();
     ydoc = null;
   }
-  yText = null;
 
   // Clear typing timer
   if (typingTimer) {
