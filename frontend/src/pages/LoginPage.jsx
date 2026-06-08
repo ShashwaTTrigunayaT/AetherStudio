@@ -144,7 +144,9 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate('/dashboard');
+      // Check for redirect from invite flow or other paths
+      const redirectTo = location.state?.redirect || '/dashboard';
+      navigate(redirectTo);
     } catch {
       setShake(s => s + 1);
     }
@@ -442,6 +444,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <Link
               to="/register"
+              state={{ redirect: location.state?.redirect }}
               className="font-medium transition-colors"
               style={{ color: 'rgba(200,200,208,0.5)' }}
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
