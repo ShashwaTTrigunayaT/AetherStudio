@@ -43,8 +43,11 @@ if (!process.env.JWT_SECRET) {
 
 // ─── Critical Env Validation ────────────────────────────────
 function validateEnv() {
-  const required = ["JWT_SECRET", "MONGO_URI"];
+  // MONGO_URI or MONGO_URL (Railway uses MONGO_URL)
+  const hasMongo = process.env.MONGO_URI || process.env.MONGO_URL;
+  const required = ["JWT_SECRET"];
   const missing = required.filter((key) => !process.env[key]);
+  if (!hasMongo) missing.push("MONGO_URI");
 
   if (missing.length > 0) {
     logger.error(

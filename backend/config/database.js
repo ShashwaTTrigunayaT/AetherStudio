@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 import logger from "./logger.js";
 
 export async function connectDB() {
-  const uri = process.env.MONGO_URI || "mongodb://localhost:27017/aetherstudio";
+  // Railway's MongoDB plugin creates MONGO_URL, while the app uses MONGO_URI
+  const uri = process.env.MONGO_URI || process.env.MONGO_URL || "mongodb://localhost:27017/aetherstudio";
   const poolSize = parseInt(process.env.MONGO_POOL_SIZE) || 20;
 
   try {
