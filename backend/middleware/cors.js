@@ -13,6 +13,10 @@ const allowedOrigins = [
   /^https:\/\/.*\.ngrok-free\.app$/,
   // Allow Cloudflare Tunnel for sharing with collaborators
   /^https:\/\/.*\.trycloudflare\.com$/,
+
+  // Allow Railway.app deployment domains
+  /^https:\/\/.*\.railway\.app$/,
+  /^https:\/\/.*\.up\.railway\.app$/,
 ];
 
 // Conditionally add FRONTEND_URL if set
