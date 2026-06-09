@@ -2,15 +2,35 @@ import mongoose from "mongoose";
 import logger from "./logger.js";
 
 export async function connectDB() {
-  // Railway's MongoDB plugin creates MONGO_URL, while the app uses MONGO_URI
-  const uri = process.env.MONGO_URI || process.env.MONGO_URL || "mongodb://localhost:27017/aetherstudio";
+  // Resolve the MongoDB URI with fallbacks:
+  // 1. MONGO_URI (explicitly set by user)
+  // 2. MONGO_URL (Railway's internal MongoDB connection string)
+  // 3. MONGO_PUBLIC_URL (Railway's public MongoDB connection string)
+  // 4. Construct from individual Railway variables
+  // 5. Default localhost fallback
+  let uri = process.env.MONGO_URI || process.env.MONGO_URL || process.env.MONGO_PUBLIC_URL;
+
+  // If none of the above are set, try constructing from individual Railway MongoDB variables
+  if (!uri && process.env.MONGOHOST && process.env.MONGOPORT) {
+    const user = process.env.MONGOUSER || process.env.MONGO_INITDB_ROOT_USERNAME;
+    const pass = process.env.MONGOPASSWORD || process.env.MONGO_INITDB_ROOT_PASSWORD;
+    const auth = user && pass ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@` : '';
+    uri = `mongodb://${auth}${process.env.MONGOHOST}:${process.env.MONGOPORT}/aetherstudio?authSource=admin`;
+  }
+
+  // Final fallback
+  if (!uri) {
+    uri = "mongodb://localhost:27017/aetherstudio";
+  }
+
   const poolSize = parseInt(process.env.MONGO_POOL_SIZE) || 20;
 
   try {
+    logger.info(`Connecting to MongoDB at: ${uri.replace(/mongodb:\/\/[^@]+@/, 'mongodb://***:***@')}`);
     await mongoose.connect(uri, {
       maxPoolSize: poolSize,
       minPoolSize: 5,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,
       retryWrites: true,
       w: "majority",
