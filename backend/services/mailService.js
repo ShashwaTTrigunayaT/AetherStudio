@@ -181,3 +181,109 @@ export async function sendPasswordResetEmail(toEmail, resetCode) {
   logger.info(`Reset code sent to ${toEmail} (messageId: ${info.messageId})`);
   return true;
 }
+
+/**
+ * Send an email-verification message with a link the user clicks to verify their account.
+ * Returns the Ethereal preview URL in dev mode, or true in production.
+ */
+export async function sendVerificationEmail(toEmail, token) {
+  const transport = await initTransporter();
+  if (!transport) {
+    logger.warn("Mail transport not available — skipping verification email");
+    return null;
+  }
+
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const verifyUrl = `${frontendUrl}/verify-email/${token}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify your AetherStudio account</title>
+</head>
+<body style="margin:0;padding:0;background:#0d0d10;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d10;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;">
+
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <span style="color:#f5f5f7;font-size:22px;font-weight:700;letter-spacing:-0.5px;">AetherStudio</span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:rgba(22,22,26,0.95);border-radius:16px;padding:36px 32px;border:1px solid rgba(255,255,255,0.06);">
+              <h1 style="color:#f5f5f7;font-size:20px;font-weight:600;margin:0 0 8px;letter-spacing:-0.3px;">
+                Verify your email address
+              </h1>
+              <p style="color:rgba(255,255,255,0.4);font-size:14px;line-height:1.6;margin:0 0 24px;">
+                Thanks for signing up for AetherStudio! Click the button below to verify your email address and activate your account.
+              </p>
+
+              <!-- Verify Button -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;" width="100%">
+                <tr>
+                  <td align="center" style="border-radius:10px;background:linear-gradient(135deg,#b89450,#d4bc80);padding:12px 32px;">
+                    <a href="${verifyUrl}" target="_blank" style="color:#fff;font-size:15px;font-weight:600;text-decoration:none;display:inline-block;">
+                      Verify Email Address
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="color:rgba(255,255,255,0.25);font-size:13px;line-height:1.5;margin:0 0 4px;">
+                Or paste this link in your browser:
+              </p>
+              <p style="color:rgba(255,255,255,0.15);font-size:12px;line-height:1.5;margin:0 0 16px;word-break:break-all;">
+                ${verifyUrl}
+              </p>
+
+              <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:20px 0 16px;" />
+
+              <p style="color:rgba(255,255,255,0.2);font-size:12px;line-height:1.5;margin:0;">
+                This link expires in <strong style="color:rgba(255,255,255,0.3);">24 hours</strong>.
+                If you didn't create an account, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding-top:20px;">
+              <p style="color:rgba(255,255,255,0.1);font-size:11px;margin:0;">
+                &copy; ${new Date().getFullYear()} AetherStudio. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const info = await transport.sendMail({
+    from: process.env.SMTP_FROM || '"AetherStudio" <noreply@aetherstudio.app>',
+    to: toEmail,
+    subject: "Verify your AetherStudio account",
+    text: `Welcome to AetherStudio!\n\nPlease verify your email address by clicking this link:\n${verifyUrl}\n\nThis link expires in 24 hours.\nIf you didn't create an account, you can ignore this email.`,
+    html,
+  });
+
+  if (process.env.NODE_ENV !== "production" && info.messageId) {
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    logger.info(`Verification email sent to ${toEmail} — preview at ${previewUrl}`);
+    return previewUrl;
+  }
+
+  logger.info(`Verification email sent to ${toEmail} (messageId: ${info.messageId})`);
+  return true;
+}

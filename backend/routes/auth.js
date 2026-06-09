@@ -7,7 +7,7 @@ import { promisify } from "util";
 import multer from "multer";
 import User from "../models/User.js";
 import logger from "../config/logger.js";
-import { sendPasswordResetEmail } from "../services/mailService.js";
+import { sendPasswordResetEmail, sendVerificationEmail } from "../services/mailService.js";
 import { uploadAvatar, deleteAvatar } from "../config/cloudinary.js";
 import { isLoggedIn } from "../middleware/auth.js";
 import disposableDomains from "disposable-email-domains/index.json" with { type: "json" };
@@ -174,7 +174,12 @@ async function validateEmailDomain(email) {
       const aRecords = await resolve4(domain);
       valid = aRecords && aRecords.length > 0;
     } catch {
-      valid = false;
+      // DNS lookup failed entirely (common in Railway/containerized envs)
+      // When SKIP_DNS_EMAIL_CHECK is set, bypass DNS validation for the domain
+      if (process.env.SKIP_DNS_EMAIL_CHECK === "true") {
+        logger.warn(`[Email Validation] DNS lookup failed for domain: ${domain} — SKIP_DNS_EMAIL_CHECK is set, allowing`);
+        valid = true;
+      }
     }
   }
 
@@ -209,22 +214,29 @@ router.post("/register", async (req, res, next) => {
       });
     }
 
-    // DNS MX validation — ensures the domain actually accepts email
-    const domainCheck = await validateEmailDomain(email);
-    if (!domainCheck.valid) {
-      return res.status(400).json({ error: domainCheck.error });
-    }
-
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: "Email already registered" });
     }
 
-    const user = new User({ email, password, name });
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const user = new User({
+      email, password, name,
+      verificationToken,
+      isVerified: false,
+    });
     await user.save();
 
+    // Send verification email (non-blocking — don't fail if email sending fails)
+    sendVerificationEmail(user.email, verificationToken).catch((err) => {
+      logger.error("Failed to send verification email:", err.message);
+    });
+
+    // Auto-login the user but mark that email is unverified
     const token = jwt.sign(
-      { _id: user._id, email: user.email },
+      { _id: user._id, email: user.email, isVerified: false },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
@@ -236,7 +248,18 @@ router.post("/register", async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ user: { _id: user._id, email: user.email, name: user.name, avatar: user.avatar || null }, token });
+    res.json({
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar || null,
+        isVerified: false,
+      },
+      token,
+      verificationSent: true,
+      message: "Account created! Check your email for the verification link.",
+    });
   } catch (err) {
     err.status = err.status || 500;
     next(err);
@@ -258,7 +281,7 @@ router.post("/login", async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { _id: user._id, email: user.email },
+      { _id: user._id, email: user.email, isVerified: user.isVerified },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
@@ -270,7 +293,16 @@ router.post("/login", async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ user: { _id: user._id, email: user.email, name: user.name, avatar: user.avatar || null }, token });
+    res.json({
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar || null,
+        isVerified: user.isVerified,
+      },
+      token,
+    });
   } catch (err) {
     err.status = err.status || 500;
     next(err);
@@ -480,6 +512,50 @@ router.post('/upload-avatar', isLoggedIn, upload.single('avatar'), async (req, r
   }
 });
 
+// ─────────────────────────────────────────────────────────────
+//  GET /api/auth/verify-email-confirm/:token
+//  Verifies a user's email address via the link they clicked in the email
+// ─────────────────────────────────────────────────────────────
+router.get("/verify-email-confirm/:token", async (req, res, next) => {
+  try {
+    const { token } = req.params;
+
+    if (!token || token.length < 10) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ error: "This verification link is invalid or has expired. Please register again." });
+    }
+
+    // Check token expiry (24 hours from account creation)
+    if (user.createdAt && Date.now() - new Date(user.createdAt).getTime() > 24 * 60 * 60 * 1000) {
+      return res.status(400).json({ error: "This verification link has expired (valid for 24 hours). Please register again." });
+    }
+
+    // Mark as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    logger.info(`Email verified for user: ${user.email}`);
+
+    res.json({
+      message: "Email verified successfully! You can now use all features of AetherStudio.",
+      verified: true,
+    });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+//  POST /api/auth/verify-email
+//  SMTP handshake verification — checks if the email inbox actually exists
+// ─────────────────────────────────────────────────────────────
 router.post('/verify-email', async (req, res, next) => {
   try {
     const { email } = req.body;

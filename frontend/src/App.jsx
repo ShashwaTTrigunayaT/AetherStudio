@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
@@ -52,6 +53,7 @@ function AppRoutes() {
         {/* Auth pages - standalone (no AppLayout) */}
         <Route path="/login" element={<AnimatedPage><LoginPage /></AnimatedPage>} />
         <Route path="/register" element={<AnimatedPage><RegisterPage /></AnimatedPage>} />
+        <Route path="/verify-email/:token" element={<AnimatedPage><VerifyEmailPage /></AnimatedPage>} />
         <Route path="/forgot-password" element={<AnimatedPage><ForgotPasswordPage /></AnimatedPage>} />
         <Route path="/reset-password" element={<AnimatedPage><ResetPasswordPage /></AnimatedPage>} />
 

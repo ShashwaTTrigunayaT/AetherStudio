@@ -137,6 +137,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [mxStatus, setMxStatus] = useState({ loading: false, valid: null, error: null });
   const [emailRealStatus, setEmailRealStatus] = useState({ loading: false, verified: null, reason: null });
+  const [registered, setRegistered] = useState(false);
 
   useEffect(() => { clearError(); }, []);
 
@@ -207,9 +208,9 @@ export default function RegisterPage() {
     e.preventDefault();
     if (!isFormValid) return;
     try {
-      await register(email, password, name);
-      const redirectTo = location.state?.redirect || '/dashboard';
-      navigate(redirectTo);
+      const result = await register(email, password, name);
+      // Show verification prompt instead of immediately redirecting
+      setRegistered(true);
     } catch { /* handled */ }
   };
 
@@ -281,6 +282,49 @@ export default function RegisterPage() {
             }}
           >
             <div className="p-6 md:p-8">
+              {registered ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center text-center py-4"
+                >
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
+                    style={{ background: 'rgba(200,200,208,0.08)' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#c8c8d0" strokeWidth="1.5" />
+                      <path d="M22 7l-10 7L2 7" stroke="#c8c8d0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <h2 className="text-[18px] font-bold text-[#f5f5f7] mb-2">
+                    Check your email
+                  </h2>
+                  <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    We sent a verification link to{' '}
+                    <span className="font-medium text-[rgba(255,255,255,0.6)]">{email}</span>.
+                    Click the link in the email to activate your account.
+                  </p>
+                  <div
+                    className="mt-6 px-4 py-2.5 rounded-[8px] text-[11px] font-medium"
+                    style={{
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      color: 'rgba(255,255,255,0.25)',
+                    }}
+                  >
+                    Didn't receive it? Check your spam folder, or{' '}
+                    <button
+                      onClick={() => setRegistered(false)}
+                      className="underline"
+                      style={{ color: 'rgba(200,200,208,0.5)' }}
+                    >
+                      try again
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+              <>
               {/* Error Alert */}
               <AnimatePresence mode="wait">
                 {error && (
@@ -482,6 +526,8 @@ export default function RegisterPage() {
                   </motion.button>
                 </div>
               </form>
+            </>
+            )}
             </div>
           </motion.div>
 
