@@ -23,14 +23,28 @@ export async function connectDB() {
     uri = "mongodb://localhost:27017/aetherstudio";
   }
 
+  // Ensure the URI has a database name (Railway's MONGO_URL often lacks one)
+  // mongodb://host:port → mongodb://host:port/aetherstudio
+  const pathMatch = uri.match(/^mongodb:\/\/[^\/]+(\/|\?)/);
+  if (!pathMatch) {
+    // No database path or query params yet — append database name
+    uri += '/aetherstudio';
+  }
+
+  // Ensure authSource=admin is present for Railway MongoDB
+  if (!uri.includes('authSource=')) {
+    uri += (uri.includes('?') ? '&' : '?') + 'authSource=admin';
+  }
+
   const poolSize = parseInt(process.env.MONGO_POOL_SIZE) || 20;
 
   try {
-    logger.info(`Connecting to MongoDB at: ${uri.replace(/mongodb:\/\/[^@]+@/, 'mongodb://***:***@')}`);
+    const safeUri = uri.replace(/mongodb:\/\/[^@]+@/, 'mongodb://***:***@');
+    logger.info(`Connecting to MongoDB at: ${safeUri}`);
     await mongoose.connect(uri, {
       maxPoolSize: poolSize,
       minPoolSize: 5,
-      serverSelectionTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 20000,
       socketTimeoutMS: 45000,
       retryWrites: true,
       w: "majority",
@@ -45,7 +59,7 @@ export async function connectDB() {
 
     logger.info("MongoDB connected");
   } catch (err) {
-    logger.error("MongoDB connection error:", err);
+    logger.error(`MongoDB connection error: ${err.message || err}`, err);
     throw err;
   }
 }
