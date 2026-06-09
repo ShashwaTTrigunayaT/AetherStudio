@@ -12,6 +12,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN apk add --no-cache python3 make g++ bash
 RUN npm install --omit=dev
+COPY backend/ .
 
 # Stage 3: Final Image
 FROM node:18-alpine
