@@ -181,6 +181,20 @@ startFileWatcher(io).catch((err) => {
   logger.warn('[FileWatcher] Failed to start:', err.message);
 });
 
+// ── Serve Frontend Static Files (Production) ──
+// In production (Railway, single-service), the backend serves the built frontend.
+// Frontend is at /app/frontend/dist inside the Docker container.
+const frontendDist = path.resolve(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDist));
+
+// SPA fallback — any non-API, non-WebSocket request gets index.html
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.path.startsWith('/health')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
+
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);

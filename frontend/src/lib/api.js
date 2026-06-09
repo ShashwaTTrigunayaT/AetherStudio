@@ -1,17 +1,9 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-// ── API Base URL ──
-// In development, requests go through Vite's proxy (same-origin, no CORS issues).
-// In production (Railway), frontend and backend are separate services, so we use
-// the environment variable VITE_API_URL (set at build time) to point to the backend.
-// Falls back to '/api' for local dev proxy.
-const API_URL = import.meta.env.VITE_API_URL || '/api';
-
-// ── WebSocket URL ──
-// Socket.IO needs the full backend URL in production (Railway separate services).
-// Falls back to empty string (same origin) for local dev.
-const WS_URL = import.meta.env.VITE_WS_URL || '';
+// In production (Railway single-service), frontend is served by the backend on the
+// same domain, so we use relative URLs. In development, Vite's proxy handles this.
+const API_URL = '/api';
 
 // Axios instance with credentials
 export const api = axios.create({
@@ -68,9 +60,7 @@ export function getSocket(workspaceId) {
     if (workspaceId) {
       opts.query = { workspace: workspaceId };
     }
-    // In production (WS_URL set), connect to backend WebSocket URL
-    // In dev (WS_URL empty), connects to same origin (Vite proxy)
-    socket = io(WS_URL || undefined, opts);
+    socket = io(opts);
     socket._workspaceId = workspaceId;
   }
   return socket;
