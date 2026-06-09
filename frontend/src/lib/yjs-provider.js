@@ -304,8 +304,12 @@ export function onFileTextChange(fileId, callback) {
   fileTextObservers.get(fileId).add(entry);
 
   // Register Yjs observer on this text type
-  const observer = (event, origin) => {
+  // Note: Yjs observer callback receives (event, transaction), where transaction.origin
+  // is the origin string passed to applyUpdate() or transact().
+  const observer = (event, transaction) => {
     try {
+      // Pass the actual origin string (e.g. 'remote') so the component can filter
+      const origin = transaction ? transaction.origin : undefined;
       callback(text.toString(), origin);
     } catch (e) {
       console.warn(`[Yjs] File observer error for ${fileId}:`, e);

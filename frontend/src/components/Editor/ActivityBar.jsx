@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Files, Search, GitBranch, Bug, Puzzle, FlaskConical,
-  Bot, Users, FileText, Settings,
+  Bot, Users, FileText, Settings, Share2,
 } from 'lucide-react';
 import { useWorkspace } from '../../stores/useWorkspace';
 import { useAuth } from '../../stores/useAuth';
+import InviteModal from '../Collaboration/InviteModal';
 
 const sidebarViews = [
   { id: 'explorer', icon: Files, label: 'Explorer (Ctrl+Shift+E)' },
@@ -229,7 +230,9 @@ function ActivityButton({ isActive, Icon, onClick, label, index }) {
 export default function ActivityBar() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const {
+    workspace,
     activeSidebarView, setActiveSidebarView, sidebarOpen,
     rightPanelTab, rightPanelOpen, setRightPanelTab,
   } = useWorkspace();
@@ -331,6 +334,21 @@ export default function ActivityBar() {
           style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)' }}
         />
 
+        {/* ── Share workspace button ── */}
+        <motion.button
+          initial={{ opacity: 0, x: -12, scale: 0.8 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ delay: 0.15 + (sidebarViews.length + rightPanelViews.length) * 0.035 + 0.08, duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+          whileHover={{ scale: 1.08, color: 'rgba(255,255,255,0.4)' }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => setInviteModalOpen(true)}
+          className="relative w-[40px] h-[40px] flex items-center justify-center rounded-xl group"
+          title="Share workspace"
+          style={{ color: 'rgba(255,255,255,0.2)' }}
+        >
+          <Share2 size={18} strokeWidth={1.5} />
+        </motion.button>
+
         {/* ── Bottom section — Accounts & Settings ── */}
         <div className="flex flex-col items-center gap-0.5">
           {/* Profile / Account */}
@@ -371,6 +389,14 @@ export default function ActivityBar() {
           <ManageMenu />
         </div>
       </div>
+
+      {/* Invite Modal */}
+      <InviteModal
+        isOpen={inviteModalOpen}
+        onClose={() => setInviteModalOpen(false)}
+        workspaceId={workspace?._id}
+        isOwner={workspace?.ownerId === user?._id}
+      />
     </motion.div>
   );
 }

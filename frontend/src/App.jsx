@@ -8,6 +8,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import WorkspacePage from './pages/WorkspacePage';
+import InvitePage from './pages/InvitePage';
 import ProfilePage from './pages/ProfilePage';
 import UserPage from './pages/UserPage';
 import AboutPage from './pages/AboutPage';
@@ -72,6 +73,9 @@ function AppRoutes() {
 
         {/* Workspace - no AppLayout (it has its own layout) */}
         <Route path="/workspace/:id" element={<AnimatedPage><WorkspacePage /></AnimatedPage>} />
+
+        {/* Invite page */}
+        <Route path="/invite/:token" element={<AnimatedPage><InvitePage /></AnimatedPage>} />
 
         {/* 404 */}
         <Route path="*" element={<AnimatedPage><NotFoundPage /></AnimatedPage>} />

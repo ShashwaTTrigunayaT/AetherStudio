@@ -423,8 +423,14 @@ export function setupSocketHandlers(io, redisClient) {
       }
     });
 
-    // ── Disconnect: clean up all terminals owned by this socket ──
+    // ── Disconnect: notify workspace peers and clean up terminals ──
     socket.on("disconnect", () => {
+      // Notify workspace peers that this user left (prevents duplicate entries on refresh)
+      const workspaceId = socket._workspaceId;
+      if (workspaceId) {
+        io.to(`workspace:${workspaceId}`).emit("peer-left", socket.id);
+      }
+
       const terminalIds = socket._terminalIds || [];
       if (terminalIds.length > 0) {
         logger.info(`[Socket] Cleaning up ${terminalIds.length} terminal(s) for ${socket.id}`);

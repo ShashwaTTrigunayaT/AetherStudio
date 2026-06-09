@@ -8,10 +8,12 @@ import Avatar from './Avatar';
 import Dropdown, { DropdownItem } from './Dropdown';
 import Breadcrumb from './Breadcrumb';
 import { toast } from 'sonner';
+import InviteModal from '../Collaboration/InviteModal';
 
 export default function Header({ workspace, collaborators = [], onToggleSidebar, onToggleTerminal, onToggleRightPanel }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -83,7 +85,7 @@ export default function Header({ workspace, collaborators = [], onToggleSidebar,
 
       {/* Right section */}
       <div className="flex items-center gap-0.5">
-        <button onClick={handleCopyLink} className="btn-ghost p-1.5" title="Share link">
+        <button onClick={() => setInviteModalOpen(true)} className="btn-ghost p-1.5" title="Share workspace">
           <Share2 size={15} />
         </button>
         <button
@@ -115,6 +117,14 @@ export default function Header({ workspace, collaborators = [], onToggleSidebar,
         <div className="w-px h-4 bg-[rgba(255,255,255,0.06)] mx-1" />
         <Avatar name={user?.name} email={user?.email} size="xs" status="online" />
       </div>
+
+      {/* Invite Modal */}
+      <InviteModal
+        isOpen={inviteModalOpen}
+        onClose={() => setInviteModalOpen(false)}
+        workspaceId={workspace?._id}
+        isOwner={workspace?.ownerId === user?._id}
+      />
     </motion.header>
   );
 }

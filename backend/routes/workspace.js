@@ -4,6 +4,7 @@ import path from 'path';
 import logger from '../config/logger.js';
 import Workspace from '../models/Workspace.js';
 import { syncWorkspaceToDisk, deleteWorkspaceFromDisk, getWorkspacesDir, slugify, getNodeRelativePath, deleteNodeFromDisk } from '../services/workspaceFileSync.js';
+import crypto from 'crypto';
 import { watchWorkspace, unwatchWorkspace, forceSyncDiskToMongo } from '../services/fileWatcherService.js';
 
 const router = express.Router();
@@ -443,6 +444,73 @@ router.put('/:id/files/:fileId/rename', async (req, res, next) => {
     try { await syncWorkspaceToDisk(workspace); } catch (e) { logger.warn('[FileSync] sync error:', e); }
 
     res.json({ message: 'Renamed', node });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
+
+/**
+ * POST /api/workspace/:id/invite
+ * Generate or reset an invite token for this workspace.
+ * Body: { reset?: boolean }
+ */
+router.post('/:id/invite', async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    if (!workspace.ownerId.equals(req.user._id)) {
+      return res.status(403).json({ error: 'Only owner can manage invites' });
+    }
+
+    // Generate a secure random token
+    const token = crypto.randomBytes(24).toString('hex');
+    workspace.inviteToken = token;
+    await workspace.save();
+
+    res.json({
+      token,
+      inviteUrl: `/invite/${token}`,
+    });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/workspace/:id/collaborators/:userId
+ * Remove a collaborator from the workspace (owner only).
+ */
+router.delete('/:id/collaborators/:userId', async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    if (!workspace.ownerId.equals(req.user._id)) {
+      return res.status(403).json({ error: 'Only owner can remove collaborators' });
+    }
+
+    const userId = req.params.userId;
+    const wasCollaborator = workspace.collaboratorIds.some((id) => id.equals(userId));
+
+    if (!wasCollaborator) {
+      return res.status(404).json({ error: 'User is not a collaborator' });
+    }
+
+    workspace.collaboratorIds = workspace.collaboratorIds.filter(
+      (id) => !id.equals(userId)
+    );
+    await workspace.save();
+
+    res.json({ message: 'Collaborator removed' });
   } catch (err) {
     err.status = err.status || 500;
     next(err);

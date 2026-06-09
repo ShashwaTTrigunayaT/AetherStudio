@@ -29,6 +29,27 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+// GET /api/users/batch?ids=id1,id2,id3 - Batch fetch users by IDs
+router.get('/batch', isLoggedIn, async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+    if (!ids) {
+      return res.status(400).json({ error: 'ids query parameter required' });
+    }
+
+    const idArray = ids.split(',').filter(Boolean);
+    if (idArray.length === 0) {
+      return res.json({ users: [] });
+    }
+
+    const users = await User.find({ _id: { $in: idArray } }).select('name email avatar');
+    res.json({ users });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
+
 // PATCH /api/users/bio - Update own bio
 router.patch('/bio', isLoggedIn, async (req, res, next) => {
   try {

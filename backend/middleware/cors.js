@@ -3,6 +3,11 @@ const allowedOrigins = [
   // Accept any localhost origin for development flexibility
   /^http:\/\/localhost:\d+$/,
   /^http:\/\/127\.0\.0\.1:\d+$/,
+  // Allow local network IPs for LAN collaboration (college WiFi, home network, etc.)
+  /^http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/,
+  /^http:\/\/172\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/,
+  /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+$/,
+
   // Allow ngrok tunnels for sharing with collaborators
   /^https:\/\/.*\.ngrok\.io$/,
   /^https:\/\/.*\.ngrok-free\.app$/,

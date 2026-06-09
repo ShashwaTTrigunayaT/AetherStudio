@@ -2,7 +2,10 @@
   "name": "aetherstudio",
   "version": "1.0.0",
   "private": true,
-  "workspaces": ["backend", "frontend"],
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "description": "Production-ready collaborative IDE with real-time code synchronization, interactive terminal execution, and AI-powered assistance",
   "scripts": {
     "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm run dev -w backend\" \"npm run dev -w frontend\"",
@@ -19,5 +22,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "freebuff": "^0.0.103"
   }
 }

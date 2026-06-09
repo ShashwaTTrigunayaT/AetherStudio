@@ -25,6 +25,7 @@ import executionRoutes from "./routes/execution.js";
 import aiRoutes from "./routes/ai.js";
 import userRoutes from "./routes/users.js";
 import extensionRoutes from "./routes/extensions.js";
+import inviteRoutes from "./routes/invite.js";
 
 import { setupSocketHandlers } from "./sockets/handlers.js";
 import { startJanitorWorker } from "./services/janitorService.js";
@@ -160,6 +161,7 @@ app.use("/api/execute", isLoggedIn, executionLimiter, executionRoutes);
 app.use("/api/ai", isLoggedIn, aiRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/extensions", isLoggedIn, extensionRoutes);
+app.use("/api/invite", isLoggedIn, inviteRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

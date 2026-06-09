@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../stores/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
@@ -129,6 +129,7 @@ function PasswordStrength({ password }) {
 export default function RegisterPage() {
   const { register, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -207,7 +208,8 @@ export default function RegisterPage() {
     if (!isFormValid) return;
     try {
       await register(email, password, name);
-      navigate('/dashboard');
+      const redirectTo = location.state?.redirect || '/dashboard';
+      navigate(redirectTo);
     } catch { /* handled */ }
   };
 
@@ -494,6 +496,7 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Link
               to="/login"
+              state={{ redirect: location.state?.redirect }}
               className="font-medium transition-colors"
               style={{ color: 'rgba(200,200,208,0.5)' }}
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(200,200,208,0.8)'}
