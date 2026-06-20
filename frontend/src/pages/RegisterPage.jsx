@@ -160,7 +160,7 @@ export default function RegisterPage() {
     return () => clearTimeout(timer);
   }, [email]);
 
-  // Debounced real email verification (SMTP check — is this a real inbox?)
+  // Debounced real email verification (ZeroBounce — is this a real inbox?)
   useEffect(() => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailRealStatus({ loading: false, verified: null, reason: null });
@@ -169,10 +169,22 @@ export default function RegisterPage() {
     const timer = setTimeout(async () => {
       setEmailRealStatus(s => ({ ...s, loading: true }));
       try {
-        const { verified, reason } = await verifyEmailReal(email);
-        setEmailRealStatus({ loading: false, verified, reason });
+        const { verified, reason, status } = await verifyEmailReal(email);
+        // Enhanced messaging based on ZeroBounce status
+        if (status === 'invalid' && reason && reason.includes('Did you mean')) {
+          // Show typo suggestion prominently
+          setEmailRealStatus({ loading: false, verified, reason });
+        } else if (status === 'catch-all') {
+          // Catch-all domains accept all mail — inconclusive
+          setEmailRealStatus({ loading: false, verified: null, reason: 'This domain accepts all mail (catch-all). Inbox could not be verified.' });
+        } else if (status === 'unconfigured') {
+          // ZeroBounce not configured — inconclusive but don't block
+          setEmailRealStatus({ loading: false, verified: null, reason: null });
+        } else {
+          setEmailRealStatus({ loading: false, verified, reason });
+        }
       } catch {
-        // SMTP check failed (e.g. port 25 blocked) — treat as inconclusive, show warning
+        // Verification check failed (network error, etc.) — treat as inconclusive
         setEmailRealStatus({ loading: false, verified: null, reason: 'Could not verify inbox existence. Server may be unreachable.' });
       }
     }, 800); // Slightly longer debounce since SMTP check is slower

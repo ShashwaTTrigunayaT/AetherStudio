@@ -40,7 +40,8 @@
     "socket.io": "^4.5.4",
     "uuid": "^9.0.0",
     "ws": "^8.20.1",
-    "yjs": "^13.5.0"
+    "yjs": "^13.5.0",
+    "zerobounce": "^0.3.0"
   },
   "devDependencies": {
     "eslint": "^8.41.0",

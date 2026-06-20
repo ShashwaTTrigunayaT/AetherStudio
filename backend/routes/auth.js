@@ -2,7 +2,6 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dns from "dns";
-import net from "net";
 import { promisify } from "util";
 import multer from "multer";
 import User from "../models/User.js";
@@ -10,6 +9,7 @@ import logger from "../config/logger.js";
 import { sendPasswordResetEmail, sendVerificationEmail } from "../services/mailService.js";
 import { uploadAvatar, deleteAvatar } from "../config/cloudinary.js";
 import { isLoggedIn } from "../middleware/auth.js";
+import { verifyEmailWithZeroBounce } from "../services/emailVerificationService.js";
 import disposableDomains from "disposable-email-domains/index.json" with { type: "json" };
 
 const router = express.Router();
@@ -35,9 +35,6 @@ setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of dnsCache) {
     if (now > entry.expires) dnsCache.delete(key);
-  }
-  for (const [key, entry] of smtpCache) {
-    if (now > entry.expires) smtpCache.delete(key);
   }
 }, 60_000); // Cleanup every minute
 
@@ -219,6 +216,29 @@ router.post("/register", async (req, res, next) => {
       return res.status(409).json({ error: "Email already registered" });
     }
 
+    // Server-side email verification via ZeroBounce (when configured)
+    // This catches non-existent inboxes even if the frontend checks are bypassed
+    if (process.env.ZEROBOUNCE_API_KEY) {
+      try {
+        const zbResult = await verifyEmailWithZeroBounce(email);
+        if (zbResult.status === 'invalid') {
+          return res.status(400).json({
+            error: zbResult.did_you_mean
+              ? `Email not found. Did you mean ${zbResult.did_you_mean}?`
+              : 'This email address does not appear to exist. Please use a valid email address.',
+          });
+        }
+        if (zbResult.status === 'spamtrap' || zbResult.status === 'abuse' || zbResult.status === 'do_not_mail') {
+          return res.status(400).json({
+            error: 'This email address cannot be used. Please try a different email.',
+          });
+        }
+      } catch (zbErr) {
+        // ZeroBounce failure should not block registration — log and proceed
+        logger.warn('[Register] ZeroBounce check failed (proceeding):', zbErr.message);
+      }
+    }
+
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
@@ -332,6 +352,7 @@ router.post("/check-email", async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────
 //  POST /api/auth/validate-email
 //  Checks if the email domain has valid MX records (domain accepts email)
+//  Falls back gracefully when DNS is unavailable (common in Railway containers)
 // ─────────────────────────────────────────────────────────────
 router.post("/validate-email", async (req, res, next) => {
   try {
@@ -360,7 +381,12 @@ router.post("/validate-email", async (req, res, next) => {
         const aRecords = await resolve4(domain);
         valid = aRecords && aRecords.length > 0;
       } catch {
-        valid = false;
+        // DNS lookup failed entirely (common in Railway/containerized envs)
+        // When SKIP_DNS_EMAIL_CHECK is set, bypass DNS validation for the domain
+        if (process.env.SKIP_DNS_EMAIL_CHECK === "true") {
+          logger.warn(`[Validate Email] DNS lookup failed for domain: ${domain} — SKIP_DNS_EMAIL_CHECK is set, allowing`);
+          valid = true;
+        }
       }
     }
 
@@ -376,97 +402,79 @@ router.post("/validate-email", async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────
 //  POST /api/auth/verify-email
-//  SMTP handshake verification — checks if the email inbox actually exists
-//  No external API key required, uses Node.js net module
+//  ZeroBounce-powered email verification — checks if the inbox actually exists
+//  Uses HTTP API (no port 25 required), works on Railway and other cloud platforms
+//  Falls back gracefully when ZEROBOUNCE_API_KEY is not configured
 // ─────────────────────────────────────────────────────────────
 
-// SMTP Cache (in-memory, 30 min TTL — SMTP checks are slower)
-const smtpCache = new Map();
-const SMTP_CACHE_TTL = 30 * 60 * 1000;
+// ZeroBounce cache (in-memory, 30 min TTL)
+const zbCache = new Map();
+const ZB_CACHE_TTL = 30 * 60 * 1000;
 
-// Also reuse the cleanup interval from DNS cache
+router.post('/verify-email', async (req, res, next) => {
+  try {
+    const { email } = req.body;
 
-/**
- * Probe a mail server via SMTP to see if it accepts mail for a given email.
- * Performs: HELO → MAIL FROM → RCPT TO
- */
-function smtpProbe(mxHost, email, sender = 'verify@aetherstudio.app') {
-  return new Promise((resolve) => {
-    const socket = new net.Socket();
-    let buffer = '';
-    let stage = 'greeting';
-    let resolved = false;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
 
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        socket.destroy();
-        resolve(false);
-      }
-    }, 5000);
+    const emailKey = email.toLowerCase();
 
-    const finish = (result) => {
-      if (!resolved) {
-        resolved = true;
-        clearTimeout(timeout);
-        socket.end();
-        socket.destroy();
-        resolve(result);
-      }
-    };
+    // Check cache
+    const cached = zbCache.get(emailKey);
+    if (cached) {
+      return res.json({ verified: cached.verified, reason: cached.reason, cached: true, status: cached.status });
+    }
 
-    socket.on('data', (data) => {
-      buffer += data.toString();
+    // Try ZeroBounce verification
+    const zbResult = await verifyEmailWithZeroBounce(email);
 
-      // Process complete lines
-      const lines = buffer.split('\r\n');
-      // Keep incomplete last line in buffer
-      buffer = lines.pop() || '';
+    let verified;
+    let reason;
+    let status;
 
-      for (const line of lines) {
-        if (stage === 'greeting') {
-          if (/^220/.test(line)) {
-            stage = 'helo';
-            socket.write('HELO aetherstudio.app\r\n');
-          } else {
-            finish(false);
-          }
-          break;
-        } else if (stage === 'helo') {
-          if (/^250/.test(line)) {
-            stage = 'mailfrom';
-            socket.write(`MAIL FROM:<${sender}>\r\n`);
-          } else {
-            finish(false);
-          }
-          break;
-        } else if (stage === 'mailfrom') {
-          if (/^250/.test(line)) {
-            stage = 'rcptto';
-            socket.write(`RCPT TO:<${email}>\r\n`);
-          } else {
-            finish(false);
-          }
-          break;
-        } else if (stage === 'rcptto') {
-          // 250 = mailbox exists, 251 = user not local but forwarded
-          if (/^2[5]\d/.test(line)) {
-            finish(true);
-          } else {
-            // 550 = mailbox not found
-            finish(false);
-          }
-          break;
-        }
-      }
+    if (zbResult.status === 'valid') {
+      verified = true;
+      reason = null;
+      status = 'valid';
+    } else if (zbResult.status === 'invalid') {
+      verified = false;
+      reason = zbResult.did_you_mean
+        ? `Email not found. Did you mean ${zbResult.did_you_mean}?`
+        : 'This email address does not appear to exist on the mail server.';
+      status = 'invalid';
+    } else if (zbResult.status === 'catch-all') {
+      // Catch-all domains accept all mail — we can't confirm individual inboxes
+      verified = null;
+      reason = 'This email domain accepts all mail (catch-all). Inbox existence could not be confirmed.';
+      status = 'catch-all';
+    } else if (zbResult.reason && zbResult.reason.includes('not configured')) {
+      // ZeroBounce not configured — fall back gracefully
+      verified = null;
+      reason = 'Email verification service not configured. Please set ZEROBOUNCE_API_KEY.';
+      status = 'unconfigured';
+    } else {
+      // Unknown / error
+      verified = null;
+      reason = 'Could not verify inbox existence. Please try again later.';
+      status = 'unknown';
+    }
+
+    // Cache the result
+    zbCache.set(emailKey, {
+      verified,
+      reason,
+      status,
+      expires: Date.now() + ZB_CACHE_TTL,
     });
 
-    socket.on('error', () => finish(false));
-    socket.on('close', () => finish(false));
-
-    socket.connect(25, mxHost);
-  });
-}
+    res.json({ verified, reason, status });
+  } catch (err) {
+    err.status = err.status || 500;
+    next(err);
+  }
+});
 
 // ─────────────────────────────────────────────────────────────
 //  POST /api/auth/upload-avatar
@@ -552,77 +560,5 @@ router.get("/verify-email-confirm/:token", async (req, res, next) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  POST /api/auth/verify-email
-//  SMTP handshake verification — checks if the email inbox actually exists
-// ─────────────────────────────────────────────────────────────
-router.post('/verify-email', async (req, res, next) => {
-  try {
-    const { email } = req.body;
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
-    }
-
-    const domain = email.split('@')[1].toLowerCase();
-
-    // Check cache
-    const cached = smtpCache.get(email.toLowerCase());
-    if (cached) {
-      return res.json({ verified: cached.verified, reason: cached.reason, cached: true });
-    }
-
-    // Resolve MX records for the domain
-    let mxHosts;
-    try {
-      const records = await resolveMx(domain);
-      // Sort by priority (lower = higher priority)
-      mxHosts = records.sort((a, b) => a.priority - b.priority).map(r => r.exchange);
-    } catch {
-      return res.json({
-        verified: null,
-        reason: 'Domain does not accept email (no mail servers found)',
-      });
-    }
-
-    if (!mxHosts || mxHosts.length === 0) {
-      return res.json({
-        verified: null,
-        reason: 'Domain does not accept email (no mail servers found)',
-      });
-    }
-
-    // Try each MX server in order until one responds
-    let verified = false;
-    for (const mxHost of mxHosts) {
-      try {
-        const result = await smtpProbe(mxHost, email);
-        if (result) {
-          verified = true;
-          break;
-        }
-      } catch {
-        // Try next MX server
-        continue;
-      }
-    }
-
-    const reason = verified
-      ? null
-      : 'This email address does not appear to exist on the mail server.';
-
-    // Cache the result
-    smtpCache.set(email.toLowerCase(), {
-      verified,
-      reason,
-      expires: Date.now() + SMTP_CACHE_TTL,
-    });
-
-    res.json({ verified, reason });
-  } catch (err) {
-    err.status = err.status || 500;
-    next(err);
-  }
-});
 
 export default router;
