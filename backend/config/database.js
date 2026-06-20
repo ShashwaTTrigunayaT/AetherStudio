@@ -25,7 +25,7 @@ export async function connectDB() {
 
   // Ensure the URI has a database name (Railway's MONGO_URL often lacks one)
   // mongodb://host:port → mongodb://host:port/aetherstudio
-  const pathMatch = uri.match(/^mongodb:\/\/[^\/]+(\/|\?)/);
+  const pathMatch = uri.match(/^mongodb(\+srv)?:\/\/[^\/]+(\/|\?)/);
   if (!pathMatch) {
     // No database path or query params yet — append database name
     uri += '/aetherstudio';
