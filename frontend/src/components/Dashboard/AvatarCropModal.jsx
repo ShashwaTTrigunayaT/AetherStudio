@@ -100,7 +100,7 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
-            className="relative w-full max-w-lg overflow-hidden rounded-[16px]"
+            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[16px]"
             style={{
               background: 'rgba(14,14,18,0.96)',
               border: '1px solid rgba(255,255,255,0.06)',
