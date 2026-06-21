@@ -10,6 +10,7 @@ import Navbar from '../components/Common/Navbar';
 import LandingFooter from '../components/Landing/LandingFooter';
 import AvatarCropModal from '../components/Dashboard/AvatarCropModal';
 import { toast } from 'sonner';
+import AnimatedCounter from '../components/Common/AnimatedCounter';
 
 function SettingsCard({ item, navigate, toast: t, Zap: Z }) {
   const handleClick = () => {
@@ -224,7 +225,12 @@ export default function ProfilePage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <AetherStudioLogo size={100} animated glow />
+            <motion.div
+              animate={{ opacity: [1, 0.7, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <AetherStudioLogo size={100} animated glow />
+            </motion.div>
           </motion.div>
 
           {/* Wordmark */}
@@ -267,6 +273,17 @@ export default function ProfilePage() {
           />
         ))}
 
+        {/* Shimmer sweep overlay */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{ backgroundPosition: ['200% 0%', '-200% 0%', '200% 0%'] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.015) 45%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.015) 55%, transparent 100%)',
+            backgroundSize: '200% 100%',
+          }}
+        />
+
         {/* Straight horizontal divider */}
         <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: '60px', background: '#0a0a0c' }} />
       </section>
@@ -282,9 +299,9 @@ export default function ProfilePage() {
 
               {/* ── Three-column row: Avatar | Button | Stats ── */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
                 className="flex flex-wrap justify-center"
               >
 
@@ -341,20 +358,25 @@ export default function ProfilePage() {
                     ].map((stat, i) => (
                       <motion.div
                         key={stat.label}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
+                        initial={{ opacity: 0, scale: 0.3, y: 40 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.15 * i }}
                         className={`${i < 2 ? 'mr-4' : 'lg:mr-4'} p-3 text-center`}
                       >
                         <motion.span
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: 0.1 + 0.05 * i }}
+                          transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.15 * i + 0.1 }}
                           className="text-xl font-bold block uppercase tracking-wide text-white"
                         >
-                          {stat.value}
+                          <AnimatedCounter value={stat.value} duration={1.2} />
                         </motion.span>
-                        <span className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>{stat.label}</span>
+                        <motion.span
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 0.15 * i + 0.25 }}
+                          className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}
+                        >{stat.label}</motion.span>
                       </motion.div>
                     ))}
                   </div>
@@ -362,31 +384,48 @@ export default function ProfilePage() {
               </motion.div>
 
               {/* ── Identity ── */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                className="text-center mt-12"
-              >
-                <h3 className="text-4xl font-semibold leading-normal mb-2 text-white">{user?.name || 'User'}</h3>
+              <div className="text-center mt-12">
+                <motion.h3
+                  initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 18, delay: 0.2 }}
+                  className="text-4xl font-semibold leading-normal mb-2 text-white"
+                >
+                  {user?.name || 'User'}
+                </motion.h3>
 
                 {profile?.location && (
-                  <div className="text-sm leading-normal mt-0 mb-2 font-bold uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 160, damping: 16, delay: 0.3 }}
+                    className="text-sm leading-normal mt-0 mb-2 font-bold uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}
+                  >
                     <MapPin size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.4)' }} />
                     {profile.location}
-                  </div>
+                  </motion.div>
                 )}
 
-                <div className="mb-2 mt-10" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 140, damping: 14, delay: 0.4 }}
+                  className="mb-2 mt-10" style={{ color: 'rgba(255,255,255,0.35)' }}
+                >
                   <Briefcase size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
                   {profile?.role || 'Developer'}
-                </div>
+                </motion.div>
 
-                <div className="mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 120, damping: 12, delay: 0.5 }}
+                  className="mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}
+                >
                   <GraduationCap size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
                   {profile?.education || 'AetherStudio'}
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
 
               {/* ═══ VERTICAL SECTIONS: Bio | Settings | Preferences ═══ */}
               <motion.div
@@ -427,7 +466,12 @@ export default function ProfilePage() {
                     {activeSection === 'bio' && (
                       <div className="px-2">
                         {bioEditing ? (
-                          <div className="space-y-3">
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                            className="space-y-3"
+                          >
                             {(!bioDraft || bioDraft === bio) && (
                               <div className="flex flex-wrap gap-1.5 mb-2">
                                 {BIO_SUGGESTIONS.map((s) => (
@@ -491,16 +535,33 @@ export default function ProfilePage() {
                                   }}
                                 >{savingBio ? 'Saving...' : 'Save'}</button>
                               </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
+                            </div>                            </motion.div>
+                          ) : (
+                            <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+                          >
                             {bio ? (
-                              <>
-                                <p className="mb-3 text-[14px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                              <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.4, delay: 0.08 }}
+                              >
+                                <motion.p
+                                  initial={{ opacity: 0, y: 8 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                  className="mb-3 text-[14px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}
+                                >
                                   {bioExpanded || !shouldTruncate ? bio : `${bio.slice(0, 120)}...`}
-                                </p>
-                                <div className="flex items-center gap-3">
+                                </motion.p>
+                                <motion.div
+                                  initial={{ opacity: 0, y: 6 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, delay: 0.2 }}
+                                  className="flex items-center gap-3"
+                                >
                                   {shouldTruncate && (
                                     <button onClick={() => setBioExpanded(!bioExpanded)}
                                       className="inline-flex items-center gap-1 text-[12px] font-medium transition-all"
@@ -517,20 +578,36 @@ export default function ProfilePage() {
                                     onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.6)'}
                                     onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.3)'}
                                   >Edit</button>
-                                </div>
-                              </>
+                                </motion.div>
+                              </motion.div>
                             ) : (
-                              <div className="text-center md:text-left">
-                                <p className="mb-4 text-[14px]" style={{ color: 'rgba(255,255,255,0.2)' }}>No bio yet</p>
-                                <button onClick={() => { setBioDraft(''); setBioEditing(true); }}
-                                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
-                                  style={{ background: '#d4d4d8', color: '#18181b' }}
-                                  onMouseEnter={(e) => e.currentTarget.style.background = '#e4e4e7'}
-                                  onMouseLeave={(e) => e.currentTarget.style.background = '#d4d4d8'}
-                                >+ Add Bio</button>
-                              </div>
+                              <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                className="text-center md:text-left"
+                              >
+                                <motion.p
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ duration: 0.3, delay: 0.15 }}
+                                  className="mb-4 text-[14px]" style={{ color: 'rgba(255,255,255,0.2)' }}
+                                >No bio yet</motion.p>
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  transition={{ duration: 0.3, delay: 0.25 }}
+                                >
+                                  <button onClick={() => { setBioDraft(''); setBioEditing(true); }}
+                                    className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+                                    style={{ background: '#d4d4d8', color: '#18181b' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#e4e4e7'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = '#d4d4d8'}
+                                  >+ Add Bio</button>
+                                </motion.div>
+                              </motion.div>
                             )}
-                          </>
+                          </motion.div>
                         )}
 
                       </div>
