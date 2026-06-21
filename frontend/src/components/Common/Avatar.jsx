@@ -28,6 +28,7 @@ export default function Avatar({ name, email, src, size = 'md', status, classNam
     lg: 'w-12 h-12 text-[16px]',
     xl: 'w-16 h-16 text-[22px]',
     xxl: 'w-20 h-20 text-[28px]',
+    xxxl: 'w-28 h-28 text-[38px]',
   };
 
   const statusSizes = {
@@ -37,6 +38,7 @@ export default function Avatar({ name, email, src, size = 'md', status, classNam
     lg: 'w-3.5 h-3.5 -right-0.5 -bottom-0.5',
     xl: 'w-4 h-4 -right-0.5 -bottom-0.5',
     xxl: 'w-5 h-5 -right-0.5 -bottom-0.5',
+    xxxl: 'w-[14px] h-[14px] -right-[1px] -bottom-[1px]',
   };
 
   const statusColors = {

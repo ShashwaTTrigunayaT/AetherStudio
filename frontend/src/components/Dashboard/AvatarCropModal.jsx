@@ -100,7 +100,7 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
-            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[16px]"
+            className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[16px]"
             style={{
               background: 'rgba(14,14,18,0.96)',
               border: '1px solid rgba(255,255,255,0.06)',
@@ -112,29 +112,30 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
               <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.08)] transition-colors" style={{ color: 'rgba(255,255,255,0.4)' }}>
                 <X size={16} />
               </button>
+            </div>              <div className="px-4 pb-1 pt-2">
+              <div className="relative w-full mx-auto h-[100px] sm:h-[140px] md:h-[180px] max-h-[30vh] bg-[#000000] rounded-xl overflow-hidden">
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  rotation={rotation}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={onCropChange}
+                  onZoomChange={onZoomChange}
+                  onCropComplete={onCropAreaComplete}
+                  style={{
+                    containerStyle: { background: '#000000' },
+                    cropAreaStyle: {
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+                    },
+                  }}
+                />
+              </div>
             </div>
-            <div className="relative w-full h-[360px] bg-[#000000]">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                rotation={rotation}
-                aspect={1}
-                cropShape="round"
-                showGrid={false}
-                onCropChange={onCropChange}
-                onZoomChange={onZoomChange}
-                onCropComplete={onCropAreaComplete}
-                style={{
-                  containerStyle: { background: '#000000' },
-                  cropAreaStyle: {
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-                  },
-                }}
-              />
-            </div>
-            <div className="px-5 py-4 space-y-3">
+            <div className="px-5 py-3 space-y-2.5">
               <div className="flex items-center gap-3">
                 <ZoomOut size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
                 <input type="range" min={1} max={3} step={0.05} value={zoom} onChange={(e) => setZoom(Number(e.target.value))}
@@ -160,9 +161,15 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="sticky bottom-0 flex items-center justify-end gap-3 px-5 py-3 border-t border-[rgba(255,255,255,0.06)]"
+              style={{
+                background: 'rgba(14,14,18,0.98)',
+                backdropFilter: 'blur(12px) saturate(1.4)',
+                WebkitBackdropFilter: 'blur(12px) saturate(1.4)',
+              }}
+            >
               <button onClick={onClose}
-                className="px-4 py-2 rounded-[8px] text-[12px] font-semibold transition-all"
+                className="px-4 py-2 rounded-[8px] text-[12px] font-semibold transition-all flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#f5f5f7'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
@@ -174,11 +181,11 @@ export default function AvatarCropModal({ isOpen, onClose, imageSrc, onCropCompl
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSave}
                 disabled={processing}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px] text-[12px] font-semibold text-white transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-[8px] text-[12px] font-semibold text-white transition-all flex-shrink-0"
                 style={{
-                  background: 'linear-gradient(135deg, #c8c8d0, #dedee4)',
+                  background: processing ? 'rgba(200,200,208,0.3)' : 'linear-gradient(135deg, #c8c8d0, #dedee4)',
                   boxShadow: '0 4px 16px rgba(200,200,208,0.25)',
-                  opacity: processing ? 0.6 : 1,
+                  opacity: processing ? 0.7 : 1,
                   cursor: processing ? 'not-allowed' : 'pointer',
                 }}
               >

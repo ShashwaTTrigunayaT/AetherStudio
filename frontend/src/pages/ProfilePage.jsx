@@ -4,12 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   LogOut, User, Code2, Bell, Palette, Camera, Upload,
   Key, Globe, Smartphone, ChevronRight, Home, Zap,
-  Folder, Users, Calendar,
+  Folder, Users, Calendar, CheckCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import Avatar from '../components/Common/Avatar';
-import Badge from '../components/Common/Badge';
-import Tabs from '../components/Common/Tabs';
 import Navbar from '../components/Common/Navbar';
 import LandingFooter from '../components/Landing/LandingFooter';
 import { toast } from 'sonner';
@@ -108,46 +106,55 @@ function CodeFloaters() {
   );
 }
 
-// ─── Glass Card ───────────────────────────────────────────────
-function GlassCard({ children, className = '', hover = true, glow = false, ...props }) {
+// ─── Gradient Border Card ──────────────────────────────────────
+function GradientBorderCard({ children, className = '', greenGlow = false, ...props }) {
   return (
-    <div
-      className={`relative group overflow-hidden rounded-[14px] border ${hover ? 'transition-all duration-300' : ''} ${className}`}
-      style={{
-        background: 'rgba(14,14,18,0.7)',
-        borderColor: 'rgba(255,255,255,0.05)',
-        boxShadow: glow
-          ? '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(200,200,208,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
-          : '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
-        backdropFilter: 'blur(16px) saturate(1.4)',
-        WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-      }}
-      {...props}
-    >
-      {hover && (
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, rgba(200,200,208,0.03) 0%, transparent 50%)' }}
-        />
-      )}
-      {children}
+    <div className={`relative group ${className}`} {...props}>
+      {/* Gradient border layer */}
+      <div
+        className="absolute inset-0 rounded-[18px] transition-opacity duration-500"
+        style={{
+          background: greenGlow
+            ? 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(200,200,208,0.08), transparent 60%)'
+            : 'linear-gradient(135deg, rgba(200,200,208,0.06), rgba(255,255,255,0.02), transparent 50%)',
+          opacity: 1,
+        }}
+      />
+      {/* Soft glow overlay */}
+      <div
+        className="absolute inset-0 rounded-[18px] opacity-40 transition-opacity duration-500"
+        style={{
+          boxShadow: greenGlow
+            ? '0 0 60px rgba(16,185,129,0.06)'
+            : '0 0 40px rgba(200,200,208,0.03)',
+        }}
+      />
+      {/* Content */}
+      <div
+        className="relative rounded-[17px] bg-[#0f1419] h-full"
+        style={{
+          margin: '1px',
+          boxShadow: '0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
 
 // ─── Section Header ───────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, gradient = 'from-[#c8c8d0] to-[#b0b0bc]', badge }) {
+function SectionHeader({ icon: Icon, label, green = false }) {
   return (
-    <div className="flex items-center gap-2.5 mb-4">
-      <div className={`w-[3px] h-6 rounded-full bg-gradient-to-b ${gradient}`} />
+    <div className="flex items-center gap-3 mb-5">
+      <div
+        className="w-[3px] h-5 rounded-full"
+        style={{ background: green ? '#10b981' : 'rgba(255,255,255,0.15)' }}
+      />
       <div className="flex items-center gap-2">
-        {Icon && <Icon size={14} className="text-[rgba(255,255,255,0.3)]" />}
-        <h2 className="text-[13px] font-semibold tracking-wide" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</h2>
+        {Icon && <Icon size={13} style={{ color: green ? '#10b981' : 'rgba(255,255,255,0.3)' }} />}
+        <h2 className="text-[12px] font-semibold tracking-wider uppercase" style={{ color: green ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.35)' }}>{label}</h2>
       </div>
-      {badge && (
-        <span className="ml-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-[0.5px]"
-          style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.25)' }}
-        >{badge}</span>
-      )}
     </div>
   );
 }
@@ -157,24 +164,19 @@ const SETTINGS_SECTIONS = [
   {
     id: 'account', label: 'Account',
     items: [
-      { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', gradient: 'from-[#c8c8d0] to-[#dedee4]', action: 'scroll-top' },
-      { icon: Key, label: 'Password & Security', description: 'Update password and 2FA settings', gradient: 'from-[#dedee4] to-[#b0b0bc]', action: 'forgot-password' },
-      { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', gradient: 'from-[#b0b0bc] to-[#c8c8d0]', action: 'coming-soon' },
+      { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', iconColor: '#10b981', iconBg: 'rgba(16,185,129,0.1)', action: 'scroll-top' },
+      { icon: Key, label: 'Password & Security', description: 'Update password and 2FA settings', iconColor: '#c8c8d0', iconBg: 'rgba(200,200,208,0.08)', action: 'forgot-password' },
+      { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', iconColor: '#b0b0bc', iconBg: 'rgba(176,176,188,0.08)', action: 'coming-soon' },
     ],
   },
   {
     id: 'preferences', label: 'Preferences',
     items: [
-      { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', gradient: 'from-[#dedee4] to-[#c8c8d0]', action: 'coming-soon' },
-      { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', gradient: 'from-[#c8c8d0] to-[#b0b0bc]', action: 'coming-soon' },
-      { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', gradient: 'from-[#b0b0bc] to-[#dedee4]', action: 'coming-soon' },
+      { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', iconColor: '#dedee4', iconBg: 'rgba(222,222,228,0.08)', action: 'coming-soon' },
+      { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', iconColor: '#c8c8d0', iconBg: 'rgba(200,200,208,0.08)', action: 'coming-soon' },
+      { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', iconColor: '#b0b0bc', iconBg: 'rgba(176,176,188,0.08)', action: 'coming-soon' },
     ],
   },
-];
-
-const TABS = [
-  { label: 'Account', value: 'account' },
-  { label: 'Preferences', value: 'preferences' },
 ];
 
 export default function ProfilePage() {
@@ -226,9 +228,15 @@ export default function ProfilePage() {
   }, []);
 
   const statCards = [
-    { label: 'Workspaces', value: '—', icon: Folder, color: '#c8c8d0', bg: 'rgba(200,200,208,0.12)' },
-    { label: 'Collaborations', value: '—', icon: Users, color: '#30d158', bg: 'rgba(48,209,88,0.12)' },
-    { label: 'Member Since', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'short' }) : '—', icon: Calendar, color: '#dedee4', bg: 'rgba(222,222,228,0.12)' },
+    { label: 'WORKSPACES', value: user?.workspaceCount ?? '—', icon: Folder, color: '#c8c8d0', bg: 'rgba(200,200,208,0.08)' },
+    { label: 'COLLABORATIONS', value: user?.collaborationCount ?? '—', icon: Users, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+    { label: 'MEMBER SINCE', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'short' }) : '—', icon: Calendar, color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.04)' },
+  ];
+
+  // ── Tabs ──
+  const tabs = [
+    { label: 'Account', value: 'account', description: 'Manage your personal details and security' },
+    { label: 'Preferences', value: 'preferences', description: 'Customize your editor and workspace' },
   ];
 
   return (
@@ -271,42 +279,48 @@ export default function ProfilePage() {
         }
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-6 space-y-8 animate-fade-in">
+      <AvatarCropModal
+        isOpen={cropModalOpen}
+        onClose={() => { setCropModalOpen(false); setCropImageSrc(null); }}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+      />
 
-        {/* ── Premium Profile Header Card ── */}
-        <GlassCard glow>
-          <div className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 text-center md:text-left">
+      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-6 space-y-10 animate-fade-in">
 
-              {/* Avatar with animated glow ring */}
+        {/* ═══════════════════════════════════════
+            PROFILE HEADER CARD (Elevated)
+           ═══════════════════════════════════════ */}
+        <GradientBorderCard greenGlow>
+          <div className="p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10 text-center md:text-left">
+
+              {/* ── Avatar with green accent ring ── */}
               <div className="relative flex-shrink-0">
-                <motion.div
-                  className="absolute -inset-1 rounded-full opacity-30"
-                  animate={{ scale: [1, 1.08, 1], rotate: [0, 180, 360] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                  style={{ background: 'conic-gradient(from 0deg, #c8c8d0, #dedee4, #b0b0bc, #c8c8d0)', filter: 'blur(4px)' }}
-                />
                 <div
                   className={`relative rounded-full transition-all duration-300 ${dragOver ? 'scale-105' : ''}`}
                   onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
                 >
-                  <div className={`relative group cursor-pointer rounded-full ${dragOver ? 'ring-2 ring-[#c8c8d0] ring-offset-2 ring-offset-[#000000]' : ''}`} onClick={handleSelectClick}>
-                    <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="xxl" status="online" />
+                  <div
+                    className={`relative group cursor-pointer rounded-full ${dragOver ? 'ring-2 ring-[#10b981] ring-offset-2 ring-offset-[#0f1419]' : 'ring-[3px] ring-[#10b981] ring-offset-[3px] ring-offset-[#0f1419]'}`}
+                    onClick={handleSelectClick}
+                  >
+                    <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="xxxl" status="online" />
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden" />
                     <motion.div
                       className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                       initial={false}
                     >
-                      <div className="w-full h-full rounded-full bg-[rgba(0,0,0,0.6)] backdrop-blur-[2px] flex flex-col items-center justify-center">
+                      <div className="w-full h-full rounded-full bg-[rgba(0,0,0,0.65)] backdrop-blur-[2px] flex flex-col items-center justify-center">
                         {uploadingPhoto ? (
-                          <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <svg className="animate-spin" width="22" height="22" viewBox="0 0 24 24" fill="none">
                             <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
                             <path d="M12 2a10 10 0 0 1 10 10" stroke="rgba(255,255,255,0.7)" strokeWidth="3" strokeLinecap="round" />
                           </svg>
                         ) : (
-                          <Camera size={20} className="text-[rgba(255,255,255,0.8)]" />
+                          <Camera size={22} className="text-[rgba(255,255,255,0.85)]" />
                         )}
-                        <span className="text-[10px] font-semibold mt-1.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                        <span className="text-[10px] font-semibold mt-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
                           {uploadingPhoto ? 'Uploading...' : 'Change photo'}
                         </span>
                       </div>
@@ -316,8 +330,8 @@ export default function ProfilePage() {
                 <AnimatePresence>
                   {dragOver && (
                     <motion.div key="drop-badge" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                      className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] whitespace-nowrap"
-                      style={{ background: 'rgba(200,200,208,0.12)', border: '1px solid rgba(200,200,208,0.2)', color: '#dedee4' }}
+                      className="absolute -bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] whitespace-nowrap"
+                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981' }}
                     >
                       <Upload size={10} />
                       <span className="text-[10px] font-semibold">Drop to crop</span>
@@ -326,76 +340,127 @@ export default function ProfilePage() {
                 </AnimatePresence>
               </div>
 
-              <AvatarCropModal
-                isOpen={cropModalOpen}
-                onClose={() => { setCropModalOpen(false); setCropImageSrc(null); }}
-                imageSrc={cropImageSrc}
-                onCropComplete={handleCropComplete}
-              />
-
-              {/* User info */}
+              {/* ── Identity block ── */}
               <div className="flex-1 min-w-0">
-                <h1 className="text-[28px] md:text-[32px] font-bold text-[#f5f5f7] tracking-tight leading-tight">
+                <h1 className="text-[30px] md:text-[34px] font-bold text-[#f5f5f7] tracking-tight leading-tight">
                   {user?.name || 'User'}
                 </h1>
-                <div className="w-10 h-[2px] rounded-full mt-2 mb-3" style={{ background: 'linear-gradient(90deg, #c8c8d0, #dedee4, transparent)' }} />
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                <p className="text-[14px] mt-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
                   {user?.email}
                 </p>
-                <div className="flex items-center justify-center md:justify-start gap-2 mt-3">
-                  <Badge variant="success" dot>Active</Badge>
+                <div className="flex items-center justify-center md:justify-start gap-2 mt-4">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
+                    style={{
+                      background: 'rgba(16,185,129,0.1)',
+                      color: '#10b981',
+                      border: '1px solid rgba(16,185,129,0.15)',
+                    }}
+                  >
+                    <CheckCircle size={11} />
+                    Active
+                  </span>
                 </div>
               </div>
 
-              {/* Sign Out button - premium glass style */}
+              {/* ── Sign Out button ── */}
               <motion.button
-                whileHover={{ scale: 1.03, borderColor: 'rgba(255,69,58,0.3)', boxShadow: '0 4px 20px rgba(255,69,58,0.15)' }}
+                whileHover={{ scale: 1.03, borderColor: 'rgba(255,69,58,0.25)', boxShadow: '0 4px 20px rgba(255,69,58,0.12)' }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => { logout(); navigate('/login'); }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[12px] font-semibold transition-all duration-300 flex-shrink-0"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[11px] font-semibold transition-all duration-300 flex-shrink-0 self-start"
                 style={{
                   background: 'rgba(255,69,58,0.06)',
-                  border: '1px solid rgba(255,69,58,0.15)',
-                  color: 'rgba(255,69,58,0.7)',
+                  border: '1px solid rgba(255,69,58,0.12)',
+                  color: 'rgba(255,69,58,0.6)',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,69,58,0.1)'; e.currentTarget.style.color = '#ff453a'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,69,58,0.06)'; e.currentTarget.style.color = 'rgba(255,69,58,0.7)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,69,58,0.06)'; e.currentTarget.style.color = 'rgba(255,69,58,0.6)'; }}
               >
-                <LogOut size={14} />
+                <LogOut size={13} />
                 Sign Out
               </motion.button>
             </div>
           </div>
-        </GlassCard>
+        </GradientBorderCard>
 
-        {/* ── Premium Stats Cards with Icons ── */}
+        {/* ═══════════════════════════════════════
+            STATS ROW
+           ═══════════════════════════════════════ */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4"
         >
           {statCards.map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 + i * 0.04 }}>
-              <GlassCard hover={false}>
-                <div className="flex items-center gap-4 p-4">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: stat.bg }}>
-                    <stat.icon size={18} style={{ color: stat.color }} />
-                  </div>
-                  <div>
-                    <p className="text-[20px] font-bold text-[#f5f5f7] leading-none">{stat.value}</p>
-                    <p className="text-[11px] font-medium mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>{stat.label}</p>
+              <GradientBorderCard>
+                <div className="p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-[12px] flex items-center justify-center flex-shrink-0" style={{ background: stat.bg }}>
+                      <stat.icon size={20} style={{ color: stat.color }} />
+                    </div>
+                    <div>
+                      <p className="text-[26px] font-bold text-[#f5f5f7] leading-none tracking-tight">
+                        {stat.value}
+                      </p>
+                      <p className="text-[10px] font-semibold tracking-wider mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                        {stat.label}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </GlassCard>
+              </GradientBorderCard>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* ── Settings ── */}
+        {/* ═══════════════════════════════════════
+            SETTINGS
+           ═══════════════════════════════════════ */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <SectionHeader icon={User} label="Settings" gradient="from-[#c8c8d0] to-[#dedee4]" />
+          <SectionHeader icon={User} label="Settings" />
 
-          <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} variant="pills" />
+          {/* ── Custom Tabs ── */}
+          <div className="flex gap-1.5 p-1 rounded-[12px] mb-7" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setActiveTab(tab.value)}
+                  className="flex-1 relative group text-left"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+                >
+                  <div
+                    className={`px-4 py-2.5 rounded-[10px] transition-all duration-300 ${
+                      isActive ? '' : 'hover:bg-[rgba(255,255,255,0.03)]'
+                    }`}
+                    style={{
+                      background: isActive
+                        ? 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06))'
+                        : 'transparent',
+                      border: isActive ? '1px solid rgba(16,185,129,0.15)' : '1px solid transparent',
+                    }}
+                  >
+                    <p className={`text-[13px] font-semibold transition-colors duration-300 ${
+                      isActive ? 'text-[#f5f5f7]' : 'text-[rgba(255,255,255,0.35)]'
+                    }`}>
+                      {tab.label}
+                    </p>
+                    <p className={`text-[10px] mt-0.5 transition-all duration-300 ${
+                      isActive
+                        ? 'text-[rgba(16,185,129,0.6)] opacity-100'
+                        : 'text-[rgba(255,255,255,0.2)] opacity-0 group-hover:opacity-100'
+                    }`}>
+                      {tab.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* ── Settings Items ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {SETTINGS_SECTIONS.find((s) => s.id === activeTab)?.items.map((item, idx) => {
               const handleClick = () => {
                 if (item.action === 'scroll-top') window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -418,23 +483,30 @@ export default function ProfilePage() {
                   className="w-full text-left group"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: 0 }}
                 >
-                  <GlassCard>
-                    <div className="flex items-center gap-4 p-4">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden transition-all duration-300 group-hover:scale-110"
-                        style={{ background: 'rgba(255,255,255,0.04)' }}
-                      >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(135deg, ${item.gradient.replace('from-[', '').replace('] to-[', ',').replace(']', '')}, 0.15)` }} />
-                        <item.icon size={18} className="relative z-10 transition-colors duration-300" style={{ color: 'rgba(255,255,255,0.4)' }} />
+                  <GradientBorderCard>
+                    <div className="p-5">
+                      <div className="flex items-center gap-4">
+                        {/* Icon container with colored background */}
+                        <div
+                          className="w-11 h-11 rounded-[12px] flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                          style={{ background: item.iconBg }}
+                        >
+                          <item.icon size={19} style={{ color: item.iconColor, transition: 'all 0.3s' }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-semibold transition-colors duration-300 text-[rgba(255,255,255,0.7)] group-hover:text-[#f5f5f7]">
+                            {item.label}
+                          </p>
+                          <p className="text-[11px] mt-1.5 transition-colors duration-300" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                            {item.description}
+                          </p>
+                        </div>
+                        <motion.div className="flex-shrink-0" transition={{ duration: 0.2 }}>
+                          <ChevronRight size={14} className="transition-all duration-300 group-hover:translate-x-0.5" style={{ color: 'rgba(255,255,255,0.12)', strokeWidth: 1.5 }} />
+                        </motion.div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-semibold transition-colors duration-300 group-hover:text-[#f5f5f7]" style={{ color: 'rgba(255,255,255,0.7)' }}>{item.label}</p>
-                        <p className="text-[12px] mt-0.5 transition-colors duration-300" style={{ color: 'rgba(255,255,255,0.3)' }}>{item.description}</p>
-                      </div>
-                      <motion.div className="flex-shrink-0" transition={{ duration: 0.2 }}>
-                        <ChevronRight size={16} className="transition-all duration-300 group-hover:translate-x-0.5" style={{ color: 'rgba(255,255,255,0.15)', strokeWidth: 1.5 }} />
-                      </motion.div>
                     </div>
-                  </GlassCard>
+                  </GradientBorderCard>
                 </motion.button>
               );
             })}
@@ -442,10 +514,10 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* ── Brand Footer ── */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center pt-4">
-          <div className="inline-flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.1)' }}>
-            <Code2 size={14} />
-            <span className="text-[11px] font-medium">AetherStudio v2.0</span>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center pt-6">
+          <div className="inline-flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.08)' }}>
+            <Code2 size={13} />
+            <span className="text-[10px] font-medium">AetherStudio v2.0</span>
           </div>
         </motion.div>
 

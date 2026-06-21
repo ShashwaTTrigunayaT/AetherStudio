@@ -24,6 +24,7 @@
     "concurrently": "^8.2.0"
   },
   "dependencies": {
-    "freebuff": "^0.0.103"
+    "freebuff": "^0.0.103",
+    "zerobounce": "^0.3.0"
   }
 }
