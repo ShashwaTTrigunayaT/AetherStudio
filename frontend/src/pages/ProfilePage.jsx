@@ -299,9 +299,9 @@ export default function ProfilePage() {
 
               {/* ── Three-column row: Avatar | Button | Stats ── */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
                 className="flex flex-wrap justify-center"
               >
 
@@ -358,15 +358,15 @@ export default function ProfilePage() {
                     ].map((stat, i) => (
                       <motion.div
                         key={stat.label}
-                        initial={{ opacity: 0, scale: 0.3, y: 40 }}
+                        initial={{ opacity: 0, scale: 0, y: 60 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.15 * i }}
+                        transition={{ duration: 0.8, delay: 0.2 + 0.25 * i, ease: [0.16, 1, 0.3, 1] }}
                         className={`${i < 2 ? 'mr-4' : 'lg:mr-4'} p-3 text-center`}
                       >
                         <motion.span
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={{ opacity: 0, y: 30 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.15 * i + 0.1 }}
+                          transition={{ duration: 0.6, delay: 0.3 + 0.25 * i, ease: [0.16, 1, 0.3, 1] }}
                           className="text-xl font-bold block uppercase tracking-wide text-white"
                         >
                           <AnimatedCounter value={stat.value} duration={1.2} />
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                         <motion.span
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          transition={{ duration: 0.5, delay: 0.15 * i + 0.25 }}
+                          transition={{ duration: 0.5, delay: 0.4 + 0.25 * i }}
                           className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}
                         >{stat.label}</motion.span>
                       </motion.div>
@@ -386,9 +386,9 @@ export default function ProfilePage() {
               {/* ── Identity ── */}
               <div className="text-center mt-12">
                 <motion.h3
-                  initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 180, damping: 18, delay: 0.2 }}
+                  transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                   className="text-4xl font-semibold leading-normal mb-2 text-white"
                 >
                   {user?.name || 'User'}
@@ -396,9 +396,9 @@ export default function ProfilePage() {
 
                 {profile?.location && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 160, damping: 16, delay: 0.3 }}
+                    transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     className="text-sm leading-normal mt-0 mb-2 font-bold uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}
                   >
                     <MapPin size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.4)' }} />
@@ -407,9 +407,9 @@ export default function ProfilePage() {
                 )}
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 140, damping: 14, delay: 0.4 }}
+                  transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="mb-2 mt-10" style={{ color: 'rgba(255,255,255,0.35)' }}
                 >
                   <Briefcase size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
@@ -417,9 +417,9 @@ export default function ProfilePage() {
                 </motion.div>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 120, damping: 12, delay: 0.5 }}
+                  transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   className="mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}
                 >
                   <GraduationCap size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
@@ -429,9 +429,9 @@ export default function ProfilePage() {
 
               {/* ═══ VERTICAL SECTIONS: Bio | Settings | Preferences ═══ */}
               <motion.div
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
                 className="mt-10 py-10" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
                 <div className="flex flex-col md:flex-row gap-6">
 
