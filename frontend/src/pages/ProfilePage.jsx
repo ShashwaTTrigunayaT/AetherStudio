@@ -1,205 +1,139 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { useAuth } from '../stores/useAuth';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  LogOut, User, Code2, Bell, Palette, Camera, Upload,
-  Key, Globe, Smartphone, ChevronRight, Home, Zap,
-  Folder, Users, Calendar, CheckCircle,
-} from 'lucide-react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { useAuth } from '../stores/useAuth';
+import { api } from '../lib/api';
+import { MapPin, Briefcase, GraduationCap, Camera, LogOut, ChevronDown, ChevronUp, User, Key, Globe, Palette, Bell, Smartphone, ChevronRight, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import AetherStudioLogo from '../components/Common/AetherStudioLogo';
 import Avatar from '../components/Common/Avatar';
 import Navbar from '../components/Common/Navbar';
 import LandingFooter from '../components/Landing/LandingFooter';
-import { toast } from 'sonner';
 import AvatarCropModal from '../components/Dashboard/AvatarCropModal';
+import { toast } from 'sonner';
 
-// ─── Particle System ──────────────────────────────────────────
-function ParticleField({ count = 25 }) {
-  const particles = useMemo(() =>
-    Array.from({ length: count }, (_, i) => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 1 + (i % 4),
-      delay: (i * 0.08) % 5,
-      duration: 3 + (i % 6) * 0.8,
-      drift: (i % 2 === 0 ? 20 : -20),
-      color: i % 3 === 0 ? '#c8c8d0' : i % 3 === 1 ? '#b0b0bc' : '#dedee4',
-    })), [count]);
-
+function SettingsCard({ item, navigate, toast: t, Zap: Z }) {
+  const handleClick = () => {
+    if (item.action === 'scroll-top') window.scrollTo({ top: 0, behavior: 'smooth' });
+    else if (item.action === 'forgot-password') navigate('/forgot-password');
+    else if (item.action === 'coming-soon') {
+      t('Coming soon!', {
+        description: 'This feature is not yet available.',
+        icon: <Z size={14} />,
+        style: { background: 'rgba(30,30,32,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: '#f5f5f7', fontSize: '14px' },
+      });
+    }
+  };
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {particles.map((p, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            width: p.size, height: p.size,
-            left: `${p.x}%`, top: `${p.y}%`,
-            background: p.color,
-            filter: `blur(${i % 2 === 0 ? 0 : 1}px)`,
-          }}
-          animate={{
-            opacity: [0, 0.4, 0.1, 0.5, 0],
-            scale: [1, 1.8, 0.7, 1.4, 1],
-            x: [0, p.drift * 0.4, -p.drift * 0.3, p.drift * 0.6, 0],
-            y: [0, -12 - (i % 8), 8 + (i % 6), -18 - (i % 4), 0],
-          }}
-          transition={{ duration: p.duration + 1, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── Ambient Orbs ─────────────────────────────────────────────
-function AmbientOrbs() {
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      <motion.div animate={{ x: [0, 80, -40, 60, 0], y: [0, -60, 40, -50, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[5%] left-[3%] w-[600px] h-[600px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(200,200,208,0.06), rgba(222,222,228,0.02), transparent)', filter: 'blur(120px)' }}
-      />
-      <motion.div animate={{ x: [0, -60, 70, -40, 0], y: [0, 50, -60, 40, 0] }} transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-        className="absolute bottom-[15%] right-[5%] w-[500px] h-[500px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(176,176,188,0.05), rgba(144,137,255,0.02), transparent)', filter: 'blur(100px)' }}
-      />
-      <motion.div animate={{ scale: [1, 1.25, 0.9, 1], opacity: [0.03, 0.07, 0.03, 0.03] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute top-[30%] right-[25%] w-[350px] h-[350px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(48,209,88,0.04), transparent)', filter: 'blur(90px)' }}
-      />
-      <motion.div animate={{ x: [0, 30, -20, 15, 0], opacity: [0.02, 0.05, 0.02, 0.04, 0.02] }} transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 8 }}
-        className="absolute top-[55%] left-[60%] w-[280px] h-[280px] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(255,159,10,0.03), transparent)', filter: 'blur(80px)' }}
-      />
-      <div className="absolute inset-0" style={{ opacity: 0.015, backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
-    </div>
-  );
-}
-
-// ─── Code Floaters ────────────────────────────────────────────
-function CodeFloaters() {
-  const snippets = useMemo(() => [
-    { text: 'import React from "react"', color: '#dedee4' },
-    { text: 'const App = () => {}', color: '#ff9f0a' },
-    { text: 'npm run dev', color: '#30d158' },
-    { text: 'git push origin main', color: '#c8c8d0' },
-    { text: 'docker compose up', color: '#b0b0bc' },
-    { text: 'console.log("hello")', color: '#dcccb5' },
-    { text: 'export default App', color: '#ff9f0a' },
-    { text: 'yarn add react', color: '#30d158' },
-  ], []);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {snippets.map((s, i) => (
-        <motion.div key={i} className="absolute select-none font-mono font-medium tracking-tight whitespace-nowrap"
-          initial={{ x: `${5 + (i * 12) % 85}vw`, y: '110vh', opacity: 0 }}
-          animate={{ y: '-20vh', opacity: [0, 0.25, 0.35, 0.2, 0], x: [`${5 + (i * 12) % 85}vw`, `${5 + (i * 12) % 85 + (i % 2 === 0 ? -4 : 4)}vw`] }}
-          transition={{ duration: 18 + (i % 4) * 4, delay: (i % 6) * 2.5, repeat: Infinity, ease: 'linear', times: [0, 0.08, 0.3, 0.6, 1] }}
+    <button
+      onClick={handleClick}
+      className="w-full text-left group transition-all duration-200"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.04)',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        fontSize: 'inherit',
+        padding: 0,
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+    >
+      <div className="flex items-center gap-3.5 px-4 py-3.5">
+        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
+          style={{ background: 'rgba(255,255,255,0.04)' }}
         >
-          <span style={{ fontSize: `${9 + (i % 3) * 2}px`, color: s.color, opacity: 0.5, textShadow: `0 0 8px ${s.color}15` }}>
-            <span style={{ opacity: 0.2 }}>$</span> {s.text}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Gradient Border Card ──────────────────────────────────────
-function GradientBorderCard({ children, className = '', greenGlow = false, ...props }) {
-  return (
-    <div className={`relative group ${className}`} {...props}>
-      {/* Gradient border layer */}
-      <div
-        className="absolute inset-0 rounded-[18px] transition-opacity duration-500"
-        style={{
-          background: greenGlow
-            ? 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(200,200,208,0.08), transparent 60%)'
-            : 'linear-gradient(135deg, rgba(200,200,208,0.06), rgba(255,255,255,0.02), transparent 50%)',
-          opacity: 1,
-        }}
-      />
-      {/* Soft glow overlay */}
-      <div
-        className="absolute inset-0 rounded-[18px] opacity-40 transition-opacity duration-500"
-        style={{
-          boxShadow: greenGlow
-            ? '0 0 60px rgba(16,185,129,0.06)'
-            : '0 0 40px rgba(200,200,208,0.03)',
-        }}
-      />
-      {/* Content */}
-      <div
-        className="relative rounded-[17px] bg-[#0f1419] h-full"
-        style={{
-          margin: '1px',
-          boxShadow: '0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
-        }}
-      >
-        {children}
+          <item.icon size={16} style={{ color: 'rgba(255,255,255,0.35)' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.6)' }}>{item.label}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{item.description}</p>
+        </div>
+        <ChevronRight size={14} style={{ color: 'rgba(255,255,255,0.12)', strokeWidth: 1.5 }} />
       </div>
-    </div>
+    </button>
   );
 }
-
-// ─── Section Header ───────────────────────────────────────────
-function SectionHeader({ icon: Icon, label, green = false }) {
-  return (
-    <div className="flex items-center gap-3 mb-5">
-      <div
-        className="w-[3px] h-5 rounded-full"
-        style={{ background: green ? '#10b981' : 'rgba(255,255,255,0.15)' }}
-      />
-      <div className="flex items-center gap-2">
-        {Icon && <Icon size={13} style={{ color: green ? '#10b981' : 'rgba(255,255,255,0.3)' }} />}
-        <h2 className="text-[12px] font-semibold tracking-wider uppercase" style={{ color: green ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.35)' }}>{label}</h2>
-      </div>
-    </div>
-  );
-}
-
-// ─── Settings Data ────────────────────────────────────────────
-const SETTINGS_SECTIONS = [
-  {
-    id: 'account', label: 'Account',
-    items: [
-      { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', iconColor: '#10b981', iconBg: 'rgba(16,185,129,0.1)', action: 'scroll-top' },
-      { icon: Key, label: 'Password & Security', description: 'Update password and 2FA settings', iconColor: '#c8c8d0', iconBg: 'rgba(200,200,208,0.08)', action: 'forgot-password' },
-      { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', iconColor: '#b0b0bc', iconBg: 'rgba(176,176,188,0.08)', action: 'coming-soon' },
-    ],
-  },
-  {
-    id: 'preferences', label: 'Preferences',
-    items: [
-      { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', iconColor: '#dedee4', iconBg: 'rgba(222,222,228,0.08)', action: 'coming-soon' },
-      { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', iconColor: '#c8c8d0', iconBg: 'rgba(200,200,208,0.08)', action: 'coming-soon' },
-      { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', iconColor: '#b0b0bc', iconBg: 'rgba(176,176,188,0.08)', action: 'coming-soon' },
-    ],
-  },
-];
 
 export default function ProfilePage() {
-  const { user, logout, uploadAvatar } = useAuth();
+  const { user: authUser, logout, uploadAvatar } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('account');
+  const fileInputRef = React.useRef(null);
+
+  const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState({ workspaces: 0, collaborations: 0, files: 0 });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageSrc, setCropImageSrc] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef(null);
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const [activeSection, setActiveSection] = useState('bio');
+  const [bioEditing, setBioEditing] = useState(false);
+  const [bioDraft, setBioDraft] = useState('');
+  const [savingBio, setSavingBio] = useState(false);
 
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
-  const glowRef = useRef(null);
-  const handleMouseMove = useCallback((e) => {
-    const rect = glowRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set((e.clientX - rect.left) / rect.width);
-    mouseY.set((e.clientY - rect.top) / rect.height);
-  }, [mouseX, mouseY]);
-  const glowX = useTransform(mouseX, [0, 1], [-200, 200]);
-  const glowY = useTransform(mouseY, [0, 1], [-200, 200]);
+  const BIO_SUGGESTIONS = [
+    'Full-stack developer passionate about building elegant solutions and exploring new technologies.',
+    'Open-source enthusiast contributing to projects that make development more accessible for everyone.',
+    'Creative problem-solver who loves turning complex challenges into simple, intuitive experiences.',
+    'Design-minded engineer focused on bridging the gap between beautiful interfaces and robust architecture.',
+    'Building the future of collaborative development — one commit at a time.',
+  ];
+
+  const SETTINGS_SECTIONS = [
+    {
+      id: 'account', label: 'Account',
+      items: [
+        { icon: User, label: 'Personal Info', description: 'Name, email, and profile picture', action: 'scroll-top' },
+        { icon: Key, label: 'Password & Security', description: 'Update password and security settings', action: 'forgot-password' },
+        { icon: Globe, label: 'Language & Region', description: 'Timezone and locale preferences', action: 'coming-soon' },
+      ],
+    },
+    {
+      id: 'preferences', label: 'Preferences',
+      items: [
+        { icon: Palette, label: 'Appearance', description: 'Theme, font size, and layout options', action: 'coming-soon' },
+        { icon: Bell, label: 'Notifications', description: 'Email and in-app notification settings', action: 'coming-soon' },
+        { icon: Smartphone, label: 'Devices', description: 'Manage connected devices and sessions', action: 'coming-soon' },
+      ],
+    },
+    {
+      id: 'activity', label: 'Activity',
+      items: [
+        { icon: Zap, label: 'Recent Activity', description: 'View your coding history and contributions', action: 'coming-soon' },
+        { icon: Zap, label: 'Coding Streaks', description: 'Track your daily coding consistency', action: 'coming-soon' },
+        { icon: Zap, label: 'Contributions', description: 'Open-source and project contributions', action: 'coming-soon' },
+      ],
+    },
+    {
+      id: 'integrations', label: 'Integrations',
+      items: [
+        { icon: Zap, label: 'GitHub', description: 'Sync repositories and authenticate with GitHub', action: 'coming-soon' },
+        { icon: Zap, label: 'Webhooks', description: 'Configure incoming and outgoing webhooks', action: 'coming-soon' },
+      ],
+    },
+  ];
+
+  useEffect(() => {
+    if (!authUser?._id) return;
+    api.get(`/users/${authUser._id}`).then(({ data }) => {
+      setProfile(data);
+      setStats((s) => ({ ...s, workspaces: data.workspaceCount ?? 0 }));
+    }).catch(() => {});
+    api.get('/workspaces').then(({ data }) => {
+      const workspaces = Array.isArray(data) ? data : [];
+      const collabCount = workspaces.filter((w) =>
+        w.collaboratorIds?.some((id) => String(id) === String(authUser._id))
+      ).length;
+      let fileCount = 0;
+      const countFiles = (node) => {
+        if (!node) return;
+        if (node.type === 'file') fileCount++;
+        (node.children || []).forEach(countFiles);
+      };
+      workspaces.forEach((w) => countFiles(w.fileTree));
+      setStats((s) => ({ ...s, collaborations: collabCount, files: fileCount }));
+    }).catch(() => {});
+  }, [authUser?._id]);
 
   const handleSelectClick = () => fileInputRef.current?.click();
   const handleFileSelected = (e) => {
@@ -216,65 +150,46 @@ export default function ProfilePage() {
     catch (err) { console.error('Failed to upload avatar:', err); }
     finally { setUploadingPhoto(false); }
   };
-  const handleDragOver = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }, []);
-  const handleDragLeave = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }, []);
-  const handleDrop = useCallback((e) => {
-    e.preventDefault(); e.stopPropagation(); setDragOver(false);
-    const file = e.dataTransfer?.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (event) => { setCropImageSrc(event.target.result); setCropModalOpen(true); };
-    reader.readAsDataURL(file);
-  }, []);
+  const handleSignOut = () => { logout(); navigate('/login'); };
 
-  const statCards = [
-    { label: 'WORKSPACES', value: user?.workspaceCount ?? '—', icon: Folder, color: '#c8c8d0', bg: 'rgba(200,200,208,0.08)' },
-    { label: 'COLLABORATIONS', value: user?.collaborationCount ?? '—', icon: Users, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
-    { label: 'MEMBER SINCE', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'short' }) : '—', icon: Calendar, color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.04)' },
-  ];
+  const handleSaveBio = async () => {
+    if (!bioDraft.trim() || savingBio) return;
+    setSavingBio(true);
+    try {
+      await api.patch('/users/bio', { bio: bioDraft });
+      setProfile((prev) => ({ ...prev, bio: bioDraft }));
+      setBioEditing(false);
+      toast('Bio updated', { icon: '✅', style: { background: 'rgba(30,30,32,0.95)', border: '1px solid rgba(255,255,255,0.1)', color: '#f5f5f7' } });
+    } catch {
+      toast('Failed to save bio', { icon: '❌', style: { background: 'rgba(30,30,32,0.95)', border: '1px solid rgba(255,255,255,0.1)', color: '#f5f5f7' } });
+    } finally {
+      setSavingBio(false);
+    }
+  };
 
-  // ── Tabs ──
-  const tabs = [
-    { label: 'Account', value: 'account', description: 'Manage your personal details and security' },
-    { label: 'Preferences', value: 'preferences', description: 'Customize your editor and workspace' },
-  ];
+  const user = authUser;
+  const bio = profile?.bio || '';
+  const shouldTruncate = bio.length > 120;
 
   return (
-    <div className="min-h-screen bg-[#000000]" ref={glowRef} onMouseMove={handleMouseMove}>
-      <AmbientOrbs />
-      <ParticleField />
-      <CodeFloaters />
-
-      <motion.div className="fixed pointer-events-none rounded-full"
-        style={{ width: 400, height: 400, x: glowX, y: glowY, background: 'radial-gradient(circle, rgba(200,200,208,0.03), transparent)', filter: 'blur(80px)', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
-      />
-
-      {/* ── Navbar ── */}
+    <div className="min-h-screen bg-[#0a0a0c]">
       <Navbar
         hideNavLinks
         user={user}
         onProfileClick={() => navigate('/profile')}
         rightContent={
           <div className="flex items-center gap-1.5 md:gap-2">
-            <motion.button onClick={() => navigate('/')} whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.07)' }} whileTap={{ scale: 0.95 }}
+            <button onClick={() => navigate('/')}
               className="w-8 h-8 rounded-[9px] flex items-center justify-center transition-all duration-200"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)' }} title="Home"
-            ><Home size={13} /></motion.button>
-            <motion.button onClick={() => navigate('/dashboard')} whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}
-              className="relative inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-[12px] font-semibold text-white overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #c8c8d0, #dedee4)', boxShadow: '0 4px 16px rgba(200,200,208,0.25)' }}
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)' }}
+              title="Home"
             >
-              <motion.div className="absolute inset-0 pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', transform: 'translateX(-100%)' }}
-                animate={{ transform: ['translateX(-100%)', 'translateX(100%)'] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              Dashboard
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative" onClick={() => navigate('/profile')}>
-              <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="sm"
-                className="cursor-pointer ring-2 ring-transparent hover:ring-[rgba(255,255,255,0.08)] transition-all duration-300"
-              />
-            </motion.button>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button onClick={() => navigate('/dashboard')}
+              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold"
+              style={{ background: '#d4d4d8', color: '#18181b' }}
+            >Dashboard</button>
           </div>
         }
       />
@@ -286,244 +201,383 @@ export default function ProfilePage() {
         onCropComplete={handleCropComplete}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-6 space-y-10 animate-fade-in">
+      {/* ═══ ANIMATED AETHERSTUDIO BANNER ═══ */}
+      <section className="relative block overflow-hidden" style={{ height: '540px' }}>
+        {/* Background */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0f0f14 0%, #1a1a24 30%, #12121a 60%, #0a0a0e 100%)' }}>
+          {/* Subtle grid */}
+          <div className="absolute inset-0" style={{ opacity: 0.03, backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
+          {/* Ambient orbs */}
+          <motion.div animate={{ x: [0, 60, -30, 40, 0], y: [0, -40, 30, -30, 0] }} transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute top-[10%] left-[5%] w-[400px] h-[400px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(200,200,208,0.08), transparent 70%)', filter: 'blur(80px)' }} />
+          <motion.div animate={{ x: [0, -40, 50, -20, 0], y: [0, 30, -40, 20, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
+            className="absolute bottom-[15%] right-[10%] w-[350px] h-[350px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(222,222,228,0.05), transparent 70%)', filter: 'blur(80px)' }} />
+        </div>
 
-        {/* ═══════════════════════════════════════
-            PROFILE HEADER CARD (Elevated)
-           ═══════════════════════════════════════ */}
-        <GradientBorderCard greenGlow>
-          <div className="p-8 md:p-10">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10 text-center md:text-left">
+        {/* ═══ Branding Content ═══ */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {/* Animated A logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <AetherStudioLogo size={100} animated glow />
+          </motion.div>
 
-              {/* ── Avatar with green accent ring ── */}
-              <div className="relative flex-shrink-0">
-                <div
-                  className={`relative rounded-full transition-all duration-300 ${dragOver ? 'scale-105' : ''}`}
-                  onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
-                >
-                  <div
-                    className={`relative group cursor-pointer rounded-full ${dragOver ? 'ring-2 ring-[#10b981] ring-offset-2 ring-offset-[#0f1419]' : 'ring-[3px] ring-[#10b981] ring-offset-[3px] ring-offset-[#0f1419]'}`}
-                    onClick={handleSelectClick}
-                  >
-                    <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="xxxl" status="online" />
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden" />
-                    <motion.div
-                      className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-                      initial={false}
-                    >
-                      <div className="w-full h-full rounded-full bg-[rgba(0,0,0,0.65)] backdrop-blur-[2px] flex flex-col items-center justify-center">
-                        {uploadingPhoto ? (
-                          <svg className="animate-spin" width="22" height="22" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                            <path d="M12 2a10 10 0 0 1 10 10" stroke="rgba(255,255,255,0.7)" strokeWidth="3" strokeLinecap="round" />
-                          </svg>
-                        ) : (
-                          <Camera size={22} className="text-[rgba(255,255,255,0.85)]" />
-                        )}
-                        <span className="text-[10px] font-semibold mt-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                          {uploadingPhoto ? 'Uploading...' : 'Change photo'}
-                        </span>
+          {/* Wordmark */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-[28px] font-bold tracking-tight mt-4"
+            style={{ color: 'rgba(255,255,255,0.12)', letterSpacing: '-0.02em' }}
+          >
+            AetherStudio
+          </motion.p>
+
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="text-[10px] font-medium tracking-[3px] uppercase mt-2"
+            style={{ color: 'rgba(255,255,255,0.06)' }}
+          >
+            Profile
+          </motion.p>
+        </div>
+
+        {/* Floating particles */}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: 1.5 + (i % 3),
+              height: 1.5 + (i % 3),
+              left: `${12 + i * 18}%`,
+              top: `${18 + (i * 8) % 60}%`,
+              background: 'rgba(255,255,255,0.12)',
+            }}
+            animate={{ opacity: [0, 0.3, 0.1, 0.4, 0], y: [0, -6 - (i * 2), 4 + i, -10 - i, 0] }}
+            transition={{ duration: 5 + i * 1.2, delay: i * 0.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        ))}
+
+        {/* Straight horizontal divider */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: '60px', background: '#0a0a0c' }} />
+      </section>
+
+      {/* ═══ PROFILE CARD ═══ */}
+      <section className="relative pt-4" style={{ background: '#0a0a0c' }}>
+        <div className="container mx-auto px-4">
+          <div
+            className="relative flex flex-col min-w-0 break-words w-full mb-6 rounded-lg -mt-32 shadow-lg"
+            style={{ background: '#0c0c0e' }}
+          >
+            <div className="px-6">
+
+              {/* ── Three-column row: Avatar | Button | Stats ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-wrap justify-center"
+              >
+
+                {/* Avatar (center column — order 2) */}
+                <div className="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
+                  <div className="relative">
+                    <div className="relative group cursor-pointer inline-block" onClick={handleSelectClick}>
+                      <div
+                        className="rounded-full overflow-hidden absolute"
+                        style={{ width: '112px', height: '112px', marginLeft: '-56px', marginTop: '-56px', left: '50%', border: '3px solid rgba(200,200,208,0.15)', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
+                      >
+                        <Avatar name={user?.name} email={user?.email} src={user?.avatar} size="xxxl" className="!w-full !h-full rounded-full" />
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden" />
+                        <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer">
+                          <div className="w-full h-full rounded-full bg-[rgba(0,0,0,0.55)] flex items-center justify-center">
+                            {uploadingPhoto ? (
+                              <svg className="animate-spin" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+                                <path d="M12 2a10 10 0 0 1 10 10" stroke="rgba(255,255,255,0.7)" strokeWidth="3" strokeLinecap="round" />
+                              </svg>
+                            ) : (
+                              <Camera size={22} className="text-white" />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </motion.div>
+                      {/* Spacer to reserve height for absolute avatar */}
+                      <div style={{ height: '86px' }} />
+                    </div>
                   </div>
                 </div>
-                <AnimatePresence>
-                  {dragOver && (
-                    <motion.div key="drop-badge" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                      className="absolute -bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] whitespace-nowrap"
-                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981' }}
+
+                {/* Sign Out button (right column — order 3) */}
+                <div className="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center">
+                  <div className="py-6 px-3 mt-32 sm:mt-0">
+                    <button onClick={handleSignOut}
+                      className="px-4 py-2 rounded-full text-[11px] font-semibold shadow transition-all duration-150"
+                      style={{ background: '#d4d4d8', color: '#18181b' }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#e4e4e7'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = '#d4d4d8'}
                     >
-                      <Upload size={10} />
-                      <span className="text-[10px] font-semibold">Drop to crop</span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* ── Identity block ── */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-[30px] md:text-[34px] font-bold text-[#f5f5f7] tracking-tight leading-tight">
-                  {user?.name || 'User'}
-                </h1>
-                <p className="text-[14px] mt-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                  {user?.email}
-                </p>
-                <div className="flex items-center justify-center md:justify-start gap-2 mt-4">
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
-                    style={{
-                      background: 'rgba(16,185,129,0.1)',
-                      color: '#10b981',
-                      border: '1px solid rgba(16,185,129,0.15)',
-                    }}
-                  >
-                    <CheckCircle size={11} />
-                    Active
-                  </span>
+                      <span className="flex items-center gap-1.5"><LogOut size={11} /> Sign out</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* ── Sign Out button ── */}
-              <motion.button
-                whileHover={{ scale: 1.03, borderColor: 'rgba(255,69,58,0.25)', boxShadow: '0 4px 20px rgba(255,69,58,0.12)' }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => { logout(); navigate('/login'); }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[11px] font-semibold transition-all duration-300 flex-shrink-0 self-start"
-                style={{
-                  background: 'rgba(255,69,58,0.06)',
-                  border: '1px solid rgba(255,69,58,0.12)',
-                  color: 'rgba(255,69,58,0.6)',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,69,58,0.1)'; e.currentTarget.style.color = '#ff453a'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,69,58,0.06)'; e.currentTarget.style.color = 'rgba(255,69,58,0.6)'; }}
+                {/* Stats (left column — order 1) */}
+                <div className="w-full lg:w-4/12 px-4 lg:order-1">
+                  <div className="flex justify-center py-4 lg:pt-4 pt-8">
+                    {[
+                      { value: stats.workspaces, label: 'Works' },
+                      { value: stats.collaborations, label: 'Collabs' },
+                      { value: stats.files, label: 'Files' },
+                    ].map((stat, i) => (
+                      <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
+                        className={`${i < 2 ? 'mr-4' : 'lg:mr-4'} p-3 text-center`}
+                      >
+                        <motion.span
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.1 + 0.05 * i }}
+                          className="text-xl font-bold block uppercase tracking-wide text-white"
+                        >
+                          {stat.value}
+                        </motion.span>
+                        <span className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>{stat.label}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ── Identity ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                className="text-center mt-12"
               >
-                <LogOut size={13} />
-                Sign Out
-              </motion.button>
+                <h3 className="text-4xl font-semibold leading-normal mb-2 text-white">{user?.name || 'User'}</h3>
+
+                {profile?.location && (
+                  <div className="text-sm leading-normal mt-0 mb-2 font-bold uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    <MapPin size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.4)' }} />
+                    {profile.location}
+                  </div>
+                )}
+
+                <div className="mb-2 mt-10" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  <Briefcase size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                  {profile?.role || 'Developer'}
+                </div>
+
+                <div className="mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  <GraduationCap size={14} className="inline mr-1.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                  {profile?.education || 'AetherStudio'}
+                </div>
+              </motion.div>
+
+              {/* ═══ VERTICAL SECTIONS: Bio | Settings | Preferences ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                className="mt-10 py-10" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="flex flex-col md:flex-row gap-6">
+
+                  {/* ── Vertical Button Sidebar ── */}
+                  <div className="flex md:flex-col gap-1 md:w-36 flex-shrink-0">
+                    {[
+                      { id: 'bio', label: 'Bio', icon: null },
+                      { id: 'settings', label: 'Settings', icon: null },
+                      { id: 'preferences', label: 'Preferences', icon: null },
+                      { id: 'activity', label: 'Activity', icon: null },
+                      { id: 'integrations', label: 'Integrations', icon: null },
+                    ].map((section) => (
+                      <button
+                        key={section.id}
+                        onClick={() => setActiveSection(section.id)}
+                        className="text-left px-3.5 py-2.5 text-[12px] font-medium transition-all duration-200 rounded-[8px]"
+                        style={{
+                          background: activeSection === section.id ? 'rgba(255,255,255,0.04)' : 'transparent',
+                          color: activeSection === section.id ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.35)',
+                        }}
+                        onMouseEnter={(e) => { if (activeSection !== section.id) { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}}
+                        onMouseLeave={(e) => { if (activeSection !== section.id) { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'transparent'; }}}
+                      >
+                        {section.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* ── Content Area ── */}
+                  <div className="flex-1 min-w-0">
+
+                    {activeSection === 'bio' && (
+                      <div className="px-2">
+                        {bioEditing ? (
+                          <div className="space-y-3">
+                            {(!bioDraft || bioDraft === bio) && (
+                              <div className="flex flex-wrap gap-1.5 mb-2">
+                                {BIO_SUGGESTIONS.map((s) => (
+                                  <button
+                                    key={s}
+                                    onClick={() => setBioDraft(s)}
+                                    className="text-[11px] leading-tight px-2.5 py-1.5 rounded-[7px] transition-all duration-200"
+                                    style={{
+                                      background: 'rgba(255,255,255,0.03)',
+                                      border: '1px solid rgba(255,255,255,0.05)',
+                                      color: 'rgba(255,255,255,0.35)',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                      e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                      e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
+                                    }}
+                                  >
+                                    {s.slice(0, 40)}...
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            <textarea
+                              value={bioDraft}
+                              onChange={(e) => setBioDraft(e.target.value)}
+                              maxLength={500}
+                              rows={3}
+                              className="w-full text-[13px] leading-relaxed rounded-[10px] p-3 outline-none resize-none transition-all duration-200"
+                              style={{
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                color: 'rgba(255,255,255,0.7)',
+                              }}
+                              onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'}
+                              onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                              placeholder="Write something about yourself..."
+                              autoFocus
+                            />
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>{bioDraft.length}/500</span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => { setBioEditing(false); setBioDraft(bio); }}
+                                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-medium transition-all"
+                                  style={{ color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.03)' }}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                                >Cancel</button>
+                                <button
+                                  onClick={handleSaveBio}
+                                  disabled={!bioDraft.trim() || savingBio}
+                                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+                                  style={{
+                                    background: bioDraft.trim() ? '#d4d4d8' : 'rgba(255,255,255,0.06)',
+                                    color: bioDraft.trim() ? '#18181b' : 'rgba(255,255,255,0.2)',
+                                    cursor: bioDraft.trim() ? 'pointer' : 'not-allowed',
+                                  }}
+                                >{savingBio ? 'Saving...' : 'Save'}</button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            {bio ? (
+                              <>
+                                <p className="mb-3 text-[14px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                                  {bioExpanded || !shouldTruncate ? bio : `${bio.slice(0, 120)}...`}
+                                </p>
+                                <div className="flex items-center gap-3">
+                                  {shouldTruncate && (
+                                    <button onClick={() => setBioExpanded(!bioExpanded)}
+                                      className="inline-flex items-center gap-1 text-[12px] font-medium transition-all"
+                                      style={{ color: 'rgba(200,200,208,0.4)' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.7)'}
+                                      onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.4)'}
+                                    >
+                                      {bioExpanded ? <>Show less <ChevronUp size={12} /></> : <>Show more <ChevronDown size={12} /></>}
+                                    </button>
+                                  )}
+                                  <button onClick={() => { setBioDraft(bio); setBioEditing(true); }}
+                                    className="inline-flex items-center gap-1 text-[12px] font-medium transition-all"
+                                    style={{ color: 'rgba(200,200,208,0.3)' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.6)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(200,200,208,0.3)'}
+                                  >Edit</button>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-center md:text-left">
+                                <p className="mb-4 text-[14px]" style={{ color: 'rgba(255,255,255,0.2)' }}>No bio yet</p>
+                                <button onClick={() => { setBioDraft(''); setBioEditing(true); }}
+                                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+                                  style={{ background: '#d4d4d8', color: '#18181b' }}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = '#e4e4e7'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = '#d4d4d8'}
+                                >+ Add Bio</button>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                      </div>
+                    )}
+
+                    {activeSection === 'settings' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SETTINGS_SECTIONS.find((s) => s.id === 'account')?.items.map((item) => (
+                          <SettingsCard key={item.label} item={item} navigate={navigate} toast={toast} Zap={Zap} />
+                        ))}
+                      </div>
+                    )}
+
+                    {activeSection === 'preferences' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SETTINGS_SECTIONS.find((s) => s.id === 'preferences')?.items.map((item) => (
+                          <SettingsCard key={item.label} item={item} navigate={navigate} toast={toast} Zap={Zap} />
+                        ))}
+                      </div>
+                    )}
+
+                    {activeSection === 'activity' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SETTINGS_SECTIONS.find((s) => s.id === 'activity')?.items.map((item) => (
+                          <SettingsCard key={item.label} item={item} navigate={navigate} toast={toast} Zap={Zap} />
+                        ))}
+                      </div>
+                    )}
+
+                    {activeSection === 'integrations' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SETTINGS_SECTIONS.find((s) => s.id === 'integrations')?.items.map((item) => (
+                          <SettingsCard key={item.label} item={item} navigate={navigate} toast={toast} Zap={Zap} />
+                        ))}
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              </motion.div>
+
             </div>
           </div>
-        </GradientBorderCard>
+        </div>
+      </section>
 
-        {/* ═══════════════════════════════════════
-            STATS ROW
-           ═══════════════════════════════════════ */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-        >
-          {statCards.map((stat, i) => (
-            <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 + i * 0.04 }}>
-              <GradientBorderCard>
-                <div className="p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-[12px] flex items-center justify-center flex-shrink-0" style={{ background: stat.bg }}>
-                      <stat.icon size={20} style={{ color: stat.color }} />
-                    </div>
-                    <div>
-                      <p className="text-[26px] font-bold text-[#f5f5f7] leading-none tracking-tight">
-                        {stat.value}
-                      </p>
-                      <p className="text-[10px] font-semibold tracking-wider mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                        {stat.label}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </GradientBorderCard>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* ═══════════════════════════════════════
-            SETTINGS
-           ═══════════════════════════════════════ */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <SectionHeader icon={User} label="Settings" />
-
-          {/* ── Custom Tabs ── */}
-          <div className="flex gap-1.5 p-1 rounded-[12px] mb-7" style={{ background: 'rgba(255,255,255,0.03)' }}>
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.value;
-              return (
-                <button
-                  key={tab.value}
-                  onClick={() => setActiveTab(tab.value)}
-                  className="flex-1 relative group text-left"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
-                >
-                  <div
-                    className={`px-4 py-2.5 rounded-[10px] transition-all duration-300 ${
-                      isActive ? '' : 'hover:bg-[rgba(255,255,255,0.03)]'
-                    }`}
-                    style={{
-                      background: isActive
-                        ? 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06))'
-                        : 'transparent',
-                      border: isActive ? '1px solid rgba(16,185,129,0.15)' : '1px solid transparent',
-                    }}
-                  >
-                    <p className={`text-[13px] font-semibold transition-colors duration-300 ${
-                      isActive ? 'text-[#f5f5f7]' : 'text-[rgba(255,255,255,0.35)]'
-                    }`}>
-                      {tab.label}
-                    </p>
-                    <p className={`text-[10px] mt-0.5 transition-all duration-300 ${
-                      isActive
-                        ? 'text-[rgba(16,185,129,0.6)] opacity-100'
-                        : 'text-[rgba(255,255,255,0.2)] opacity-0 group-hover:opacity-100'
-                    }`}>
-                      {tab.description}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* ── Settings Items ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {SETTINGS_SECTIONS.find((s) => s.id === activeTab)?.items.map((item, idx) => {
-              const handleClick = () => {
-                if (item.action === 'scroll-top') window.scrollTo({ top: 0, behavior: 'smooth' });
-                else if (item.action === 'forgot-password') navigate('/forgot-password');
-                else if (item.action === 'coming-soon') {
-                  toast('Coming soon!', {
-                    description: 'This feature is not yet available.',
-                    icon: <Zap size={14} />,
-                    style: { background: 'rgba(30,30,32,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: '#f5f5f7', fontSize: '14px' },
-                  });
-                }
-              };
-              return (
-                <motion.button
-                  key={item.label}
-                  onClick={handleClick}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.12 + idx * 0.06 }}
-                  className="w-full text-left group"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: 0 }}
-                >
-                  <GradientBorderCard>
-                    <div className="p-5">
-                      <div className="flex items-center gap-4">
-                        {/* Icon container with colored background */}
-                        <div
-                          className="w-11 h-11 rounded-[12px] flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
-                          style={{ background: item.iconBg }}
-                        >
-                          <item.icon size={19} style={{ color: item.iconColor, transition: 'all 0.3s' }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-semibold transition-colors duration-300 text-[rgba(255,255,255,0.7)] group-hover:text-[#f5f5f7]">
-                            {item.label}
-                          </p>
-                          <p className="text-[11px] mt-1.5 transition-colors duration-300" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                            {item.description}
-                          </p>
-                        </div>
-                        <motion.div className="flex-shrink-0" transition={{ duration: 0.2 }}>
-                          <ChevronRight size={14} className="transition-all duration-300 group-hover:translate-x-0.5" style={{ color: 'rgba(255,255,255,0.12)', strokeWidth: 1.5 }} />
-                        </motion.div>
-                      </div>
-                    </div>
-                  </GradientBorderCard>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* ── Brand Footer ── */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center pt-6">
-          <div className="inline-flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.08)' }}>
-            <Code2 size={13} />
-            <span className="text-[10px] font-medium">AetherStudio v2.0</span>
-          </div>
-        </motion.div>
-
-        <div className="h-8" />
-      </div>
-
+      <div className="h-40" />
       <LandingFooter />
     </div>
   );

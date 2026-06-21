@@ -9,7 +9,7 @@ const router = express.Router();
 // GET /api/users/:id - Public profile
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).select('name avatar bio createdAt email');
+    const user = await User.findById(req.params.id).select('name avatar bio location role education createdAt email');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -20,6 +20,9 @@ router.get('/:id', async (req, res, next) => {
       email: user.email,
       avatar: user.avatar,
       bio: user.bio || '',
+      location: user.location || null,
+      role: user.role || null,
+      education: user.education || null,
       workspaceCount,
       memberSince: user.createdAt,
     });
